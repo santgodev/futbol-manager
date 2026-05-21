@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { updateMatchScore } from "@/app/admin/actions";
 import { AlertTriangle } from "lucide-react";
+import Link from "next/link";
 
 export function MatchEditor({ match, tournamentId }: { match: any, tournamentId: string }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -88,9 +89,13 @@ export function MatchEditor({ match, tournamentId }: { match: any, tournamentId:
             <span className="text-brand-aqua/20 text-xl">:</span>
             <span>{awayScore || 0}</span>
           </div>
-          <button className="bg-brand-teal/10 border border-brand-teal/20 text-brand-teal px-4 py-2 text-[10px] font-bold uppercase tracking-widest group-hover:bg-brand-teal group-hover:text-brand-deep transition-all">
-            Abrir Partido
-          </button>
+          <Link 
+            href={`/admin/matches/${match.id}`}
+            className="bg-brand-teal/10 border border-brand-teal/20 text-brand-teal px-4 py-2 text-[10px] font-bold uppercase tracking-widest hover:bg-brand-teal hover:text-brand-deep transition-all"
+            onClick={(e) => e.stopPropagation()}
+          >
+            Abrir Control Room
+          </Link>
         </div>
       </div>
     );
