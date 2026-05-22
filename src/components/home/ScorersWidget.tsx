@@ -3,7 +3,7 @@ import Image from "next/image";
 
 export const ScorersWidget = ({ scorers = [] }: { scorers?: any[] }) => {
   return (
-    <div className="glass-panel w-full p-5 flex flex-col h-full min-h-[380px]">
+    <div className="glass-panel w-full p-5 flex flex-col h-full min-h-[410px]">
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">

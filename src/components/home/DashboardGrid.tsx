@@ -75,26 +75,26 @@ export const DashboardGrid = async () => {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 items-stretch">
 
         {/* Col 1 — Featured Tournament Card (3 cols) */}
-        <div id="equipos" className="lg:col-span-3 min-h-[380px] scroll-mt-24">
+        <div id="equipos" className="lg:col-span-3 min-h-[410px] scroll-mt-24">
           <FeaturedTournamentCard tournament={latestTournament} />
         </div>
 
         {/* Col 2 — Posiciones (3 cols) */}
-        <div id="posiciones" className="lg:col-span-3 min-h-[380px] scroll-mt-24">
+        <div id="posiciones" className="lg:col-span-3 min-h-[410px] scroll-mt-24">
           <StandingsWidget standings={standings} />
         </div>
 
         {/* Col 3 — Goleador (2 cols) */}
-        <div id="goleador" className="lg:col-span-2 min-h-[380px] scroll-mt-24">
+        <div id="goleador" className="lg:col-span-2 min-h-[410px] scroll-mt-24">
           <ScorersWidget scorers={scorers} />
         </div>
 
         {/* Col 4 + 5 — Próximos Partidos + Tarjetas stacked (4 cols) */}
         <div className="lg:col-span-4 flex flex-col gap-3">
-          <div id="partidos" className="flex-1 min-h-[184px] scroll-mt-24">
+          <div id="partidos" className="flex-1 min-h-[199px] scroll-mt-24">
             <UpcomingMatchesWidget matches={upcomingMatches} />
           </div>
-          <div id="tarjetas" className="flex-1 min-h-[184px] scroll-mt-24">
+          <div id="tarjetas" className="flex-1 min-h-[199px] scroll-mt-24">
             <CardsStatsWidget />
           </div>
         </div>

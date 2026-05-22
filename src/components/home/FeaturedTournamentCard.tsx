@@ -5,7 +5,7 @@ import Image from "next/image";
 export const FeaturedTournamentCard = ({ tournament }: { tournament?: any }) => {
   if (!tournament) {
     return (
-      <div className="glass-panel w-full h-full min-h-[380px] p-6 flex flex-col items-center justify-center relative overflow-hidden group">
+      <div className="glass-panel w-full h-full min-h-[410px] p-6 flex flex-col items-center justify-center relative overflow-hidden group">
         <span className="text-white/40 text-xs uppercase tracking-widest font-bold text-center">
           No hay torneos activos
         </span>
@@ -14,7 +14,7 @@ export const FeaturedTournamentCard = ({ tournament }: { tournament?: any }) => 
   }
 
   return (
-    <div className="relative w-full h-full min-h-[380px] rounded-xl overflow-hidden group flex flex-col border border-brand-cyan/20">
+    <div className="relative w-full h-full min-h-[410px] rounded-xl overflow-hidden group flex flex-col border border-brand-cyan/20">
       {/* Background with Logo / Gradient */}
       <div className="absolute top-0 right-0 w-64 h-64 bg-brand-cyan/10 rounded-full blur-[80px] -translate-y-1/2 translate-x-1/3 pointer-events-none transition-transform duration-700 group-hover:scale-110" />
       
