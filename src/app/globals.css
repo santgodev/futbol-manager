@@ -29,6 +29,12 @@
   --color-brand-card: rgba(15, 23, 42, 0.6);
   --color-brand-border: rgba(0, 240, 255, 0.2);
   
+  /* Premium Palette colors for styling components */
+  --color-brand-teal: #447E8C;
+  --color-brand-gold: #9A8B6B;
+  --color-brand-sand: #E5E1DD;
+  --color-brand-aqua: #CAD5D6;
+  
   /* Shadcn standard vars adapted */
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
@@ -157,6 +163,7 @@
   color: #ffffff;
 }
 
+.hero-title span {
   color: var(--color-brand-teal);
 }
 
@@ -223,5 +230,4 @@
   font-weight: 700;
   text-transform: uppercase;
   color: var(--color-brand-sand);
-}
 }
