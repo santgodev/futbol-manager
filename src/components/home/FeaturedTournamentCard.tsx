@@ -2,7 +2,7 @@ import { Trophy, Calendar, MapPin, ChevronRight, Users } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 
-export const FeaturedTournamentCard = ({ tournament }: { tournament?: any }) => {
+export const FeaturedTournamentCard = ({ tournament, isPublic }: { tournament?: any; isPublic?: boolean }) => {
   if (!tournament) {
     return (
       <div className="glass-panel w-full h-full min-h-[410px] p-6 flex flex-col items-center justify-center relative overflow-hidden group">
@@ -51,13 +51,23 @@ export const FeaturedTournamentCard = ({ tournament }: { tournament?: any }) => 
 
         {/* Bottom */}
         <div className="flex flex-col gap-5">
-          <Link 
-            href={`/admin/tournaments/${tournament.id}`}
-            className="flex-1 bg-brand-cyan/10 border border-brand-cyan/20 text-brand-cyan py-3 px-4 rounded-xl text-[10px] font-bold uppercase tracking-[0.2em] hover:bg-brand-cyan hover:text-brand-deep transition-all flex items-center justify-center gap-2 group/btn"
-          >
-            Ver Torneo
-            <ChevronRight size={14} className="transition-transform group-hover/btn:translate-x-1" />
-          </Link>
+          {isPublic ? (
+            <a 
+              href="#matches"
+              className="flex-1 bg-brand-cyan/10 border border-brand-cyan/20 text-brand-cyan py-3 px-4 rounded-xl text-[10px] font-bold uppercase tracking-[0.2em] hover:bg-brand-cyan hover:text-brand-deep transition-all flex items-center justify-center gap-2 group/btn cursor-pointer"
+            >
+              Ver Partidos
+              <ChevronRight size={14} className="transition-transform group-hover/btn:translate-x-1" />
+            </a>
+          ) : (
+            <Link 
+              href={`/admin/tournaments/${tournament.id}`}
+              className="flex-1 bg-brand-cyan/10 border border-brand-cyan/20 text-brand-cyan py-3 px-4 rounded-xl text-[10px] font-bold uppercase tracking-[0.2em] hover:bg-brand-cyan hover:text-brand-deep transition-all flex items-center justify-center gap-2 group/btn"
+            >
+              Ver Torneo
+              <ChevronRight size={14} className="transition-transform group-hover/btn:translate-x-1" />
+            </Link>
+          )}
         </div>
       </div>
     </div>

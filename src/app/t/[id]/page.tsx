@@ -4,8 +4,7 @@ import { MobileBottomNav } from "@/components/layout/MobileBottomNav";
 import { TournamentHero } from "@/components/tournament/TournamentHero";
 import { MatchCenter } from "@/components/tournament/MatchCenter";
 import { TournamentCalendar } from "@/components/tournament/TournamentCalendar";
-import { TournamentStandings } from "@/components/tournament/TournamentStandings";
-import { TournamentStats } from "@/components/tournament/TournamentStats";
+import { DashboardGrid } from "@/components/home/DashboardGrid";
 import { TournamentRules } from "@/components/tournament/TournamentRules";
 import { KnockoutBracket } from "@/components/tournament/KnockoutBracket";
 import { createClient } from "@/utils/supabase/server";
@@ -83,7 +82,7 @@ export default async function TournamentDashboard({ params }: { params: Promise<
     .order("goals", { ascending: false });
 
   return (
-    <div id="top" className="min-h-screen bg-brand-deep text-brand-sand font-sans selection:bg-brand-teal selection:text-white relative pb-20 md:pb-0">
+    <div id="top" className="min-h-screen bg-brand-deep text-brand-text font-sans selection:bg-brand-blue selection:text-white relative pb-20 md:pb-0">
       
       {/* Cinematic Grain Overlay */}
       <div className="fixed inset-0 z-50 pointer-events-none opacity-[0.03]" style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E\")" }} />
@@ -92,11 +91,15 @@ export default async function TournamentDashboard({ params }: { params: Promise<
       
       <main>
         <TournamentHero tournament={tournamentProps} />
+        
+        {/* Statistics & Standings Grid (identical premium design to homepage!) */}
+        <div className="w-full">
+          <DashboardGrid tournamentId={tournament.id} />
+        </div>
+
         <MatchCenter matches={matches || []} />
         <TournamentCalendar matches={matches || []} />
-        <TournamentStandings standings={standings || []} scorers={scorers || []} />
         <KnockoutBracket matches={matches || []} />
-        <TournamentStats standings={standings || []} teamsCount={tournamentProps.teams_count} />
         <TournamentRules rules={rules || []} />
       </main>
 
