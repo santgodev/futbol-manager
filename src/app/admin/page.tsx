@@ -24,17 +24,17 @@ export default async function AdminDashboard() {
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
-        <div className="bg-brand-navy/10 border border-brand-navy/30 p-8 hover:border-brand-teal/50 transition-colors">
+        <div className="panel-stat">
           <span className="text-[10px] uppercase tracking-[0.2em] text-brand-aqua/60 block mb-4">Torneos Activos</span>
           <span className="text-5xl font-bold text-brand-sand hero-title !not-italic">{tournaments?.length || 0}</span>
         </div>
-        <div className="bg-brand-navy/10 border border-brand-navy/30 p-8 hover:border-brand-teal/50 transition-colors">
+        <div className="panel-stat">
           <span className="text-[10px] uppercase tracking-[0.2em] text-brand-aqua/60 block mb-4">Equipos Totales</span>
           <span className="text-5xl font-bold text-brand-sand hero-title !not-italic">
             {tournaments?.reduce((acc, t) => acc + (t.tournament_teams?.[0]?.count || 0), 0) || 0}
           </span>
         </div>
-        <div className="bg-brand-navy/10 border border-brand-navy/30 p-8 hover:border-brand-teal/50 transition-colors">
+        <div className="panel-stat">
           <span className="text-[10px] uppercase tracking-[0.2em] text-brand-aqua/60 block mb-4">Partidos Disputados</span>
           <span className="text-5xl font-bold text-brand-sand hero-title !not-italic">
             {tournaments?.reduce((acc, t) => acc + (t.matches?.[0]?.count || 0), 0) || 0}
@@ -48,7 +48,7 @@ export default async function AdminDashboard() {
           <h2 className="text-lg font-bold tracking-widest uppercase text-brand-sand">Mis Torneos</h2>
           <Link 
             href="/admin/tournaments/new"
-            className="bg-brand-teal text-brand-deep px-6 py-2 text-xs font-bold uppercase tracking-widest hover:bg-white transition-colors"
+            className="btn-premium-teal !py-2 !px-6"
           >
             + Nuevo Torneo
           </Link>
@@ -59,7 +59,7 @@ export default async function AdminDashboard() {
             <Link 
               key={tournament.id} 
               href={`/admin/tournaments/${tournament.id}`}
-              className="group flex items-center justify-between p-6 bg-brand-deep border border-brand-navy/30 hover:border-brand-teal hover:bg-brand-navy/10 transition-all"
+              className="group flex items-center justify-between panel-premium-interactive"
             >
               <div className="flex items-center gap-6">
                 <Shield className="w-8 h-10 text-brand-aqua/30 group-hover:text-brand-teal transition-colors" />
@@ -91,7 +91,7 @@ export default async function AdminDashboard() {
               <span className="text-brand-aqua/50 text-sm uppercase tracking-widest mb-4">No hay torneos registrados</span>
               <Link 
                 href="/admin/tournaments/new"
-                className="bg-brand-navy text-brand-sand px-6 py-3 text-xs font-bold uppercase tracking-widest hover:bg-brand-navy/80 transition-colors"
+                className="btn-premium-navy"
               >
                 Crear el primer torneo
               </Link>

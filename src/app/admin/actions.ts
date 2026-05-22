@@ -29,8 +29,8 @@ export async function updateMatchScore(
   const status = forceStatus || ((homeScore !== null && awayScore !== null) ? 'FINISHED' : 'SCHEDULED');
 
   // 3. Actualizar la Base de Datos con Optimistic Locking y Penales
-  const { data, error } = await supabase
-    .from("matches")
+  const { data, error } = await (supabase
+    .from("matches") as any)
     .update({ 
       home_score: homeScore, 
       away_score: awayScore,
@@ -54,7 +54,7 @@ export async function updateMatchScore(
   revalidatePath(`/admin/tournaments/${tournamentId}`);
   revalidatePath(`/t/${tournamentId}`);
   
-  return { success: true, newVersion: data[0].version };
+  return { success: true, newVersion: (data[0] as any).version };
 }
 
 
@@ -153,6 +153,139 @@ export async function createMatch(matchData: any) {
   return { success: true, match: data };
 }
 
+export async function createAndRegisterPlayer(playerName: string, tournamentId: string, teamId: string) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error("No autorizado");
 
+  // 1. Create player globally
+  const { data: player, error: playerError } = await supabase
+    .from("players")
+    .insert({ name: playerName })
+    .select()
+    .single();
 
+  if (playerError) throw new Error("Error creando jugador: " + playerError.message);
 
+  // 2. Register in tournament_players
+  const { error: registerError } = await supabase
+    .from("tournament_players")
+    .insert({
+      tournament_id: tournamentId,
+      player_id: player.id,
+      team_id: teamId,
+      goals: 0
+    });
+
+  if (registerError) throw new Error("Error registrando jugador al equipo: " + registerError.message);
+
+  revalidatePath(`/admin/tournaments/${tournamentId}`);
+  revalidatePath(`/admin/teams/${teamId}`);
+  return { success: true, player };
+}
+
+export async function addPlayerToTournamentTeam(playerId: string, tournamentId: string, teamId: string) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error("No autorizado");
+
+  const { error } = await supabase
+    .from("tournament_players")
+    .insert({
+      tournament_id: tournamentId,
+      player_id: playerId,
+      team_id: teamId,
+      goals: 0
+    });
+
+  if (error) throw new Error("Error asociando jugador al equipo: " + error.message);
+
+  revalidatePath(`/admin/tournaments/${tournamentId}`);
+  revalidatePath(`/admin/teams/${teamId}`);
+  return { success: true };
+}
+
+export async function removePlayerFromTournamentTeam(playerId: string, tournamentId: string, teamId: string) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error("No autorizado");
+
+  const { error } = await supabase
+    .from("tournament_players")
+    .delete()
+    .eq("tournament_id", tournamentId)
+    .eq("player_id", playerId);
+
+  if (error) throw new Error("Error eliminando jugador de la plantilla: " + error.message);
+
+  revalidatePath(`/admin/tournaments/${tournamentId}`);
+  revalidatePath(`/admin/teams/${teamId}`);
+  return { success: true };
+}
+
+export async function updatePlayerGoals(playerId: string, tournamentId: string, teamId: string, goals: number) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error("No autorizado");
+
+  const { error } = await supabase
+    .from("tournament_players")
+    .update({ goals: goals })
+    .eq("tournament_id", tournamentId)
+    .eq("player_id", playerId);
+
+  if (error) throw new Error("Error actualizando goles: " + error.message);
+
+  revalidatePath(`/admin/tournaments/${tournamentId}`);
+  revalidatePath(`/admin/teams/${teamId}`);
+  return { success: true };
+}
+
+export async function createGlobalPlayer(playerName: string, teamId: string) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error("No autorizado");
+
+  const { data: player, error } = await supabase
+    .from("players")
+    .insert({ name: playerName, team_id: teamId })
+    .select()
+    .single();
+
+  if (error) throw new Error("Error creando jugador del equipo: " + error.message);
+
+  revalidatePath(`/admin/teams/${teamId}`);
+  return { success: true, player };
+}
+
+export async function addPlayerToTeamGlobally(playerId: string, teamId: string) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error("No autorizado");
+
+  const { error } = await supabase
+    .from("players")
+    .update({ team_id: teamId })
+    .eq("id", playerId);
+
+  if (error) throw new Error("Error asociando jugador al equipo: " + error.message);
+
+  revalidatePath(`/admin/teams/${teamId}`);
+  return { success: true };
+}
+
+export async function removePlayerFromTeamGlobally(playerId: string, teamId: string) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error("No autorizado");
+
+  const { error } = await supabase
+    .from("players")
+    .update({ team_id: null })
+    .eq("id", playerId);
+
+  if (error) throw new Error("Error removiendo jugador del equipo: " + error.message);
+
+  revalidatePath(`/admin/teams/${teamId}`);
+  return { success: true };
+}

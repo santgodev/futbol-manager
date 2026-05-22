@@ -31,14 +31,14 @@ export function TournamentTeamManager({ tournamentId, availableTeams, currentTea
   };
 
   return (
-    <div className="bg-brand-deep border border-brand-navy/30 p-6">
+    <div className="panel-premium">
       <h3 className="text-sm font-bold uppercase tracking-widest text-brand-sand mb-6">Equipos Participantes ({currentTeams.length})</h3>
       
       <div className="flex gap-4 mb-8">
         <select 
           value={selectedTeamId}
           onChange={(e) => setSelectedTeamId(e.target.value)}
-          className="flex-1 bg-black border border-brand-navy/50 p-3 text-brand-sand text-xs uppercase tracking-widest outline-none focus:border-brand-teal"
+          className="flex-1 select-premium"
         >
           <option value="">Seleccionar Equipo...</option>
           {teamsToSelect.map(team => (
@@ -48,7 +48,7 @@ export function TournamentTeamManager({ tournamentId, availableTeams, currentTea
         <button 
           onClick={handleAdd}
           disabled={!selectedTeamId || status !== "idle"}
-          className="bg-brand-teal text-brand-deep px-6 font-bold uppercase tracking-widest text-xs flex items-center gap-2 disabled:opacity-50"
+          className="btn-premium-teal"
         >
           {status === "adding" ? <Loader2 className="w-4 h-4 animate-spin" /> : status === "success" ? <Check className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
           {status === "success" ? "Añadido" : "Añadir"}

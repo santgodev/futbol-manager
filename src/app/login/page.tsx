@@ -36,7 +36,7 @@ export default function LoginPage() {
         initial={{ opacity: 0, scale: 0.95, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         transition={{ duration: 0.8, ease: "easeOut" }}
-        className="w-full max-w-md p-8 md:p-12 bg-brand-navy/10 border border-brand-navy/30 backdrop-blur-xl relative z-10"
+        className="panel-premium w-full max-w-md md:!p-12 backdrop-blur-xl relative z-10"
       >
         <div className="flex flex-col items-center mb-12">
           <Shield className="w-12 h-16 text-brand-teal mb-6" />
@@ -55,7 +55,7 @@ export default function LoginPage() {
               type="email" 
               name="email"
               required
-              className="w-full bg-brand-deep/50 border border-brand-navy/50 focus:border-brand-teal px-4 py-3 text-brand-sand outline-none transition-colors"
+              className="input-premium !px-4 !py-3 !text-sm"
               placeholder="admin@torneo.com"
             />
           </div>
@@ -66,7 +66,7 @@ export default function LoginPage() {
               type="password" 
               name="password"
               required
-              className="w-full bg-brand-deep/50 border border-brand-navy/50 focus:border-brand-teal px-4 py-3 text-brand-sand outline-none transition-colors"
+              className="input-premium !px-4 !py-3 !text-sm"
               placeholder="••••••••"
             />
           </div>
@@ -84,7 +84,7 @@ export default function LoginPage() {
           <button 
             type="submit"
             disabled={loading}
-            className="w-full bg-brand-teal text-brand-deep font-bold uppercase tracking-[0.2em] py-4 mt-4 hover:bg-white transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            className="btn-premium-teal w-full !py-4 mt-4"
           >
             {loading ? "Autenticando..." : "Ingresar"}
           </button>

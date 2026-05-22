@@ -23,7 +23,7 @@ export default async function AdminTeamsPage() {
         </div>
         <Link 
           href="/admin/teams/new"
-          className="bg-brand-teal text-brand-deep px-6 py-3 text-xs font-bold uppercase tracking-widest hover:bg-white transition-colors inline-block"
+          className="btn-premium-teal"
         >
           + Registrar Equipo
         </Link>
@@ -31,9 +31,10 @@ export default async function AdminTeamsPage() {
 
       <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
         {teams?.map((team) => (
-          <div 
+          <Link 
             key={team.id} 
-            className="group flex flex-col items-center p-6 bg-brand-deep border border-brand-navy/30 hover:border-brand-teal hover:bg-brand-navy/10 transition-all cursor-pointer"
+            href={`/admin/teams/${team.id}`}
+            className="group flex flex-col items-center panel-premium-interactive"
           >
             {team.logo_url ? (
               <div className="w-20 h-20 mb-6 flex items-center justify-center">
@@ -50,7 +51,7 @@ export default async function AdminTeamsPage() {
             <span className="text-[10px] text-brand-aqua/50 uppercase tracking-widest text-center">
               {team.tournament_teams?.[0]?.count || 0} Torneos
             </span>
-          </div>
+          </Link>
         ))}
       </div>
     </div>

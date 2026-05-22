@@ -37,7 +37,7 @@ export function MatchCreator({ tournamentId, teams }: { tournamentId: string, te
   };
 
   return (
-    <div className="bg-brand-deep border border-brand-navy/30 p-6 mb-12">
+    <div className="panel-premium mb-12">
       <h3 className="text-sm font-bold uppercase tracking-widest text-brand-sand mb-6">Programar Nuevo Partido</h3>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4 items-end">
         
@@ -46,7 +46,7 @@ export function MatchCreator({ tournamentId, teams }: { tournamentId: string, te
           <select 
             value={stage} 
             onChange={e => setStage(e.target.value)} 
-            className="bg-black border border-brand-navy/50 text-brand-sand text-[10px] p-2 uppercase tracking-widest outline-none focus:border-brand-teal"
+            className="select-premium !p-2 !text-[10px]"
           >
             <option value="GROUP">GRUPOS</option>
             <option value="QUARTERFINAL">CUARTOS</option>
@@ -60,7 +60,7 @@ export function MatchCreator({ tournamentId, teams }: { tournamentId: string, te
           <select 
             value={homeTeamId} 
             onChange={e => setHomeTeamId(e.target.value)} 
-            className="bg-black border border-brand-navy/50 text-brand-sand text-[10px] p-2 uppercase tracking-widest outline-none focus:border-brand-teal"
+            className="select-premium !p-2 !text-[10px]"
           >
             <option value="">SELECCIONAR...</option>
             {teams.map(tt => (
@@ -74,7 +74,7 @@ export function MatchCreator({ tournamentId, teams }: { tournamentId: string, te
           <select 
             value={awayTeamId} 
             onChange={e => setAwayTeamId(e.target.value)} 
-            className="bg-black border border-brand-navy/50 text-brand-sand text-[10px] p-2 uppercase tracking-widest outline-none focus:border-brand-teal"
+            className="select-premium !p-2 !text-[10px]"
           >
             <option value="">SELECCIONAR...</option>
             {teams.map(tt => (
@@ -89,7 +89,7 @@ export function MatchCreator({ tournamentId, teams }: { tournamentId: string, te
             type="date" 
             value={matchDate}
             onChange={e => setMatchDate(e.target.value)}
-            className="bg-black border border-brand-navy/50 text-brand-sand text-[10px] p-2 outline-none focus:border-brand-teal"
+            className="input-premium !p-2 !text-[10px]"
           />
         </div>
 
@@ -99,14 +99,14 @@ export function MatchCreator({ tournamentId, teams }: { tournamentId: string, te
             type="time" 
             value={matchTime}
             onChange={e => setMatchTime(e.target.value)}
-            className="bg-black border border-brand-navy/50 text-brand-sand text-[10px] p-2 outline-none focus:border-brand-teal"
+            className="input-premium !p-2 !text-[10px]"
           />
         </div>
 
         <button 
           onClick={handleCreate}
           disabled={loading || !homeTeamId || !awayTeamId || homeTeamId === awayTeamId}
-          className="bg-brand-teal text-brand-deep py-2 font-bold uppercase tracking-widest text-[10px] flex items-center justify-center gap-2 disabled:opacity-50 h-[34px]"
+          className="btn-premium-teal !py-2 !px-4 !text-[10px] h-[36px]"
         >
           {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
           Programar

@@ -23,7 +23,7 @@ export default async function AdminTournamentsPage() {
         </div>
         <Link 
           href="/admin/tournaments/new"
-          className="bg-brand-teal text-brand-deep px-6 py-3 text-xs font-bold uppercase tracking-widest hover:bg-white transition-colors inline-block"
+          className="btn-premium-teal"
         >
           + Crear Torneo
         </Link>
@@ -34,7 +34,7 @@ export default async function AdminTournamentsPage() {
           <Link 
             key={tournament.id} 
             href={`/admin/tournaments/${tournament.id}`}
-            className="group flex flex-col p-6 bg-brand-deep border border-brand-navy/30 hover:border-brand-teal hover:bg-brand-navy/10 transition-all"
+            className="group flex flex-col panel-premium-interactive"
           >
             <div className="flex items-start justify-between mb-8">
               <Shield className="w-10 h-12 text-brand-aqua/30 group-hover:text-brand-teal transition-colors" />

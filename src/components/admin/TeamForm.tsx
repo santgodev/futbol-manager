@@ -37,7 +37,7 @@ export function TeamForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="bg-brand-deep p-8 border border-brand-navy/30 max-w-xl mx-auto">
+    <form onSubmit={handleSubmit} className="panel-premium max-w-xl mx-auto">
       <div className="flex flex-col gap-8">
         
         {/* Pipeline de Imagen (Probablemente el Problema 7 que mencionaste) */}
@@ -56,7 +56,7 @@ export function TeamForm() {
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="Ej: Real Madrid, Los Galácticos..."
-            className="w-full bg-black border border-brand-navy/50 p-4 text-brand-sand focus:border-brand-teal outline-none transition-all hero-title !not-italic text-xl"
+            className="input-premium hero-title !not-italic text-xl !p-4"
           />
         </div>
 
@@ -64,7 +64,7 @@ export function TeamForm() {
           <button 
             type="submit"
             disabled={status === "submitting"}
-            className="w-full bg-brand-teal text-brand-deep py-4 font-black uppercase tracking-widest hover:bg-white transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+            className="btn-premium-teal w-full !py-4"
           >
             {status === "submitting" ? (
               <>

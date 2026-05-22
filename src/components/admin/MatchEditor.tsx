@@ -95,9 +95,8 @@ export function MatchEditor({ match, tournamentId }: { match: any, tournamentId:
       </div>
     );
   }
-
   return (
-    <div className="flex flex-col bg-black border-2 border-brand-teal p-8 relative shadow-[0_0_50px_rgba(35,210,203,0.1)]">
+    <div className="panel-premium-highlight flex flex-col">
       {/* Status Bar */}
       <div className={`absolute top-0 left-0 w-full h-1.5 transition-colors duration-500 ${
         status === 'saving' ? 'bg-yellow-500 animate-pulse' :
@@ -116,7 +115,7 @@ export function MatchEditor({ match, tournamentId }: { match: any, tournamentId:
             </div>
          </div>
          <button onClick={() => setIsOpen(false)} className="text-brand-aqua/50 hover:text-white text-xs uppercase tracking-widest flex items-center gap-2 transition-colors">
-           <span className="text-lg">×</span> Cerrar Editor
+            <span className="text-lg">×</span> Cerrar Editor
          </button>
       </div>
 
@@ -133,7 +132,7 @@ export function MatchEditor({ match, tournamentId }: { match: any, tournamentId:
                 type="number" 
                 value={homePenalty}
                 onChange={(e) => { setHomePenalty(e.target.value); setStatus("idle"); }}
-                className="w-12 h-12 bg-brand-navy/10 border border-brand-navy text-center text-lg font-bold text-brand-teal focus:border-brand-teal outline-none transition-all"
+                className="input-penalty"
                 placeholder="0"
               />
             </div>
@@ -146,7 +145,7 @@ export function MatchEditor({ match, tournamentId }: { match: any, tournamentId:
             type="number" 
             value={homeScore} 
             onChange={(e) => { setHomeScore(e.target.value); setStatus("idle"); }}
-            className="w-20 h-28 md:w-28 md:h-36 bg-brand-deep border-4 border-brand-navy text-center text-5xl md:text-7xl font-black text-white focus:border-brand-teal focus:outline-none transition-all shadow-inner"
+            className="input-score"
             placeholder="-"
           />
           <span className="text-brand-aqua/20 font-black text-4xl md:text-6xl">:</span>
@@ -154,7 +153,7 @@ export function MatchEditor({ match, tournamentId }: { match: any, tournamentId:
             type="number" 
             value={awayScore} 
             onChange={(e) => { setAwayScore(e.target.value); setStatus("idle"); }}
-            className="w-20 h-28 md:w-28 md:h-36 bg-brand-deep border-4 border-brand-navy text-center text-5xl md:text-7xl font-black text-white focus:border-brand-teal focus:outline-none transition-all shadow-inner"
+            className="input-score"
             placeholder="-"
           />
         </div>
@@ -171,7 +170,7 @@ export function MatchEditor({ match, tournamentId }: { match: any, tournamentId:
                 type="number" 
                 value={awayPenalty}
                 onChange={(e) => { setAwayPenalty(e.target.value); setStatus("idle"); }}
-                className="w-12 h-12 bg-brand-navy/10 border border-brand-navy text-center text-lg font-bold text-brand-teal focus:border-brand-teal outline-none transition-all"
+                className="input-penalty"
                 placeholder="0"
               />
             </div>
@@ -192,7 +191,7 @@ export function MatchEditor({ match, tournamentId }: { match: any, tournamentId:
           <button 
             onClick={() => handleUpdate(false)} 
             disabled={status === 'saving'}
-            className="bg-brand-navy/50 text-brand-sand border border-brand-navy px-6 py-4 text-xs font-bold uppercase tracking-widest hover:bg-brand-navy transition-colors disabled:opacity-50"
+            className="btn-premium-navy !py-4"
           >
             Guardar Parcial
           </button>
@@ -200,7 +199,7 @@ export function MatchEditor({ match, tournamentId }: { match: any, tournamentId:
           <button 
             onClick={() => handleUpdate(true)} 
             disabled={status === 'saving'}
-            className="bg-brand-teal text-brand-deep px-10 py-4 text-xs font-black uppercase tracking-widest hover:bg-white hover:scale-105 transition-all disabled:opacity-50 shadow-[0_0_30px_rgba(35,210,203,0.3)]"
+            className="btn-premium-teal !py-4 shadow-[0_0_30px_rgba(35,210,203,0.3)]"
           >
             {status === 'saving' ? 'Procesando...' : 'Finalizar Partido →'}
           </button>
