@@ -103,7 +103,7 @@ export function LiveControlRoom({ match, homePlayers, awayPlayers }: { match: an
            setSeconds(Math.floor((now - start) / 1000) + (match.clock_elapsed_seconds || 0));
         } else {
            // Fallback for optimistic UI (ticks normally until server revalidates)
-           setSeconds(s => s + 1);
+           setSeconds((s: number) => s + 1);
         }
       }, 1000);
     }

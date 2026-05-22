@@ -418,6 +418,8 @@ export async function removePlayerFromTeamGlobally(playerId: string, teamId: str
   if (error) throw new Error("Error removiendo jugador del equipo: " + error.message);
 
   return { success: true };
+}
+
 export async function generateKnockoutBracket(tournamentId: string, teamsCount: 2 | 4 | 8) {
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -511,4 +513,255 @@ export async function generateKnockoutBracket(tournamentId: string, teamsCount: 
   }
 
   return { success: true };
+}
+
+export async function updateMatchSchedule(matchId: string, matchDate: string, matchTime: string, tournamentId: string) {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error("No autorizado");
+
+  const { error } = await supabase
+    .from("matches")
+    .update({ match_date: matchDate, match_time: matchTime })
+    .eq("id", matchId);
+
+  if (error) throw new Error("Error agendando partido: " + error.message);
+
+  return { success: true };
+}
+
+export async function deleteMatchEvent(
+  eventId: string,
+  tournamentId: string
+): Promise<{ success: boolean }> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error("No autorizado");
+
+  const { data: event, error: fetchError } = await supabase
+    .from("match_events")
+    .select("id, match_id, team_id, type")
+    .eq("id", eventId)
+    .maybeSingle();
+
+  if (fetchError) throw new Error("Error al buscar el evento: " + fetchError.message);
+  if (!event) throw new Error("El evento no existe o ya fue eliminado.");
+
+  const { error: deleteError } = await supabase
+    .from("match_events")
+    .delete()
+    .eq("id", eventId);
+
+  if (deleteError) throw new Error("Error al eliminar el evento: " + deleteError.message);
+
+  const affectsScore = event.type === "GOAL" || event.type === "OWN_GOAL";
+
+  if (affectsScore) {
+    const { data: match, error: matchError } = await supabase
+      .from("matches")
+      .select("home_team_id, away_team_id, home_score, away_score, version")
+      .eq("id", event.match_id)
+      .single();
+
+    if (matchError || !match) throw new Error("No se pudo leer el partido para ajustar el marcador.");
+
+    const isHome = match.home_team_id === event.team_id;
+
+    let subHome = 0;
+    let subAway = 0;
+
+    if (event.type === "GOAL") {
+      if (isHome) subHome = 1; else subAway = 1;
+    } else if (event.type === "OWN_GOAL") {
+      if (isHome) subAway = 1; else subHome = 1;
+    }
+
+    const { error: updateError } = await supabase
+      .from("matches")
+      .update({
+        home_score: Math.max(0, (match.home_score ?? 0) - subHome),
+        away_score: Math.max(0, (match.away_score ?? 0) - subAway),
+        version: match.version + 1,
+        updated_by: user.id,
+      })
+      .eq("id", event.match_id)
+      .eq("version", match.version); 
+
+    if (updateError) throw new Error("Error de concurrencia al ajustar el marcador. Recarga la página.");
+  }
+
+  return { success: true };
+}
+
+export async function updateMatchEventFields(
+  eventId: string,
+  updates: {
+    minute?: number | null;
+    player_id?: string | null;
+    description?: string | null;
+  },
+  matchId: string,
+  tournamentId: string
+): Promise<{ success: boolean }> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error("No autorizado");
+
+  const { data: existing, error: fetchError } = await supabase
+    .from("match_events")
+    .select("id, match_id, type")
+    .eq("id", eventId)
+    .eq("match_id", matchId)
+    .maybeSingle();
+
+  if (fetchError) throw new Error("Error al verificar el evento: " + fetchError.message);
+  if (!existing) throw new Error("El evento no existe o no pertenece a este partido.");
+
+  const safeUpdates: Record<string, unknown> = {};
+  if (updates.minute   !== undefined) safeUpdates.minute      = updates.minute;
+  if (updates.player_id !== undefined) safeUpdates.player_id  = updates.player_id;
+  if (updates.description !== undefined) safeUpdates.description = updates.description;
+
+  if (Object.keys(safeUpdates).length === 0) {
+    throw new Error("No se especificó ningún campo para actualizar.");
+  }
+
+  const { error: updateError } = await supabase
+    .from("match_events")
+    .update(safeUpdates)
+    .eq("id", eventId);
+
+  if (updateError) throw new Error("Error al actualizar el evento: " + updateError.message);
+
+  return { success: true };
+}
+
+export async function toggleMatchClock(
+  matchId: string,
+  isStarting: boolean,
+  currentElapsedSeconds: number,
+  tournamentId: string
+): Promise<{ success: boolean }> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error("No autorizado");
+
+  const updates: Record<string, unknown> = {
+    clock_status: isStarting ? 'RUNNING' : 'STOPPED',
+    clock_elapsed_seconds: currentElapsedSeconds,
+    updated_by: user.id
+  };
+
+  if (isStarting) {
+    updates.clock_last_started_at = new Date().toISOString();
+  } else {
+    updates.clock_last_started_at = null;
+  }
+
+  const { error: updateError } = await supabase
+    .from("matches")
+    .update(updates)
+    .eq("id", matchId);
+
+  if (updateError) throw new Error("Error al actualizar el cronómetro: " + updateError.message);
+
+  return { success: true };
+}
+
+export async function scheduleRound(
+  tournamentId: string,
+  roundNumber: number,
+  matchDate: string,
+  matchTime: string
+) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error("No autorizado");
+
+  if (!matchDate) throw new Error("La fecha es requerida.");
+  if (!matchTime) throw new Error("La hora es requerida.");
+
+  const { error } = await supabase
+    .from("matches")
+    .update({ match_date: matchDate, match_time: matchTime })
+    .eq("tournament_id", tournamentId)
+    .eq("round_number", roundNumber)
+    .eq("stage", "GROUP");
+
+  if (error) throw new Error("Error agendando la jornada: " + error.message);
+
+  return { success: true };
+}
+
+export async function generateRoundRobinFixture(tournamentId: string) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error("No autorizado");
+
+  const { count, error: countError } = await supabase
+    .from("matches")
+    .select("*", { count: 'exact', head: true })
+    .eq("tournament_id", tournamentId)
+    .eq("stage", "GROUP");
+
+  if (countError) throw new Error("Error verificando partidos existentes.");
+  if (count && count > 0) {
+    throw new Error(`CONCURRENCIA/BLOQUEO: Ya existen ${count} partidos de Fase de Grupos. No se puede generar un fixture automático para evitar duplicados.`);
+  }
+
+  const { data: tournamentTeams, error: teamsError } = await supabase
+    .from("tournament_teams")
+    .select("team_id")
+    .eq("tournament_id", tournamentId);
+
+  if (teamsError || !tournamentTeams) throw new Error("Error obteniendo los equipos del torneo.");
+  if (tournamentTeams.length < 3) throw new Error("Se requieren al menos 3 equipos inscritos para generar un fixture automático.");
+
+  let teams = tournamentTeams.map(t => t.team_id);
+  const hasGhost = teams.length % 2 !== 0;
+  if (hasGhost) {
+    teams.push("GHOST"); 
+  }
+
+  const numTeams = teams.length;
+  const numRounds = numTeams - 1;
+  const matchesToInsert: any[] = [];
+
+  for (let round = 0; round < numRounds; round++) {
+    for (let i = 0; i < numTeams / 2; i++) {
+      const home = teams[i];
+      const away = teams[numTeams - 1 - i];
+
+      if (home !== "GHOST" && away !== "GHOST") {
+        let finalHome = home;
+        let finalAway = away;
+        
+        if (i === 0 && round % 2 !== 0) {
+           finalHome = away;
+           finalAway = home;
+        }
+
+        matchesToInsert.push({
+          tournament_id: tournamentId,
+          home_team_id: finalHome,
+          away_team_id: finalAway,
+          stage: "GROUP",
+          is_knockout: false,
+          round_number: round + 1,
+        });
+      }
+    }
+
+    const pivot = teams[0];
+    const last = teams.pop()!;
+    teams = [pivot, last, ...teams.slice(1)];
+  }
+
+  const { error: insertError } = await supabase
+    .from("matches")
+    .insert(matchesToInsert);
+
+  if (insertError) throw new Error("Error al insertar el fixture: " + insertError.message);
+
+  return { success: true, matchesGenerated: matchesToInsert.length, rounds: numRounds };
 }

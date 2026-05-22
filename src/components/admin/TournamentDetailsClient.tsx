@@ -12,6 +12,9 @@ import { TournamentStatusSwitcher } from "@/components/admin/TournamentStatusSwi
 import { MatchCreator } from "@/components/admin/MatchCreator";
 import { TournamentStandings } from "@/components/admin/TournamentStandings";
 import { TournamentTopScorers } from "@/components/admin/TournamentTopScorers";
+import { TournamentBracket } from "@/components/admin/TournamentBracket";
+import { BracketGenerator } from "@/components/admin/BracketGenerator";
+import { FixtureGenerator } from "@/components/admin/FixtureGenerator";
 
 export function TournamentDetailsClient({ id }: { id: string }) {
   const router = useRouter();
@@ -212,6 +215,9 @@ export function TournamentDetailsClient({ id }: { id: string }) {
               tournamentId={id}
               teams={tournament.tournament_teams || []}
             />
+            <div className="mt-8 pt-8 border-t border-[#0055cc]/20">
+              <FixtureGenerator tournamentId={id} />
+            </div>
           </div>
         </section>
 
@@ -243,6 +249,24 @@ export function TournamentDetailsClient({ id }: { id: string }) {
                 </div>
               )}
             </div>
+          </div>
+        </section>
+
+        {/* ── SECCIÓN 3.5: Fase Eliminatoria ── */}
+        <section className="bg-[#02060d]/60 backdrop-blur-md border border-[#0055cc]/20 rounded-2xl overflow-hidden">
+          <div className="flex items-center gap-3 px-6 py-4 border-b border-[#0055cc]/20 bg-[#001122]/40">
+            <Trophy size={16} className="text-[#00f0ff]" />
+            <h2 className="text-sm font-bold uppercase tracking-widest text-white">
+              Fase Eliminatoria
+            </h2>
+          </div>
+          <div className="p-0">
+            {(!matches || !matches.some((m: any) => m.is_knockout)) && (
+              <div className="p-6 border-b border-[#0055cc]/20">
+                <BracketGenerator tournamentId={id} />
+              </div>
+            )}
+            <TournamentBracket matches={matches || []} />
           </div>
         </section>
 

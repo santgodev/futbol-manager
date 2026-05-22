@@ -5,7 +5,7 @@ export const dynamic = "force-dynamic";
 
 export default async function Page() {
   const cookieStore = await cookies()
-  const supabase = createClient(cookieStore)
+  const supabase = await createClient()
 
   const { data: todos } = await supabase.from('todos').select()
 
@@ -19,7 +19,7 @@ export default async function Page() {
           <p className="text-white/50 text-sm">No se encontraron tareas en la tabla 'todos'.</p>
         ) : (
           <ul className="space-y-3">
-            {todos.map((todo) => (
+            {todos?.map((todo: any) => (
               <li 
                 key={todo.id}
                 className="flex items-center gap-3 p-3 bg-[#001122] rounded-lg border border-[#0055cc]/20 hover:border-[#00f0ff]/50 transition-all"

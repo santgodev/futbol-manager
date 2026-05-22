@@ -51,11 +51,7 @@ export function MatchCreator({ tournamentId, teams }: { tournamentId: string; te
   }
 
   return (
-    <div className="panel-premium mb-12">
-      {/* Decorative accent */}
-      <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-brand-teal to-brand-gold opacity-50" />
-      
-      <h3 className="text-xs font-bold uppercase tracking-widest text-brand-sand mb-6">Programar Nuevo Partido</h3>
+    <div className="relative">
       
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4 items-end">
         

@@ -93,13 +93,13 @@ export function MatchEditor({ match, tournamentId }: { match: any, tournamentId:
           </div>
           <Link 
             href={`/admin/matches/${match.id}`}
-            className="hidden lg:flex bg-brand-cyan/10 border border-brand-cyan/20 text-brand-cyan px-4 py-2 text-[10px] font-bold uppercase tracking-widest hover:bg-brand-cyan hover:text-brand-deep transition-all rounded"
+            className="flex bg-brand-cyan/10 border border-brand-cyan/20 text-brand-cyan px-3 py-2 lg:px-4 lg:py-2 text-[10px] font-bold uppercase tracking-widest hover:bg-brand-cyan hover:text-brand-deep transition-all rounded z-10"
             onClick={(e) => e.stopPropagation()}
           >
             Control Room
           </Link>
           {!isFinished && (
-            <div className="text-brand-aqua/30 lg:hidden">
+            <div className="text-brand-aqua/30">
               {isOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
             </div>
           )}
