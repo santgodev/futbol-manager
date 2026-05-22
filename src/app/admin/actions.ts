@@ -418,10 +418,6 @@ export async function removePlayerFromTeamGlobally(playerId: string, teamId: str
   if (error) throw new Error("Error removiendo jugador del equipo: " + error.message);
 
   return { success: true };
-}
-
-import { revalidatePath } from "next/cache";
-
 export async function generateKnockoutBracket(tournamentId: string, teamsCount: 2 | 4 | 8) {
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -514,6 +510,5 @@ export async function generateKnockoutBracket(tournamentId: string, teamsCount: 
     if (qfErr) throw new Error("Error creando Cuartos: " + qfErr.message);
   }
 
-  revalidatePath(`/admin/tournaments/${tournamentId}`);
   return { success: true };
 }
