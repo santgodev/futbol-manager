@@ -11,6 +11,7 @@ import { TournamentStandings } from "@/components/admin/TournamentStandings";
 import { TournamentTopScorers } from "@/components/admin/TournamentTopScorers";
 import { TournamentBracket } from "@/components/admin/TournamentBracket";
 import { FixtureGenerator } from "@/components/admin/FixtureGenerator";
+import { BracketGenerator } from "@/components/admin/BracketGenerator";
 
 export default async function AdminTournamentDetails({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = await params;
@@ -260,6 +261,12 @@ export default async function AdminTournamentDetails({ params }: { params: Promi
             </h2>
           </div>
           <div className="p-0">
+            {/* Si no hay partidos de fase eliminatoria, mostrar el generador */}
+            {(!matches || !matches.some(m => m.is_knockout)) && (
+              <div className="p-6 border-b border-[#0055cc]/20">
+                <BracketGenerator tournamentId={id} />
+              </div>
+            )}
             {/* Se le pasan todos los partidos; internamente filtra is_knockout y los agrupa */}
             <TournamentBracket matches={matches || []} />
           </div>

@@ -86,11 +86,162 @@ export async function updateMatchScore(
     throw new Error("CONFLICTO: Alguien más actualizó este partido recientemente. Refresca la página.");
   }
 
+  // 7. Auto-advance if there is a next match
+  if (status === 'FINISHED' && winner_team_id && data[0].next_match_id) {
+    const nextMatchId = data[0].next_match_id;
+    const isHomeSide = data[0].next_match_home_side;
+    
+    if (isHomeSide !== null) {
+      const fieldToUpdate = isHomeSide ? 'home_team_id' : 'away_team_id';
+      
+      const { error: advanceError } = await supabase
+        .from('matches')
+        .update({ [fieldToUpdate]: winner_team_id })
+        .eq('id', nextMatchId);
+        
+      if (advanceError) {
+        console.error("Error auto-advancing team:", advanceError);
+      }
+    }
+  }
+
   // 4. Refrescar el caché estático
   revalidatePath(`/admin/tournaments/${tournamentId}`);
   revalidatePath(`/t/${tournamentId}`);
   
   return { success: true, newVersion: data[0].version };
+}
+
+export async function generateKnockoutBracket(tournamentId: string, teamsCount: 2 | 4 | 8) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error("No autorizado");
+
+  // 1. Validar que no haya partidos eliminatorios ya finalizados
+  const { data: existingKnockouts, error: existingErr } = await supabase
+    .from('matches')
+    .select('id, status')
+    .eq('tournament_id', tournamentId)
+    .eq('is_knockout', true);
+    
+  if (existingErr) throw new Error("Error verificando bracket existente");
+  
+  const hasFinished = existingKnockouts.some(m => m.status === 'FINISHED');
+  if (hasFinished) {
+    throw new Error("No se puede regenerar el bracket porque ya hay partidos eliminatorios finalizados.");
+  }
+
+  // Borrar los existentes no finalizados
+  if (existingKnockouts.length > 0) {
+    await supabase
+      .from('matches')
+      .delete()
+      .eq('tournament_id', tournamentId)
+      .eq('is_knockout', true);
+  }
+
+  // 2. Obtener los mejores equipos de la fase de grupos usando la vista
+  const { data: standings, error: standingsErr } = await supabase
+    .from('tournament_standings_view')
+    .select('team_id')
+    .eq('tournament_id', tournamentId)
+    .order('points', { ascending: false })
+    .order('goals_for', { ascending: false })
+    .limit(teamsCount);
+
+  if (standingsErr) throw new Error("Error obteniendo tabla de posiciones");
+  if (standings.length < teamsCount) throw new Error(`No hay suficientes equipos. Se requieren ${teamsCount}.`);
+
+  const topTeams = standings.map(s => s.team_id);
+
+  // 3. Generar Árbol
+  const matchesToInsert: any[] = [];
+  
+  if (teamsCount === 2) {
+    // Solo Final
+    matchesToInsert.push({
+      tournament_id: tournamentId,
+      stage: 'FINAL',
+      is_knockout: true,
+      home_team_id: topTeams[0],
+      away_team_id: topTeams[1],
+      bracket_order: 1,
+      status: 'SCHEDULED'
+    });
+    
+    const { error: insertErr } = await supabase.from('matches').insert(matchesToInsert);
+    if (insertErr) throw new Error("Error insertando Final: " + insertErr.message);
+    
+  } else if (teamsCount === 4) {
+    // Semifinales y Final
+    // Primero insertamos la Final (sin equipos)
+    const { data: finalData, error: finalErr } = await supabase.from('matches').insert({
+      tournament_id: tournamentId,
+      stage: 'FINAL',
+      is_knockout: true,
+      bracket_order: 1,
+      status: 'SCHEDULED'
+    }).select().single();
+    
+    if (finalErr) throw new Error("Error creando Final");
+    
+    // Ahora insertamos Semis apuntando a la Final
+    matchesToInsert.push({
+      tournament_id: tournamentId,
+      stage: 'SEMIFINAL',
+      is_knockout: true,
+      home_team_id: topTeams[0], // 1º
+      away_team_id: topTeams[3], // 4º
+      bracket_order: 1,
+      status: 'SCHEDULED',
+      next_match_id: finalData.id,
+      next_match_home_side: true
+    });
+    
+    matchesToInsert.push({
+      tournament_id: tournamentId,
+      stage: 'SEMIFINAL',
+      is_knockout: true,
+      home_team_id: topTeams[1], // 2º
+      away_team_id: topTeams[2], // 3º
+      bracket_order: 2,
+      status: 'SCHEDULED',
+      next_match_id: finalData.id,
+      next_match_home_side: false
+    });
+    
+    const { error: semiErr } = await supabase.from('matches').insert(matchesToInsert);
+    if (semiErr) throw new Error("Error creando Semifinales: " + semiErr.message);
+    
+  } else if (teamsCount === 8) {
+    // Final
+    const { data: finalData, error: finalErr } = await supabase.from('matches').insert({
+      tournament_id: tournamentId, stage: 'FINAL', is_knockout: true, bracket_order: 1, status: 'SCHEDULED'
+    }).select().single();
+    if (finalErr) throw new Error("Error creando Final");
+
+    // Semifinales
+    const { data: semiData, error: semiErr } = await supabase.from('matches').insert([
+      { tournament_id: tournamentId, stage: 'SEMIFINAL', is_knockout: true, bracket_order: 1, status: 'SCHEDULED', next_match_id: finalData.id, next_match_home_side: true },
+      { tournament_id: tournamentId, stage: 'SEMIFINAL', is_knockout: true, bracket_order: 2, status: 'SCHEDULED', next_match_id: finalData.id, next_match_home_side: false }
+    ]).select();
+    if (semiErr) throw new Error("Error creando Semis");
+
+    const semi1 = semiData.find(s => s.bracket_order === 1);
+    const semi2 = semiData.find(s => s.bracket_order === 2);
+
+    // Cuartos
+    matchesToInsert.push({ tournament_id: tournamentId, stage: 'QUARTERFINAL', is_knockout: true, home_team_id: topTeams[0], away_team_id: topTeams[7], bracket_order: 1, status: 'SCHEDULED', next_match_id: semi1?.id, next_match_home_side: true }); // 1 vs 8
+    matchesToInsert.push({ tournament_id: tournamentId, stage: 'QUARTERFINAL', is_knockout: true, home_team_id: topTeams[3], away_team_id: topTeams[4], bracket_order: 2, status: 'SCHEDULED', next_match_id: semi1?.id, next_match_home_side: false }); // 4 vs 5
+    matchesToInsert.push({ tournament_id: tournamentId, stage: 'QUARTERFINAL', is_knockout: true, home_team_id: topTeams[1], away_team_id: topTeams[6], bracket_order: 3, status: 'SCHEDULED', next_match_id: semi2?.id, next_match_home_side: true }); // 2 vs 7
+    matchesToInsert.push({ tournament_id: tournamentId, stage: 'QUARTERFINAL', is_knockout: true, home_team_id: topTeams[2], away_team_id: topTeams[5], bracket_order: 4, status: 'SCHEDULED', next_match_id: semi2?.id, next_match_home_side: false }); // 3 vs 6
+
+    const { error: qfErr } = await supabase.from('matches').insert(matchesToInsert);
+    if (qfErr) throw new Error("Error creando Cuartos: " + qfErr.message);
+  }
+
+  revalidatePath(`/admin/tournaments/${tournamentId}`);
+  return { success: true };
 }
 
 export async function updateMatchSchedule(matchId: string, matchDate: string, matchTime: string, tournamentId: string) {
