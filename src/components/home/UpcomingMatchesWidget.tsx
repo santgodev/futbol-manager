@@ -39,10 +39,10 @@ export const UpcomingMatchesWidget = ({ matches = [] }: { matches?: any[] }) => 
               {/* VS / Time */}
               <div className="px-2 flex flex-col items-center justify-center shrink-0">
                 <span className="text-[8px] font-semibold text-brand-text-muted mb-0.5 tracking-wider">
-                  {new Date(m.match_date).toLocaleDateString("es-ES", { day: "2-digit", month: "short" })}
+                  {m.match_date ? new Date(m.match_date).toLocaleDateString("es-ES", { day: "2-digit", month: "short" }) : "TBD"}
                 </span>
                 <span className="text-[10px] font-black text-brand-yellow font-mono px-1.5 py-0.5 bg-brand-yellow/10 rounded">
-                  {m.match_time.slice(0, 5)}
+                  {m.match_time ? m.match_time.slice(0, 5) : "TBD"}
                 </span>
               </div>
 

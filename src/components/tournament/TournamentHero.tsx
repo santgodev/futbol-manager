@@ -78,7 +78,7 @@ export const TournamentHero = ({ tournament }: TournamentHeroProps) => {
           </div>
           <div className="flex flex-col gap-2">
             <span className="text-[10px] text-brand-aqua/60 uppercase tracking-[0.2em]">Admin</span>
-            <span className="text-sm md:text-base font-bold text-brand-sand tracking-widest uppercase truncate max-w-[120px] mx-auto">{tournament.admin_name}</span>
+            <span className="text-sm md:text-base font-bold text-brand-sand tracking-widest uppercase truncate max-w-[120px] mx-auto">{tournament.admin_name || "Sin asignar"}</span>
           </div>
         </motion.div>
       </div>

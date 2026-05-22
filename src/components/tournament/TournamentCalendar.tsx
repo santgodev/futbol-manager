@@ -87,7 +87,7 @@ export const TournamentCalendar = ({ matches }: { matches: any[] }) => {
                           <div className="glass-panel p-5 hover:border-brand-cyan/40 transition-all duration-300 w-full max-w-sm group shadow-[0_0_15px_rgba(0,240,255,0.01)]">
                             <div className="flex justify-between items-center mb-3 pb-2 border-b border-white/5">
                               <span className="text-brand-cyan font-mono text-[10px] uppercase tracking-widest font-bold">
-                                {match.match_time?.substring(0, 5)} HRS
+                                {match.match_time ? match.match_time.substring(0, 5) + " HRS" : "TBD"}
                               </span>
                               <span className={`text-[9px] font-mono uppercase tracking-widest font-bold px-2 py-0.5 rounded ${match.status === 'FINAL' ? 'bg-brand-yellow/15 text-brand-yellow' : 'bg-brand-cyan/10 text-brand-cyan/60'}`}>
                                 {match.status}

@@ -85,7 +85,7 @@ export const MatchCenter = ({ matches }: { matches: any[] }) => {
           </div>
 
           <div className="mt-8 flex flex-col items-center text-brand-text-muted text-[10px] font-mono tracking-[0.2em] uppercase text-center">
-            <span>{featuredMatch.match_date} • {featuredMatch.match_time?.substring(0, 5)} HRS</span>
+            <span>{featuredMatch.match_date || "Por definir"} • {featuredMatch.match_time ? featuredMatch.match_time.substring(0, 5) + " HRS" : "TBD"}</span>
           </div>
         </div>
       </motion.div>
@@ -110,7 +110,7 @@ export const MatchCenter = ({ matches }: { matches: any[] }) => {
           >
             <div>
               <div className="flex justify-between items-center mb-4 border-b border-white/5 pb-2">
-                <span className="text-[9px] text-brand-text-muted font-mono tracking-widest uppercase">{match.match_date}</span>
+                <span className="text-[9px] text-brand-text-muted font-mono tracking-widest uppercase">{match.match_date || "Por definir"}</span>
                 <span className="text-[9px] text-brand-cyan font-mono tracking-widest uppercase font-bold px-2 py-0.5 bg-brand-cyan/10 rounded">{match.status}</span>
               </div>
               <div className="flex flex-col gap-3">
