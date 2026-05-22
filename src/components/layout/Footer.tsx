@@ -2,7 +2,13 @@ export const Footer = () => {
   return (
     <footer className="py-24 max-w-7xl mx-auto px-4 md:px-12 flex flex-col md:flex-row items-center justify-between gap-12 text-center md:text-left">
       <div className="flex flex-col gap-4 items-center md:items-start">
-        <img src="/logo.png" alt="Pegasight" className="h-6 w-auto opacity-50 grayscale" />
+        <div className="flex items-center select-none opacity-30 hover:opacity-60 transition-opacity">
+          <img 
+            src="/logo.png" 
+            alt="Pegasight Sport" 
+            className="h-8 w-auto object-contain mix-blend-screen grayscale brightness-200"
+          />
+        </div>
         <span className="text-[10px] font-bold tracking-[0.4em] uppercase text-brand-aqua/40">© 2026 Futbol Manager x Pegasight</span>
       </div>
       

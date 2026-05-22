@@ -58,7 +58,12 @@ export async function updateMatchScore(
 }
 
 
-export async function createTeam(name: string, logoUrl: string) {
+export async function createTeam(teamData: {
+  name: string;
+  logo_url?: string | null;
+  city?: string | null;
+  primary_color?: string | null;
+}) {
   const supabase = await createClient();
   
   const { data: { user } } = await supabase.auth.getUser();
@@ -66,7 +71,7 @@ export async function createTeam(name: string, logoUrl: string) {
 
   const { data, error } = await supabase
     .from("teams")
-    .insert({ name, logo_url: logoUrl })
+    .insert({ ...teamData, created_by: user.id })
     .select()
     .single();
 
@@ -91,9 +96,10 @@ export async function createTournament(tournamentData: any) {
   const { data, error } = await supabase
     .from("tournaments")
     .insert({
+      status: 'PRÓXIMAMENTE', // Default value
       ...tournamentData,
       slug,
-      status: 'PRÓXIMAMENTE'
+      created_by: user.id
     })
     .select()
     .single();
@@ -151,6 +157,131 @@ export async function createMatch(matchData: any) {
   
   revalidatePath(`/admin/tournaments/${matchData.tournament_id}`);
   return { success: true, match: data };
+}
+
+export async function createPlayer(playerData: {
+  team_id: string;
+  name: string;
+  document_id?: string | null;
+  date_of_birth?: string | null;
+  number?: number | null;
+  position?: string | null;
+  photo_url?: string | null;
+}) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error("No autorizado");
+
+  // Validar que el dorsal no esté duplicado en el equipo
+  if (playerData.number) {
+    const { data: existing } = await supabase
+      .from("players")
+      .select("id")
+      .eq("team_id", playerData.team_id)
+      .eq("number", playerData.number)
+      .maybeSingle();
+    if (existing) throw new Error(`El dorsal #${playerData.number} ya está en uso en este equipo.`);
+  }
+
+  // Validar documento duplicado globalmente
+  if (playerData.document_id) {
+    const { data: existingDoc } = await supabase
+      .from("players")
+      .select("id, name")
+      .eq("document_id", playerData.document_id)
+      .maybeSingle();
+    if (existingDoc) throw new Error(`El documento ${playerData.document_id} ya está registrado para el jugador ${existingDoc.name}.`);
+  }
+
+  const { data, error } = await supabase
+    .from("players")
+    .insert({ ...playerData, created_by: user.id, is_active: true })
+    .select()
+    .single();
+
+  if (error) throw new Error(error.message);
+  
+  revalidatePath(`/admin/teams/${playerData.team_id}`);
+  return { success: true, player: data };
+}
+
+export async function deletePlayer(playerId: string, teamId: string) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error("No autorizado");
+
+  // Soft-delete: desactivar en lugar de borrar para preservar estadísticas históricas
+  const { error } = await supabase
+    .from("players")
+    .update({ is_active: false })
+    .eq("id", playerId)
+    .eq("created_by", user.id); // Solo el creador puede borrar
+
+  if (error) throw new Error(error.message);
+  
+  revalidatePath(`/admin/teams/${teamId}`);
+  return { success: true };
+}
+
+export async function createMatchEvent(eventData: {
+  match_id: string;
+  tournament_id: string;
+  team_id: string;
+  player_id?: string | null;
+  type: "GOAL" | "OWN_GOAL" | "YELLOW_CARD" | "RED_CARD" | "SUBSTITUTION";
+  minute?: number | null;
+  description?: string | null;
+}) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error("No autorizado");
+
+  const { data, error } = await supabase
+    .from("match_events")
+    .insert({ ...eventData, created_by: user.id })
+    .select()
+    .single();
+
+  if (error) throw new Error(error.message);
+
+  // Si es un gol o autogol, actualizar el marcador automáticamente
+  if (eventData.type === "GOAL" || eventData.type === "OWN_GOAL") {
+    const { data: match } = await supabase
+      .from("matches")
+      .select("home_team_id, away_team_id, home_score, away_score, version")
+      .eq("id", eventData.match_id)
+      .single();
+
+    if (match) {
+      // isHome indica si el equipo del jugador que hizo el evento es el local
+      const isHome = match.home_team_id === eventData.team_id;
+      
+      // Si es GOAL normal, suma al equipo del jugador.
+      // Si es OWN_GOAL (Autogol), suma al equipo CONTRARIO.
+      let addHome = 0;
+      let addAway = 0;
+      
+      if (eventData.type === "GOAL") {
+        if (isHome) addHome = 1; else addAway = 1;
+      } else if (eventData.type === "OWN_GOAL") {
+        if (isHome) addAway = 1; else addHome = 1;
+      }
+
+      await supabase
+        .from("matches")
+        .update({
+          home_score: (match.home_score ?? 0) + addHome,
+          away_score: (match.away_score ?? 0) + addAway,
+          version: match.version + 1,
+          updated_by: user.id
+        })
+        .eq("id", eventData.match_id);
+    }
+  }
+
+  revalidatePath(`/admin/tournaments/${eventData.tournament_id}`);
+  revalidatePath(`/t/${eventData.tournament_id}`);
+  return { success: true, event: data };
 }
 
 export async function createAndRegisterPlayer(playerName: string, tournamentId: string, teamId: string) {

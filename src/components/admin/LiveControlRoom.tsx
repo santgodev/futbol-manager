@@ -1,0 +1,445 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import { createMatchEvent, updateMatchScore } from "@/app/admin/actions";
+import { Play, Pause, Square, AlertTriangle, Clock, Shield, Goal, UserMinus, UserPlus, Activity, ExternalLink, CheckCircle } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+
+export function LiveControlRoom({ match, homePlayers, awayPlayers }: { match: any, homePlayers: any[], awayPlayers: any[] }) {
+  const router = useRouter();
+  
+  // Timer State
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [seconds, setSeconds] = useState(0);
+  
+  // Event State
+  const [selectedPlayer, setSelectedPlayer] = useState<any>(null);
+  const [selectedTeamId, setSelectedTeamId] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
+
+  // Sub State
+  const [isSubMode, setIsSubMode] = useState(false);
+  const [playerOut, setPlayerOut] = useState<any>(null);
+
+  // Timer logic
+  useEffect(() => {
+    let interval: any;
+    if (isPlaying) {
+      interval = setInterval(() => {
+        setSeconds(s => s + 1);
+      }, 1000);
+    } else if (!isPlaying && seconds !== 0) {
+      clearInterval(interval);
+    }
+    return () => clearInterval(interval);
+  }, [isPlaying, seconds]);
+
+  const formatTime = (totalSeconds: number) => {
+    const m = Math.floor(totalSeconds / 60);
+    const s = totalSeconds % 60;
+    return `${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
+  };
+  
+  const currentMinute = Math.floor(seconds / 60) + 1;
+
+  const handleFinalizeMatch = async () => {
+    if (!confirm("¿Estás seguro de finalizar el partido? Esto calculará los puntos en la tabla de posiciones y no se puede deshacer fácilmente.")) return;
+    setIsSubmitting(true);
+    setErrorMsg("");
+    try {
+      await updateMatchScore(
+        match.id,
+        match.home_score || 0,
+        match.away_score || 0,
+        match.tournament_id,
+        match.version || 1,
+        match.home_penalty_score,
+        match.away_penalty_score,
+        'FINISHED'
+      );
+      router.push(`/admin/tournaments/${match.tournament_id}`);
+    } catch (err: any) {
+      setErrorMsg(err.message || "Error al finalizar el partido");
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleEvent = async (type: "GOAL" | "OWN_GOAL" | "YELLOW_CARD" | "RED_CARD") => {
+    if (!selectedPlayer) return;
+    setIsSubmitting(true);
+    setErrorMsg("");
+    
+    try {
+      await createMatchEvent({
+        match_id: match.id,
+        tournament_id: match.tournament_id,
+        team_id: selectedTeamId!,
+        player_id: selectedPlayer.id,
+        type,
+        minute: currentMinute,
+        description: null
+      });
+      setSelectedPlayer(null);
+      setSelectedTeamId(null);
+      router.refresh();
+    } catch (err: any) {
+      setErrorMsg(err.message || "Error al registrar evento");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleSubstitution = async (playerIn: any) => {
+    if (!playerOut || !isSubMode) return;
+    setIsSubmitting(true);
+    setErrorMsg("");
+    try {
+      await createMatchEvent({
+        match_id: match.id,
+        tournament_id: match.tournament_id,
+        team_id: playerOut.team_id,
+        player_id: playerIn.id,
+        type: "SUBSTITUTION",
+        minute: currentMinute,
+        description: `Sale: ${playerOut.name} (#${playerOut.number || '?'})`
+      });
+      setIsSubMode(false);
+      setPlayerOut(null);
+      router.refresh();
+    } catch (err: any) {
+      setErrorMsg(err.message || "Error al registrar cambio");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handlePlayerClick = (player: any, teamId: string) => {
+    if (isSubMode) {
+      if (!playerOut) {
+        setPlayerOut(player);
+      } else {
+        if (player.team_id !== playerOut.team_id) {
+          setErrorMsg("El cambio debe ser del mismo equipo");
+          return;
+        }
+        handleSubstitution(player);
+      }
+    } else {
+      setSelectedPlayer(player);
+      setSelectedTeamId(teamId);
+      setErrorMsg("");
+    }
+  };
+
+  const renderRoster = (players: any[], teamId: string, align: 'left' | 'right', teamColor: string) => {
+    return (
+      <div className="flex-1 bg-[#02060d]/80 backdrop-blur-xl border border-[#0055cc]/30 rounded-2xl flex flex-col overflow-hidden shadow-[0_0_30px_rgba(0,100,255,0.05)]">
+        <div 
+          className="h-1.5 w-full" 
+          style={{ backgroundColor: teamColor || (align === 'left' ? '#0066cc' : '#ff0055') }} 
+        />
+        <div className="p-4 flex-1 overflow-y-auto custom-scrollbar">
+          <div className="flex flex-col gap-2">
+            {players.map(p => {
+              const isSelected = selectedPlayer?.id === p.id;
+              const isOut = playerOut?.id === p.id;
+              
+              return (
+                <div 
+                  key={p.id}
+                  onClick={() => handlePlayerClick(p, teamId)}
+                  className={`flex items-center p-3 rounded-lg cursor-pointer transition-all border ${
+                    isSelected 
+                      ? 'bg-[#00f0ff]/20 border-[#00f0ff] shadow-[0_0_15px_rgba(0,240,255,0.3)]' 
+                      : isOut 
+                        ? 'bg-red-500/20 border-red-500 shadow-[0_0_15px_rgba(255,0,0,0.3)]'
+                        : 'bg-[#001122]/50 border-transparent hover:border-[#0055cc]/50 hover:bg-[#002244]/50'
+                  } ${align === 'right' ? 'flex-row-reverse text-right' : ''}`}
+                >
+                  <div className="w-8 h-8 rounded-full bg-black/50 border border-white/10 flex items-center justify-center shrink-0 overflow-hidden">
+                    {p.photo_url ? (
+                      <Image src={p.photo_url} alt={p.name} width={32} height={32} className="object-cover w-full h-full" unoptimized />
+                    ) : (
+                      <span className="text-[10px] text-white/50">{p.number || '-'}</span>
+                    )}
+                  </div>
+                  
+                  <div className={`flex flex-col ${align === 'right' ? 'mr-3' : 'ml-3'}`}>
+                    <span className="text-xs font-bold text-white uppercase tracking-wider">{p.name}</span>
+                    <span className="text-[9px] text-[#00f0ff]/70 font-mono">DORSAL: {p.number || 'N/A'}</span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  return (
+    <div className="min-h-screen bg-[#040c1a] text-white font-sans flex flex-col relative overflow-hidden">
+      {/* Background Glows */}
+      <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-[#0066cc]/10 rounded-full blur-[100px] pointer-events-none" />
+      <div className="absolute top-0 right-1/4 w-[500px] h-[500px] bg-[#ff0055]/5 rounded-full blur-[100px] pointer-events-none" />
+
+      {/* TOP HEADER */}
+      <header className="px-6 py-4 flex items-center justify-between border-b border-[#0055cc]/30 bg-[#02060d]/90 backdrop-blur-md relative z-20">
+        <div className="flex items-center gap-4">
+          <Link href={`/admin/tournaments/${match.tournament_id}`} className="text-white/50 hover:text-white transition-colors flex items-center gap-2">
+            <Shield size={18} />
+            <span className="text-[10px] font-bold uppercase tracking-[0.2em]">Volver al Torneo</span>
+          </Link>
+        </div>
+        <div className="flex items-center gap-3">
+          <span className="px-3 py-1 bg-red-500/10 border border-red-500/30 text-red-400 text-[9px] font-black uppercase tracking-[0.3em] rounded flex items-center gap-2">
+            <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" /> EN VIVO
+          </span>
+          <span className="text-[10px] text-[#00f0ff]/50 font-mono tracking-widest">{match.stage}</span>
+        </div>
+      </header>
+
+      {/* MAIN CONTENT */}
+      <div className="flex-1 p-6 flex flex-col relative z-10 max-w-[1600px] mx-auto w-full gap-6">
+        
+        {/* SCOREBOARD PANEL */}
+        <div className="bg-[#02060d]/80 backdrop-blur-xl border border-[#0055cc]/30 rounded-3xl p-8 shadow-[0_0_50px_rgba(0,0,0,0.5)] flex flex-col items-center">
+          
+          {/* Cronómetro */}
+          <div className="mb-6 flex flex-col items-center">
+            <div className="text-5xl md:text-7xl font-black font-mono tracking-tighter text-[#00f0ff] drop-shadow-[0_0_20px_rgba(0,240,255,0.4)] mb-4">
+              {formatTime(seconds)}
+            </div>
+            <div className="flex items-center gap-3">
+              <button 
+                onClick={() => setIsPlaying(!isPlaying)}
+                className="w-12 h-12 rounded-full bg-[#0055cc]/20 border border-[#0055cc] hover:bg-[#00f0ff] hover:text-black flex items-center justify-center transition-all hover:shadow-[0_0_20px_rgba(0,240,255,0.5)] text-white"
+                title={isPlaying ? "Pausar" : "Iniciar"}
+              >
+                {isPlaying ? <Pause size={20} className={isPlaying ? 'text-black' : ''} /> : <Play size={20} className="ml-1" />}
+              </button>
+              <button 
+                onClick={() => { setIsPlaying(false); setSeconds(0); }}
+                className="w-10 h-10 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center transition-all text-white/50 hover:text-white"
+                title="Reiniciar cronómetro"
+              >
+                <Square size={14} />
+              </button>
+              
+              <button 
+                onClick={handleFinalizeMatch}
+                disabled={isSubmitting}
+                className="ml-4 h-12 px-6 rounded-full bg-red-500/20 border border-red-500/50 hover:bg-red-500 hover:text-black text-red-400 font-black uppercase tracking-widest text-xs flex items-center gap-2 transition-all hover:shadow-[0_0_20px_rgba(255,0,0,0.5)] disabled:opacity-50"
+                title="Terminar partido oficialmente"
+              >
+                <CheckCircle size={16} /> Finalizar Partido
+              </button>
+            </div>
+          </div>
+
+          {/* Marcador Central */}
+          <div className="flex items-center w-full justify-between max-w-4xl mx-auto gap-8">
+            {/* Local */}
+            <div className="flex-1 flex flex-col items-center gap-4 text-center">
+              <div className="w-24 h-24 md:w-32 md:h-32 bg-[#001122] rounded-2xl border border-[#0055cc]/30 p-4 shadow-inner flex items-center justify-center overflow-hidden">
+                {match.home_team?.logo_url ? (
+                  <Image src={match.home_team.logo_url} alt="Local" width={90} height={90} className="object-contain" unoptimized />
+                ) : <Shield size={48} className="text-[#0055cc]/40" />}
+              </div>
+              <h2 className="text-xl md:text-3xl font-black uppercase tracking-tighter line-clamp-2">
+                {match.home_team?.name || 'Local'}
+              </h2>
+            </div>
+            
+            {/* Puntos */}
+            <div className="flex items-center justify-center gap-6 md:gap-10 shrink-0">
+              <span className="text-6xl md:text-9xl font-black text-white drop-shadow-[0_0_30px_rgba(255,255,255,0.2)] tabular-nums">
+                {match.home_score || 0}
+              </span>
+              <span className="text-4xl md:text-6xl font-black text-[#00f0ff]/30 pb-4">-</span>
+              <span className="text-6xl md:text-9xl font-black text-white drop-shadow-[0_0_30px_rgba(255,255,255,0.2)] tabular-nums">
+                {match.away_score || 0}
+              </span>
+            </div>
+
+            {/* Visitante */}
+            <div className="flex-1 flex flex-col items-center gap-4 text-center">
+              <div className="w-24 h-24 md:w-32 md:h-32 bg-[#001122] rounded-2xl border border-[#0055cc]/30 p-4 shadow-inner flex items-center justify-center overflow-hidden">
+                {match.away_team?.logo_url ? (
+                  <Image src={match.away_team.logo_url} alt="Visitante" width={90} height={90} className="object-contain" unoptimized />
+                ) : <Shield size={48} className="text-[#0055cc]/40" />}
+              </div>
+              <h2 className="text-xl md:text-3xl font-black uppercase tracking-tighter line-clamp-2">
+                {match.away_team?.name || 'Visitante'}
+              </h2>
+            </div>
+          </div>
+        </div>
+
+        {/* CONTROLES INFERIORES */}
+        <div className="flex-1 flex gap-6 min-h-0">
+          
+          {/* Roster Local */}
+          {renderRoster(homePlayers, match.home_team_id, 'left', match.home_team?.primary_color)}
+
+          {/* Panel de Eventos */}
+          <div className="w-80 md:w-96 shrink-0 flex flex-col gap-4">
+            
+            {/* Controles Dinámicos */}
+            <div className="bg-[#02060d]/90 backdrop-blur-md border border-[#00f0ff]/40 rounded-2xl p-6 shadow-[0_0_20px_rgba(0,240,255,0.1)]">
+              {!isSubMode ? (
+                <>
+                  <button
+                    onClick={() => {
+                      setIsSubMode(true);
+                      setSelectedPlayer(null);
+                      setPlayerOut(null);
+                    }}
+                    className="w-full bg-[#001122] border border-[#0055cc]/50 text-white py-3 rounded-xl mb-6 text-[10px] font-bold uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-[#002244] transition-colors"
+                  >
+                    <Activity size={14} className="text-[#00f0ff]" /> MODO: CAMBIOS (SUBSTITUCIÓN)
+                  </button>
+
+                  <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#00f0ff]/50 mb-4 text-center">
+                    Panel de Eventos Rápidos
+                  </h3>
+                  
+                  {selectedPlayer ? (
+                    <div className="flex flex-col gap-4">
+                      <div className="bg-[#001133]/50 p-4 rounded-xl text-center border border-[#00f0ff]/30">
+                        <span className="text-[10px] text-white/50 block mb-1">JUGADOR SELECCIONADO</span>
+                        <span className="text-sm font-bold text-white uppercase">{selectedPlayer.name}</span>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-3">
+                        <button 
+                          onClick={() => handleEvent('GOAL')}
+                          disabled={isSubmitting}
+                          className="bg-emerald-500/20 border border-emerald-500/50 hover:bg-emerald-500 text-emerald-400 hover:text-black py-4 rounded-xl flex flex-col items-center justify-center gap-2 transition-all group"
+                        >
+                          <Goal size={24} className="group-hover:scale-110 transition-transform" />
+                          <span className="text-[9px] font-bold uppercase tracking-widest">Anotar Gol</span>
+                        </button>
+                        
+                        <button 
+                          onClick={() => handleEvent('OWN_GOAL')}
+                          disabled={isSubmitting}
+                          className="bg-orange-500/10 border border-orange-500/30 hover:bg-orange-500 text-orange-400 hover:text-black py-4 rounded-xl flex flex-col items-center justify-center gap-2 transition-all group"
+                        >
+                          <Goal size={24} className="group-hover:scale-110 transition-transform" />
+                          <span className="text-[9px] font-bold uppercase tracking-widest">Autogol</span>
+                        </button>
+
+                        <button 
+                          onClick={() => handleEvent('YELLOW_CARD')}
+                          disabled={isSubmitting}
+                          className="bg-yellow-500/20 border border-yellow-500/50 hover:bg-yellow-500 text-yellow-400 hover:text-black py-4 rounded-xl flex flex-col items-center justify-center gap-2 transition-all group"
+                        >
+                          <div className="w-4 h-6 bg-yellow-400 group-hover:bg-black rounded-sm shadow-sm" />
+                          <span className="text-[9px] font-bold uppercase tracking-widest">Amarilla</span>
+                        </button>
+
+                        <button 
+                          onClick={() => handleEvent('RED_CARD')}
+                          disabled={isSubmitting}
+                          className="bg-red-500/20 border border-red-500/50 hover:bg-red-500 text-red-400 hover:text-black py-4 rounded-xl flex flex-col items-center justify-center gap-2 transition-all group"
+                        >
+                          <div className="w-4 h-6 bg-red-500 group-hover:bg-black rounded-sm shadow-sm" />
+                          <span className="text-[9px] font-bold uppercase tracking-widest">Roja</span>
+                        </button>
+                      </div>
+                      
+                      <button 
+                        onClick={() => setSelectedPlayer(null)}
+                        className="text-[9px] text-white/30 uppercase tracking-widest hover:text-white mt-2 text-center"
+                      >
+                        Cancelar Selección
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="py-10 text-center flex flex-col items-center justify-center border-2 border-dashed border-[#00f0ff]/20 rounded-xl bg-[#001122]/30">
+                      <span className="text-[10px] text-white/40 uppercase tracking-widest leading-relaxed px-4">
+                        Selecciona un jugador del roster local o visitante para registrar un evento.
+                      </span>
+                    </div>
+                  )}
+                </>
+              ) : (
+                <div className="flex flex-col gap-4">
+                  <div className="flex items-center justify-between mb-2">
+                     <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#00f0ff]/50">Modo Cambio</span>
+                     <button onClick={() => { setIsSubMode(false); setPlayerOut(null); }} className="text-white/40 hover:text-white text-[10px] uppercase">Cancelar</button>
+                  </div>
+                  
+                  <div className="bg-[#001133]/50 p-4 rounded-xl border border-dashed border-red-500/30 flex items-center justify-between">
+                     <div className="flex flex-col">
+                       <span className="text-[9px] text-red-400 uppercase font-bold tracking-widest mb-1 flex items-center gap-1"><UserMinus size={12}/> SALE</span>
+                       <span className="text-sm text-white font-bold">{playerOut ? playerOut.name : 'Seleccione jugador...'}</span>
+                     </div>
+                  </div>
+
+                  <div className="bg-[#001133]/50 p-4 rounded-xl border border-dashed border-emerald-500/30 flex items-center justify-between">
+                     <div className="flex flex-col">
+                       <span className="text-[9px] text-emerald-400 uppercase font-bold tracking-widest mb-1 flex items-center gap-1"><UserPlus size={12}/> ENTRA</span>
+                       <span className="text-sm text-white/50">{playerOut ? 'Seleccione reemplazo...' : 'Esperando...'}</span>
+                     </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Timeline */}
+            <div className="flex-1 bg-[#02060d]/80 backdrop-blur-md border border-[#0055cc]/30 rounded-2xl flex flex-col overflow-hidden">
+               <div className="p-4 border-b border-[#0055cc]/20 bg-[#001122]/50 flex items-center gap-2">
+                 <Clock size={14} className="text-[#00f0ff]" />
+                 <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-white">Timeline</span>
+               </div>
+               <div className="p-4 flex-1 overflow-y-auto custom-scrollbar flex flex-col gap-3">
+                 {match.match_events?.map((ev: any) => {
+                   let icon = <Goal size={14} className="text-emerald-400" />;
+                   let evName = "GOL";
+                   if (ev.type === 'YELLOW_CARD') { icon = <div className="w-2.5 h-3.5 bg-yellow-400 rounded-sm"/>; evName = "AMARILLA"; }
+                   if (ev.type === 'RED_CARD') { icon = <div className="w-2.5 h-3.5 bg-red-500 rounded-sm"/>; evName = "ROJA"; }
+                   if (ev.type === 'OWN_GOAL') { icon = <Goal size={14} className="text-orange-400" />; evName = "AUTOGOL"; }
+                   if (ev.type === 'SUBSTITUTION') { icon = <Activity size={14} className="text-[#00f0ff]" />; evName = "CAMBIO"; }
+                   
+                   const isHome = ev.team_id === match.home_team_id;
+
+                   return (
+                     <div key={ev.id} className={`flex items-start gap-3 p-3 rounded-lg bg-[#001122]/30 border border-[#0055cc]/10 ${isHome ? '' : 'flex-row-reverse text-right'}`}>
+                       <div className="pt-1 shrink-0">{icon}</div>
+                       <div className="flex flex-col">
+                         <div className={`flex items-center gap-2 ${isHome ? '' : 'flex-row-reverse'}`}>
+                           <span className="text-xs font-bold text-white uppercase">{ev.player?.name}</span>
+                           <span className="text-[9px] font-mono text-[#00f0ff]/50">{ev.minute ? `${ev.minute}'` : ''}</span>
+                         </div>
+                         <span className="text-[9px] text-white/40 uppercase tracking-widest">{evName} {ev.description ? `(${ev.description})` : ''}</span>
+                       </div>
+                     </div>
+                   );
+                 })}
+                 
+                 {(!match.match_events || match.match_events.length === 0) && (
+                   <span className="text-[10px] text-white/20 uppercase tracking-widest text-center mt-10">Sin eventos registrados</span>
+                 )}
+               </div>
+            </div>
+            
+            {errorMsg && (
+              <div className="bg-red-500/10 border border-red-500/30 p-3 rounded-lg flex items-center gap-2 text-xs text-red-400">
+                <AlertTriangle size={14} /> {errorMsg}
+              </div>
+            )}
+          </div>
+
+          {/* Roster Visitante */}
+          {renderRoster(awayPlayers, match.away_team_id, 'right', match.away_team?.primary_color)}
+
+        </div>
+      </div>
+    </div>
+  );
+}

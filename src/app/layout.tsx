@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Anton } from "next/font/google";
+import { Geist, Geist_Mono, Rajdhani, Montserrat } from "next/font/google";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -12,15 +12,22 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-const anton = Anton({
-  weight: "400",
-  variable: "--font-anton",
+const rajdhani = Rajdhani({
+  weight: ["500", "600", "700"],
+  variable: "--font-rajdhani",
+  subsets: ["latin"],
+});
+
+const montserrat = Montserrat({
+  weight: ["800", "900"],
+  style: ["italic"],
+  variable: "--font-montserrat",
   subsets: ["latin"],
 });
 
 export const metadata: Metadata = {
-  title: "Pegasight Sports | Official Platform",
-  description: "Official Tournament Platform",
+  title: "PEGASIGHT SPORT",
+  description: "La plataforma definitiva para el seguimiento de torneos deportivos.",
 };
 
 export default function RootLayout({
@@ -31,7 +38,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} ${anton.variable} dark h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} ${rajdhani.variable} ${montserrat.variable} dark h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-background text-foreground tabular-nums">{children}</body>
     </html>

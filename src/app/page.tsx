@@ -1,6 +1,22 @@
-import { redirect } from "next/navigation";
+import { Header } from "@/components/layout/Header";
+import { HomeHero } from "@/components/home/HomeHero";
+import { DashboardGrid } from "@/components/home/DashboardGrid";
+import { HomeFooter } from "@/components/home/HomeFooter";
 
-export default function Home() {
-  // Redirecting the root page to the dynamic route for our main tournament
-  redirect("/t/copa-futuro");
+export const dynamic = "force-dynamic";
+
+export default function HomePage() {
+  return (
+    <div className="min-h-screen bg-brand-deep text-brand-text font-sans selection:bg-brand-blue selection:text-white relative">
+      <Header />
+      
+      <HomeHero />
+      
+      <main className="w-full">
+        <DashboardGrid />
+      </main>
+
+      <HomeFooter />
+    </div>
+  );
 }

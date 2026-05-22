@@ -38,17 +38,20 @@ export default function LoginPage() {
         transition={{ duration: 0.8, ease: "easeOut" }}
         className="panel-premium w-full max-w-md md:!p-12 backdrop-blur-xl relative z-10"
       >
-        <div className="flex flex-col items-center mb-12">
-          <Shield className="w-12 h-16 text-brand-teal mb-6" />
-          <h1 className="text-4xl font-bold tracking-tighter text-brand-sand hero-title !not-italic text-center">
+        {/* Top accent border */}
+        <div className="absolute top-0 left-0 w-full h-[3px] bg-gradient-to-r from-brand-teal via-brand-aqua to-brand-gold" />
+
+        <div className="flex flex-col items-center mb-10">
+          <Shield className="w-12 h-16 text-brand-teal mb-6 drop-shadow-[0_0_15px_rgba(68,126,140,0.5)]" />
+          <h1 className="text-3xl font-bold tracking-tighter text-brand-sand hero-title !not-italic text-center leading-tight">
             ACCESO<br/>AUTORIZADO
           </h1>
-          <p className="text-[10px] text-brand-aqua/50 uppercase tracking-[0.3em] mt-4 text-center">
+          <p className="text-[10px] text-brand-teal font-black uppercase tracking-[0.3em] mt-3 text-center">
             Pegasight Sports Identity
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+        <form onSubmit={handleSubmit} className="flex flex-col gap-5">
           <div className="flex flex-col gap-2">
             <label className="text-[10px] uppercase tracking-[0.2em] text-brand-aqua/80 font-bold ml-1">Email</label>
             <input 
@@ -81,13 +84,23 @@ export default function LoginPage() {
             </motion.div>
           )}
 
-          <button 
-            type="submit"
-            disabled={loading}
-            className="btn-premium-teal w-full !py-4 mt-4"
-          >
-            {loading ? "Autenticando..." : "Ingresar"}
-          </button>
+          <div className="flex flex-col gap-3 mt-4">
+            <button 
+              type="submit"
+              disabled={loading}
+              className="btn-premium-teal w-full !py-4"
+            >
+              {loading ? "Autenticando..." : "Ingresar"}
+            </button>
+            
+            <button 
+              type="button"
+              onClick={() => window.location.href = '/'}
+              className="btn-premium-navy w-full !py-4"
+            >
+              Cancelar
+            </button>
+          </div>
         </form>
 
       </motion.div>

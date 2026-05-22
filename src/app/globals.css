@@ -4,21 +4,32 @@
 
 @custom-variant dark (&:is(.dark *));
 
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+}
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
-  --font-display: var(--font-anton), 'Arial Black', Impact, sans-serif;
+  --font-display: var(--font-rajdhani), 'Arial Black', Impact, sans-serif;
+  --font-italic-title: var(--font-montserrat), 'Arial Black', Impact, sans-serif;
   
-  /* Exact Brand Palette from Image */
-  --color-brand-navy: #00344F;
-  --color-brand-gold: #9A8B6B;
-  --color-brand-aqua: #CAD5D6;
-  --color-brand-teal: #447E8C;
-  --color-brand-sand: #E5E1DD;
-  --color-brand-deep: #001A28;
+  /* Cyber-Sport Palette from Image */
+  --color-brand-deep: #050810;
+  --color-brand-navy: #0A1122;
+  --color-brand-blue: #0066FF;
+  --color-brand-cyan: #00F0FF;
+  --color-brand-yellow: #FFD700;
+  --color-brand-red: #FF3333;
+  --color-brand-text: #E2E8F0;
+  --color-brand-text-muted: #94A3B8;
+  --color-brand-card: rgba(15, 23, 42, 0.6);
+  --color-brand-border: rgba(0, 240, 255, 0.2);
   
+  /* Shadcn standard vars adapted */
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -27,11 +38,7 @@
   --color-sidebar-primary: var(--sidebar-primary);
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar: var(--sidebar);
-  --color-chart-5: var(--chart-5);
-  --color-chart-4: var(--chart-4);
-  --color-chart-3: var(--chart-3);
-  --color-chart-2: var(--chart-2);
-  --color-chart-1: var(--chart-1);
+  
   --color-ring: var(--ring);
   --color-input: var(--input);
   --color-border: var(--border);
@@ -48,6 +55,7 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
+  
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
@@ -58,56 +66,46 @@
 }
 
 :root {
-  --background: #ffffff;
-  --foreground: #001A28;
-  --card: #ffffff;
-  --card-foreground: #001A28;
-  --popover: #ffffff;
-  --popover-foreground: #001A28;
-  --primary: #447E8C;
+  --background: #050810;
+  --foreground: #E2E8F0;
+  --card: rgba(15, 23, 42, 0.6);
+  --card-foreground: #ffffff;
+  --popover: #0A1122;
+  --popover-foreground: #E2E8F0;
+  --primary: #0066FF;
   --primary-foreground: #ffffff;
-  --secondary: #CAD5D6;
-  --secondary-foreground: #001A28;
-  --muted: #E5E1DD;
-  --muted-foreground: #00344F;
-  --accent: #CAD5D6;
-  --accent-foreground: #001A28;
-  --destructive: #ef4444;
-  --border: #CAD5D6;
-  --input: #CAD5D6;
-  --ring: #447E8C;
-  --chart-1: #00344F;
-  --chart-2: #447E8C;
-  --chart-3: #9A8B6B;
-  --chart-4: #CAD5D6;
-  --chart-5: #E5E1DD;
+  --secondary: #1E293B;
+  --secondary-foreground: #E2E8F0;
+  --muted: #0F172A;
+  --muted-foreground: #94A3B8;
+  --accent: #00F0FF;
+  --accent-foreground: #050810;
+  --destructive: #FF3333;
+  --border: rgba(0, 240, 255, 0.2);
+  --input: rgba(15, 23, 42, 0.8);
+  --ring: #00F0FF;
   --radius: 0.5rem;
 }
 
 .dark {
-  --background: #001A28;
-  --foreground: #E5E1DD;
-  --card: #00344F;
-  --card-foreground: #E5E1DD;
-  --popover: #001A28;
-  --popover-foreground: #E5E1DD;
-  --primary: #447E8C;
+  --background: #050810;
+  --foreground: #E2E8F0;
+  --card: rgba(15, 23, 42, 0.6);
+  --card-foreground: #ffffff;
+  --popover: #0A1122;
+  --popover-foreground: #E2E8F0;
+  --primary: #0066FF;
   --primary-foreground: #ffffff;
-  --secondary: #00344F;
-  --secondary-foreground: #CAD5D6;
-  --muted: #00344F;
-  --muted-foreground: #CAD5D6;
-  --accent: #00344F;
-  --accent-foreground: #E5E1DD;
-  --destructive: #ef4444;
-  --border: #00344F;
-  --input: #00344F;
-  --ring: #447E8C;
-  --chart-1: #447E8C;
-  --chart-2: #9A8B6B;
-  --chart-3: #CAD5D6;
-  --chart-4: #00344F;
-  --chart-5: #E5E1DD;
+  --secondary: #1E293B;
+  --secondary-foreground: #E2E8F0;
+  --muted: #0F172A;
+  --muted-foreground: #94A3B8;
+  --accent: #00F0FF;
+  --accent-foreground: #050810;
+  --destructive: #FF3333;
+  --border: rgba(0, 240, 255, 0.2);
+  --input: rgba(15, 23, 42, 0.8);
+  --ring: #00F0FF;
 }
 
 @layer base {
@@ -122,17 +120,43 @@
   }
 }
 
-.hero-title {
-  font-family: var(--font-anton), 'Arial Black', Impact, sans-serif;
-  font-style: italic;
-  font-weight: 400; 
-  text-transform: uppercase;
-  line-height: 0.9;
-  letter-spacing: -0.01em; 
-  color: var(--color-brand-sand);
+/* Utilities for Cyberpunk aesthetics */
+@layer utilities {
+  .glass-panel {
+    @apply bg-brand-navy/60 backdrop-blur-md border border-brand-cyan/20 rounded-xl shadow-[0_0_15px_rgba(0,240,255,0.05)];
+  }
+  
+  .glass-panel-glow {
+    @apply bg-brand-navy/60 backdrop-blur-md border border-brand-cyan/40 rounded-xl shadow-[0_0_20px_rgba(0,240,255,0.15)] transition-all duration-300;
+  }
+  
+  .glass-panel-glow:hover {
+    @apply border-brand-cyan/70 shadow-[0_0_30px_rgba(0,240,255,0.3)];
+  }
+
+  .text-glow {
+    text-shadow: 0 0 10px rgba(0, 240, 255, 0.5);
+  }
+  
+  .neon-button-solid {
+    @apply bg-gradient-to-b from-[#0088ff] to-[#0044cc] text-white font-medium rounded-[8px] px-5 py-2 hover:brightness-110 shadow-[0_2px_8px_rgba(0,136,255,0.2)] transition-all cursor-pointer;
+  }
+  
+  .neon-button-outline {
+    @apply bg-transparent border border-[#0055cc] text-white font-medium rounded-[8px] px-5 py-2 hover:bg-[#0055cc]/15 transition-all cursor-pointer;
+  }
 }
 
-.hero-title span {
+.hero-title {
+  font-family: var(--font-montserrat), 'Arial Black', Impact, sans-serif;
+  font-style: italic;
+  font-weight: 900; 
+  text-transform: uppercase;
+  line-height: 0.9;
+  letter-spacing: -0.02em; 
+  color: #ffffff;
+}
+
   color: var(--color-brand-teal);
 }
 
@@ -192,4 +216,12 @@
 .custom-scrollbar::-webkit-scrollbar-thumb {
   background: var(--color-brand-teal);
   border-radius: 3px;
+}
+
+.display-title {
+  font-family: var(--font-display), 'Arial Black', Impact, sans-serif;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--color-brand-sand);
+}
 }
