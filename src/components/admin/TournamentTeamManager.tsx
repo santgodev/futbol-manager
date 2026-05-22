@@ -36,18 +36,25 @@ export function TournamentTeamManager({ tournamentId, availableTeams, currentTea
   };
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="panel-premium flex flex-col gap-6">
+      {/* Decorative accent */}
+      <div className="absolute top-0 left-0 w-full h-[3px] bg-gradient-to-r from-brand-teal via-brand-aqua to-brand-gold" />
+      
+      <h3 className="text-sm font-bold uppercase tracking-widest text-brand-sand">
+        Equipos Inscritos ({currentTeams.length})
+      </h3>
+
       {/* Inscribir equipo */}
       {teamsToSelect.length > 0 ? (
-        <div className="flex gap-3">
+        <div className="flex gap-4">
           <select
             value={selectedTeamId}
             onChange={(e) => setSelectedTeamId(e.target.value)}
-            className="flex-1 bg-[#040c1a]/80 border border-[#0055cc]/50 focus:border-[#00f0ff] px-4 py-3 text-white text-xs uppercase tracking-widest rounded-lg outline-none transition-all appearance-none"
+            className="flex-1 select-premium"
           >
-            <option value="">Seleccionar equipo para inscribir...</option>
+            <option value="" className="bg-black">Seleccionar equipo para inscribir...</option>
             {teamsToSelect.map(team => (
-              <option key={team.id} value={team.id} className="bg-[#040c1a]">
+              <option key={team.id} value={team.id} className="bg-black">
                 {team.name}
               </option>
             ))}
@@ -55,47 +62,51 @@ export function TournamentTeamManager({ tournamentId, availableTeams, currentTea
           <button
             onClick={handleAdd}
             disabled={!selectedTeamId || status !== "idle"}
-            className="bg-gradient-to-r from-[#0066cc] to-[#00aaff] text-white px-6 py-3 rounded-lg font-bold uppercase tracking-widest text-xs flex items-center gap-2 disabled:opacity-50 hover:shadow-[0_0_20px_rgba(0,170,255,0.4)] transition-all"
+            className="btn-premium-teal min-w-[120px]"
           >
-            {status === "adding" ? <Loader2 className="w-4 h-4 animate-spin" /> :
-             status === "success" ? <Check className="w-4 h-4" /> :
-             <Plus className="w-4 h-4" />}
+            {status === "adding" ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : status === "success" ? (
+              <Check className="w-4 h-4" />
+            ) : (
+              <Plus className="w-4 h-4" />
+            )}
             {status === "success" ? "Inscrito" : "Inscribir"}
           </button>
         </div>
       ) : (
-        <div className="bg-[#001122]/40 rounded-lg px-4 py-3 text-xs text-white/40 border border-[#0055cc]/10">
+        <div className="bg-brand-navy/10 rounded p-4 text-xs text-brand-aqua/40 border border-brand-navy/30 uppercase tracking-wider font-semibold">
           {availableTeams.length === 0 
-            ? "No hay equipos en el sistema. Ve a la sección Equipos para crear uno primero."
+            ? "No hay equipos en el sistema. Ve a la sección de Equipos para crear uno primero."
             : "Todos los equipos disponibles ya están inscritos en este torneo."}
         </div>
       )}
 
       {/* Grid de equipos inscritos */}
       {currentTeams.length > 0 ? (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mt-4">
           {currentTeams.map(tt => (
             <div
               key={tt.team_id}
-              className="group flex flex-col items-center gap-2 p-4 bg-[#001122]/40 border border-[#0055cc]/20 rounded-xl hover:border-[#00f0ff]/40 hover:bg-[#002255]/30 transition-all"
+              className="flex flex-col items-center gap-3 p-4 bg-black/40 border border-brand-navy/20 hover:border-brand-teal/30 hover:bg-brand-navy/5 transition-all"
             >
-              <div className="w-12 h-12 flex items-center justify-center bg-[#001133] rounded-lg border border-[#0055cc]/20 overflow-hidden">
+              <div className="w-12 h-12 flex items-center justify-center bg-brand-navy/15 rounded border border-brand-navy/30 overflow-hidden">
                 {tt.team?.logo_url ? (
-                  <Image src={tt.team.logo_url} alt={tt.team.name} width={48} height={48} className="object-contain p-1" unoptimized />
+                  <img src={tt.team.logo_url} alt={tt.team.name} className="object-contain max-w-full max-h-full p-1" />
                 ) : (
-                  <Shield size={20} className="text-[#0055cc]/50" />
+                  <Shield className="w-6 h-6 text-brand-aqua/20" />
                 )}
               </div>
-              <span className="text-[10px] font-bold uppercase tracking-wider text-white/80 text-center leading-tight group-hover:text-[#00f0ff] transition-colors">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-brand-sand text-center leading-tight">
                 {tt.team?.name}
               </span>
             </div>
           ))}
         </div>
       ) : (
-        <div className="py-10 text-center flex flex-col items-center gap-3">
-          <Users size={28} className="text-[#0055cc]/30" />
-          <span className="text-white/30 text-xs uppercase tracking-widest font-semibold">
+        <div className="py-10 text-center flex flex-col items-center gap-3 border border-dashed border-brand-navy/20 bg-black/5 mt-4">
+          <Users size={28} className="text-brand-navy/40" />
+          <span className="text-brand-aqua/40 text-xs uppercase tracking-widest font-black">
             No hay equipos inscritos
           </span>
         </div>

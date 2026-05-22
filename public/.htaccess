@@ -1,0 +1,24 @@
+# ------------------------------------------------------------------------------
+# Configuración Apache Ultra-Compatible para Next.js con trailingSlash
+# ------------------------------------------------------------------------------
+
+RewriteEngine On
+
+# 1. Establecer el archivo de índice por defecto
+DirectoryIndex index.html
+
+# 2. Deshabilitar listado de directorios por seguridad
+Options -Indexes
+
+# 3. Interceptar rutas de directorios limpios (ej: /admin o /admin/)
+# y reescribirlas directamente a su index.html correspondiente.
+# Esto evita que Apache arroje un 403 Forbidden al intentar listar la carpeta.
+RewriteCond %{DOCUMENT_ROOT}/$1/index.html -f
+RewriteRule ^(.*[^/])/?$ $1/index.html [L]
+
+# 4. Servir archivos existentes directamente (imágenes, JS, CSS, etc.)
+RewriteCond %{REQUEST_FILENAME} -f
+RewriteRule ^ - [L]
+
+# 5. Redireccionar cualquier otra ruta no encontrada a la página 404
+ErrorDocument 404 /404.html

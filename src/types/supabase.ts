@@ -235,21 +235,42 @@ export type Database = {
       players: {
         Row: {
           created_at: string | null
+          date_of_birth: string | null
+          document_id: string | null
           id: string
+          is_active: boolean
           name: string
+          number: number | null
+          photo_url: string | null
+          position: string | null
           team_id: string | null
+          created_by: string | null
         }
         Insert: {
           created_at?: string | null
+          date_of_birth?: string | null
+          document_id?: string | null
           id?: string
+          is_active?: boolean
           name: string
+          number?: number | null
+          photo_url?: string | null
+          position?: string | null
           team_id?: string | null
+          created_by?: string | null
         }
         Update: {
           created_at?: string | null
+          date_of_birth?: string | null
+          document_id?: string | null
           id?: string
+          is_active?: boolean
           name?: string
+          number?: number | null
+          photo_url?: string | null
+          position?: string | null
           team_id?: string | null
+          created_by?: string | null
         }
         Relationships: [
           {
@@ -267,18 +288,27 @@ export type Database = {
           id: string
           logo_url: string | null
           name: string
+          created_by: string | null
+          city: string | null
+          primary_color: string | null
         }
         Insert: {
           created_at?: string | null
           id?: string
           logo_url?: string | null
           name: string
+          created_by?: string | null
+          city?: string | null
+          primary_color?: string | null
         }
         Update: {
           created_at?: string | null
           id?: string
           logo_url?: string | null
           name?: string
+          created_by?: string | null
+          city?: string | null
+          primary_color?: string | null
         }
         Relationships: []
       }
@@ -414,10 +444,12 @@ export type Database = {
       tournaments: {
         Row: {
           admin_name: string | null
+          category: string | null
           created_at: string | null
           description: string | null
           end_date: string | null
           id: string
+          image_url: string | null
           location: string
           max_teams: number | null
           name: string
@@ -428,10 +460,12 @@ export type Database = {
         }
         Insert: {
           admin_name?: string | null
+          category?: string | null
           created_at?: string | null
           description?: string | null
           end_date?: string | null
           id?: string
+          image_url?: string | null
           location: string
           max_teams?: number | null
           name: string
@@ -442,10 +476,12 @@ export type Database = {
         }
         Update: {
           admin_name?: string | null
+          category?: string | null
           created_at?: string | null
           description?: string | null
           end_date?: string | null
           id?: string
+          image_url?: string | null
           location?: string
           max_teams?: number | null
           name?: string
@@ -458,7 +494,32 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      tournament_standings_view: {
+        Row: {
+          goal_difference: number
+          goals_against: number
+          goals_for: number
+          logo_url: string | null
+          played: number
+          points: number
+          team_id: string
+          team_name: string
+          tournament_id: string
+        }
+        Relationships: []
+      }
+      tournament_top_scorers_view: {
+        Row: {
+          goals: number
+          number: string | null
+          photo_url: string | null
+          player_id: string
+          player_name: string
+          team_name: string
+          tournament_id: string
+        }
+        Relationships: []
+      }
     }
     Functions: {
       [_ in never]: never
@@ -466,6 +527,7 @@ export type Database = {
     Enums: {
       match_event_type:
         | "GOAL"
+        | "OWN_GOAL"
         | "YELLOW_CARD"
         | "RED_CARD"
         | "SUBSTITUTION"
@@ -608,6 +670,7 @@ export const Constants = {
     Enums: {
       match_event_type: [
         "GOAL",
+        "OWN_GOAL",
         "YELLOW_CARD",
         "RED_CARD",
         "SUBSTITUTION",

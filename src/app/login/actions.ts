@@ -1,8 +1,4 @@
-"use server";
-
-import { createClient } from "@/utils/supabase/server";
-import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
+import { createClient } from "@/utils/supabase/client";
 
 export async function login(formData: FormData) {
   const email = formData.get("email") as string;
@@ -12,7 +8,7 @@ export async function login(formData: FormData) {
     return { error: "Email y contraseña son obligatorios" };
   }
 
-  const supabase = await createClient();
+  const supabase = createClient();
 
   const { error } = await supabase.auth.signInWithPassword({
     email,
@@ -23,6 +19,5 @@ export async function login(formData: FormData) {
     return { error: "Credenciales inválidas" };
   }
 
-  revalidatePath("/", "layout");
-  redirect("/admin");
+  window.location.href = "/admin";
 }

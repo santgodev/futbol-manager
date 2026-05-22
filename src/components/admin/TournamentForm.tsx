@@ -44,7 +44,7 @@ export function TournamentForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="bg-brand-deep p-8 border border-brand-navy/30 max-w-2xl mx-auto">
+    <form onSubmit={handleSubmit} className="panel-premium max-w-2xl mx-auto">
       <div className="flex flex-col gap-6">
         
         <div className="flex flex-col gap-2">
@@ -54,7 +54,7 @@ export function TournamentForm() {
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="Ej: Copa Champions 2026"
-            className="w-full bg-black border border-brand-navy/50 p-4 text-brand-sand focus:border-brand-teal outline-none transition-all hero-title !not-italic text-xl"
+            className="input-premium hero-title !not-italic text-xl !p-4"
           />
         </div>
 
@@ -66,7 +66,7 @@ export function TournamentForm() {
               value={location}
               onChange={(e) => setLocation(e.target.value)}
               placeholder="Ej: Madrid, España"
-              className="w-full bg-black border border-brand-navy/50 p-4 text-brand-sand focus:border-brand-teal outline-none transition-all"
+              className="input-premium !p-4"
             />
           </div>
           <div className="flex flex-col gap-2">
@@ -77,7 +77,7 @@ export function TournamentForm() {
               onChange={(e) => setMaxTeams(parseInt(e.target.value))}
               min="2"
               max="100"
-              className="w-full bg-black border border-brand-navy/50 p-4 text-brand-sand focus:border-brand-teal outline-none transition-all"
+              className="input-premium !p-4"
             />
           </div>
         </div>
@@ -89,7 +89,7 @@ export function TournamentForm() {
             onChange={(e) => setDescription(e.target.value)}
             placeholder="Describe el formato del torneo..."
             rows={4}
-            className="w-full bg-black border border-brand-navy/50 p-4 text-brand-sand focus:border-brand-teal outline-none transition-all resize-none"
+            className="input-premium !p-4 resize-none"
           />
         </div>
 
@@ -97,7 +97,7 @@ export function TournamentForm() {
           <button 
             type="submit"
             disabled={status === "submitting"}
-            className="w-full bg-brand-teal text-brand-deep py-4 font-black uppercase tracking-widest hover:bg-white transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+            className="btn-premium-teal w-full !py-4"
           >
             {status === "submitting" ? (
               <>

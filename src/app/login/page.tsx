@@ -36,37 +36,40 @@ export default function LoginPage() {
         initial={{ opacity: 0, scale: 0.95, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         transition={{ duration: 0.8, ease: "easeOut" }}
-        className="w-full max-w-md p-8 md:p-12 bg-[#040c1a]/80 border border-[#0066cc]/30 backdrop-blur-xl relative z-10 rounded-2xl shadow-[0_0_50px_rgba(0,100,255,0.1)]"
+        className="panel-premium w-full max-w-md md:!p-12 backdrop-blur-xl relative z-10"
       >
+        {/* Top accent border */}
+        <div className="absolute top-0 left-0 w-full h-[3px] bg-gradient-to-r from-brand-teal via-brand-aqua to-brand-gold" />
+
         <div className="flex flex-col items-center mb-10">
-          <Shield className="w-12 h-16 text-[#00f0ff] mb-6 drop-shadow-[0_0_15px_rgba(0,240,255,0.5)]" />
-          <h1 className="text-3xl font-bold tracking-tighter text-white hero-title !not-italic text-center leading-tight">
+          <Shield className="w-12 h-16 text-brand-teal mb-6 drop-shadow-[0_0_15px_rgba(68,126,140,0.5)]" />
+          <h1 className="text-3xl font-bold tracking-tighter text-brand-sand hero-title !not-italic text-center leading-tight">
             ACCESO<br/>AUTORIZADO
           </h1>
-          <p className="text-[10px] text-[#00f0ff]/70 uppercase tracking-[0.3em] mt-3 text-center">
+          <p className="text-[10px] text-brand-teal font-black uppercase tracking-[0.3em] mt-3 text-center">
             Pegasight Sports Identity
           </p>
         </div>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-5">
           <div className="flex flex-col gap-2">
-            <label className="text-[10px] uppercase tracking-[0.2em] text-[#00f0ff]/90 font-bold ml-1">Email</label>
+            <label className="text-[10px] uppercase tracking-[0.2em] text-brand-aqua/80 font-bold ml-1">Email</label>
             <input 
               type="email" 
               name="email"
               required
-              className="w-full bg-[#02060d]/80 border border-[#0055cc]/50 focus:border-[#00f0ff] focus:shadow-[0_0_15px_rgba(0,240,255,0.3)] px-4 py-3 text-white rounded-lg outline-none transition-all"
+              className="input-premium !px-4 !py-3 !text-sm"
               placeholder="admin@torneo.com"
             />
           </div>
 
           <div className="flex flex-col gap-2">
-            <label className="text-[10px] uppercase tracking-[0.2em] text-[#00f0ff]/90 font-bold ml-1">Contraseña</label>
+            <label className="text-[10px] uppercase tracking-[0.2em] text-brand-aqua/80 font-bold ml-1">Contraseña</label>
             <input 
               type="password" 
               name="password"
               required
-              className="w-full bg-[#02060d]/80 border border-[#0055cc]/50 focus:border-[#00f0ff] focus:shadow-[0_0_15px_rgba(0,240,255,0.3)] px-4 py-3 text-white rounded-lg outline-none transition-all"
+              className="input-premium !px-4 !py-3 !text-sm"
               placeholder="••••••••"
             />
           </div>
@@ -75,7 +78,7 @@ export default function LoginPage() {
             <motion.div 
               initial={{ opacity: 0, y: -10 }} 
               animate={{ opacity: 1, y: 0 }} 
-              className="bg-red-500/10 border border-red-500/30 text-red-400 text-xs p-3 text-center rounded-lg"
+              className="bg-red-500/10 border border-red-500/30 text-red-400 text-xs p-3 text-center"
             >
               {error}
             </motion.div>
@@ -85,7 +88,7 @@ export default function LoginPage() {
             <button 
               type="submit"
               disabled={loading}
-              className="w-full bg-gradient-to-r from-[#0066cc] to-[#00aaff] text-white font-bold uppercase tracking-[0.2em] py-3.5 rounded-lg hover:shadow-[0_0_20px_rgba(0,170,255,0.4)] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              className="btn-premium-teal w-full !py-4"
             >
               {loading ? "Autenticando..." : "Ingresar"}
             </button>
@@ -93,7 +96,7 @@ export default function LoginPage() {
             <button 
               type="button"
               onClick={() => window.location.href = '/'}
-              className="w-full bg-transparent border border-[#0055cc]/50 text-white/70 font-bold uppercase tracking-[0.2em] py-3.5 rounded-lg hover:bg-[#0055cc]/20 hover:text-white transition-all text-sm"
+              className="btn-premium-navy w-full !py-4"
             >
               Cancelar
             </button>

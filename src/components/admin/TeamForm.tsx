@@ -7,9 +7,6 @@ import { ImageUpload } from "@/components/ui/ImageUpload";
 import { Loader2, Shield, AlertTriangle } from "lucide-react";
 import Link from "next/link";
 
-const inputClass = "w-full bg-[#040c1a]/80 border border-[#0055cc]/50 focus:border-[#00f0ff] focus:shadow-[0_0_15px_rgba(0,240,255,0.3)] px-4 py-3.5 text-white rounded-lg outline-none transition-all placeholder:text-white/20";
-const labelClass = "text-[10px] uppercase tracking-[0.2em] text-[#00f0ff]/90 font-bold ml-1";
-
 export function TeamForm() {
   const [status, setStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
   const [errorMessage, setErrorMessage] = useState("");
@@ -51,41 +48,53 @@ export function TeamForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="bg-[#02060d]/80 backdrop-blur-xl border border-[#0055cc]/30 p-8 md:p-10 rounded-2xl shadow-[0_0_50px_rgba(0,100,255,0.1)] relative overflow-hidden">
-      {/* Glow corner */}
-      <div className="absolute top-0 right-0 w-64 h-64 bg-[#0066cc]/10 rounded-full blur-[60px] pointer-events-none" />
-
-      <div className="flex flex-col gap-7 relative z-10">
+    <form onSubmit={handleSubmit} className="panel-premium max-w-xl mx-auto">
+      {/* Decorative accent */}
+      <div className="absolute top-0 left-0 w-full h-[3px] bg-gradient-to-r from-brand-teal via-brand-aqua to-brand-gold" />
+      
+      <div className="flex flex-col gap-6 relative z-10">
+        <h3 className="text-sm font-bold uppercase tracking-widest text-brand-sand">Registrar Nuevo Equipo</h3>
         
-        {/* ── Fila 1: Nombre + Ciudad ── */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-7">
-          <div className="flex flex-col gap-2">
-            <label className={labelClass}>Nombre del Equipo *</label>
-            <input type="text" name="name" required className={inputClass} placeholder="Ej. Real Madrid CF" />
-          </div>
-          <div className="flex flex-col gap-2">
-            <label className={labelClass}>Ciudad base</label>
-            <input type="text" name="city" className={inputClass} placeholder="Ej. Madrid, España" />
-          </div>
+        {/* Nombre del Equipo */}
+        <div className="flex flex-col gap-2">
+          <label className="text-[10px] text-brand-aqua/50 uppercase tracking-widest font-bold ml-1">Nombre del Equipo *</label>
+          <input 
+            type="text" 
+            name="name" 
+            required 
+            className="input-premium" 
+            placeholder="Ej. Real Madrid, Los Galácticos..." 
+          />
         </div>
 
-        {/* ── Fila 2: Color ── */}
+        {/* Ciudad Base */}
         <div className="flex flex-col gap-2">
-          <label className={labelClass}>Color Principal</label>
+          <label className="text-[10px] text-brand-aqua/50 uppercase tracking-widest font-bold ml-1">Ciudad Base</label>
+          <input 
+            type="text" 
+            name="city" 
+            className="input-premium" 
+            placeholder="Ej. Madrid, España" 
+          />
+        </div>
+
+        {/* Color Principal */}
+        <div className="flex flex-col gap-2">
+          <label className="text-[10px] text-brand-aqua/50 uppercase tracking-widest font-bold ml-1">Color Principal</label>
           <div className="flex items-center gap-4">
             <input 
               type="color" 
               name="primary_color" 
-              defaultValue="#0066cc"
-              className="w-14 h-14 bg-[#040c1a]/80 border border-[#0055cc]/50 rounded-lg cursor-pointer p-1"
+              defaultValue="#447E8C"
+              className="w-12 h-12 bg-black border border-brand-navy/50 rounded cursor-pointer p-1"
             />
-            <span className="text-[10px] uppercase tracking-widest text-white/40">
-              Se usará para la UI del equipo
+            <span className="text-[10px] uppercase tracking-widest text-brand-aqua/40">
+              Se usará para personalizar la visualización del equipo
             </span>
           </div>
         </div>
 
-        {/* ── Fila 3: Escudo ── */}
+        {/* Escudo */}
         <ImageUpload
           name="logo_url"
           label="Escudo del Equipo (Opcional)"
@@ -108,16 +117,24 @@ export function TeamForm() {
         )}
 
         {/* Acciones */}
-        <div className="flex items-center justify-end gap-4 pt-6 border-t border-[#0055cc]/30">
-          <Link href="/admin/teams" className="px-8 py-3.5 text-white/60 hover:text-white text-xs font-bold uppercase tracking-widest transition-colors">
+        <div className="flex items-center justify-end gap-4 pt-6 border-t border-brand-navy/30">
+          <Link 
+            href="/admin/teams" 
+            className="text-[10px] text-brand-aqua/60 hover:text-brand-sand uppercase tracking-widest font-bold px-4 py-2 transition-colors"
+          >
             Cancelar
           </Link>
+          
           <button
             type="submit"
             disabled={status === "submitting" || status === "success"}
-            className="bg-gradient-to-r from-[#0066cc] to-[#00aaff] text-white px-10 py-3.5 text-xs font-bold uppercase tracking-widest rounded-lg hover:shadow-[0_0_25px_rgba(0,170,255,0.5)] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+            className="btn-premium-teal min-w-[160px]"
           >
-            {status === "submitting" ? <Loader2 className="w-4 h-4 animate-spin" /> : <Shield size={16} />}
+            {status === "submitting" ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <Shield size={16} />
+            )}
             {status === "submitting" ? "Creando..." : "Registrar Equipo"}
           </button>
         </div>

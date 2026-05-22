@@ -9,19 +9,20 @@ interface TournamentHeroProps {
 
 export const TournamentHero = ({ tournament }: TournamentHeroProps) => {
   return (
-    <section className="relative w-full h-screen flex flex-col border-b border-brand-navy overflow-hidden">
-      <motion.div 
-        initial={{ scale: 1.1, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        transition={{ duration: 1.5, ease: "easeOut" }}
-        className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat"
-        style={{ backgroundImage: "url('https://images.unsplash.com/photo-1508344928928-7137b29de218?q=80&w=2000&auto=format&fit=crop')" }}
+    <section className="relative w-full min-h-[50vh] flex flex-col border-b border-[#1e3d70]/30 overflow-hidden bg-[#04080f] py-12">
+      {/* Base gradient */}
+      <div className="absolute inset-0"
+           style={{ background: "linear-gradient(160deg, #020408 0%, #04080f 55%, #060c18 100%)" }}
       />
-      {/* Soft Vignette Overlay */}
-      <div className="absolute inset-0 z-0 bg-brand-deep/70 mix-blend-multiply" />
-      <div className="absolute inset-0 z-0 bg-gradient-to-t from-brand-deep via-brand-deep/40 to-brand-deep/80" />
+
+      {/* Blue atmosphere */}
+      <div className="absolute inset-0 pointer-events-none"
+           style={{
+             background: "radial-gradient(ellipse 50% 90% at 50% 55%, rgba(0,55,160,0.22) 0%, transparent 70%)"
+           }}
+      />
       
-      <div className="relative z-10 flex-1 flex flex-col justify-center items-center text-center p-4 mt-16">
+      <div className="relative z-10 flex-1 flex flex-col justify-center items-center text-center p-4 mt-8">
         <motion.span 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -77,21 +78,10 @@ export const TournamentHero = ({ tournament }: TournamentHeroProps) => {
           </div>
           <div className="flex flex-col gap-2">
             <span className="text-[10px] text-brand-aqua/60 uppercase tracking-[0.2em]">Admin</span>
-            <span className="text-sm md:text-base font-bold text-brand-sand tracking-widest uppercase truncate max-w-[120px] mx-auto">{tournament.admin_name}</span>
+            <span className="text-sm md:text-base font-bold text-brand-sand tracking-widest uppercase truncate max-w-[120px] mx-auto">{tournament.admin_name || "Sin asignar"}</span>
           </div>
         </motion.div>
       </div>
-
-      {/* Scroll Indicator */}
-      <motion.div 
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 0.5 }}
-        transition={{ duration: 1, delay: 1.5 }}
-        className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
-      >
-        <span className="text-[10px] uppercase tracking-[0.3em] text-brand-aqua">Scroll</span>
-        <div className="w-[1px] h-8 bg-gradient-to-b from-brand-aqua to-transparent" />
-      </motion.div>
     </section>
   );
 };

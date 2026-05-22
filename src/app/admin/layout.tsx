@@ -1,17 +1,42 @@
-import { ReactNode } from "react";
+"use client";
+
+import { ReactNode, useEffect, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Shield } from "@/components/ui/Shield";
-import { createClient } from "@/utils/supabase/server";
-import { redirect } from "next/navigation";
+import { createClient } from "@/utils/supabase/client";
 import { AdminSidebarNav } from "@/components/admin/AdminSidebarNav";
 
-export default async function AdminLayout({ children }: { children: ReactNode }) {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+export default function AdminLayout({ children }: { children: ReactNode }) {
+  const router = useRouter();
+  const [user, setUser] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
 
-  if (!user) {
-    redirect("/login");
+  useEffect(() => {
+    const checkUser = async () => {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        router.replace("/login");
+      } else {
+        setUser(user);
+        setLoading(false);
+      }
+    };
+    checkUser();
+  }, [router]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#030b17] flex items-center justify-center text-white">
+        <div className="flex flex-col items-center gap-4">
+          <Shield className="w-12 h-16 text-[#00f0ff] animate-pulse drop-shadow-[0_0_15px_rgba(0,240,255,0.5)]" />
+          <span className="text-xs uppercase tracking-[0.2em] text-[#00f0ff] font-bold">Verificando Credenciales...</span>
+        </div>
+      </div>
+    );
   }
+
 
   return (
     <div className="min-h-screen bg-[#030b17] flex text-white font-sans selection:bg-[#00f0ff]/30 selection:text-white">
