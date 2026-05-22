@@ -1,12 +1,8 @@
-"use server";
-
-import { createClient } from "@/utils/supabase/server";
-import { revalidatePath } from "next/cache";
+import { createClient } from "@/utils/supabase/client";
 
 export async function signOut() {
-  const supabase = await createClient();
+  const supabase = createClient();
   await supabase.auth.signOut();
-  revalidatePath("/login", "layout");
 }
 
 export async function updateMatchScore(
@@ -19,7 +15,7 @@ export async function updateMatchScore(
   awayPenaltyScore?: number | null,
   forceStatus?: string
 ) {
-  const supabase = await createClient();
+  const supabase = createClient();
   
   // 1. Validar que la sesión es de un admin
   const { data: { user } } = await supabase.auth.getUser();
@@ -49,10 +45,6 @@ export async function updateMatchScore(
   if (!data || data.length === 0) {
     throw new Error("CONFLICTO: Alguien más actualizó este partido recientemente. Refresca la página.");
   }
-
-  // 4. Refrescar el caché estático
-  revalidatePath(`/admin/tournaments/${tournamentId}`);
-  revalidatePath(`/t/${tournamentId}`);
   
   return { success: true, newVersion: (data[0] as any).version };
 }
@@ -64,7 +56,7 @@ export async function createTeam(teamData: {
   city?: string | null;
   primary_color?: string | null;
 }) {
-  const supabase = await createClient();
+  const supabase = createClient();
   
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error("No autorizado");
@@ -77,12 +69,11 @@ export async function createTeam(teamData: {
 
   if (error) throw new Error(error.message);
   
-  revalidatePath("/admin/teams");
   return { success: true, team: data };
 }
 
 export async function createTournament(tournamentData: any) {
-  const supabase = await createClient();
+  const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error("No autorizado");
 
@@ -106,12 +97,11 @@ export async function createTournament(tournamentData: any) {
 
   if (error) throw new Error(error.message);
   
-  revalidatePath("/admin/tournaments");
   return { success: true, tournament: data };
 }
 
 export async function addTeamToTournament(tournamentId: string, teamId: string) {
-  const supabase = await createClient();
+  const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error("No autorizado");
 
@@ -121,12 +111,11 @@ export async function addTeamToTournament(tournamentId: string, teamId: string) 
 
   if (error) throw new Error(error.message);
   
-  revalidatePath(`/admin/tournaments/${tournamentId}`);
   return { success: true };
 }
 
 export async function updateTournament(tournamentId: string, updates: any) {
-  const supabase = await createClient();
+  const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error("No autorizado");
 
@@ -137,13 +126,11 @@ export async function updateTournament(tournamentId: string, updates: any) {
 
   if (error) throw new Error(error.message);
   
-  revalidatePath(`/admin/tournaments/${tournamentId}`);
-  revalidatePath("/admin/tournaments");
   return { success: true };
 }
 
 export async function createMatch(matchData: any) {
-  const supabase = await createClient();
+  const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error("No autorizado");
 
@@ -155,7 +142,6 @@ export async function createMatch(matchData: any) {
 
   if (error) throw new Error(error.message);
   
-  revalidatePath(`/admin/tournaments/${matchData.tournament_id}`);
   return { success: true, match: data };
 }
 
@@ -168,7 +154,7 @@ export async function createPlayer(playerData: {
   position?: string | null;
   photo_url?: string | null;
 }) {
-  const supabase = await createClient();
+  const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error("No autorizado");
 
@@ -201,12 +187,11 @@ export async function createPlayer(playerData: {
 
   if (error) throw new Error(error.message);
   
-  revalidatePath(`/admin/teams/${playerData.team_id}`);
   return { success: true, player: data };
 }
 
 export async function deletePlayer(playerId: string, teamId: string) {
-  const supabase = await createClient();
+  const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error("No autorizado");
 
@@ -219,7 +204,6 @@ export async function deletePlayer(playerId: string, teamId: string) {
 
   if (error) throw new Error(error.message);
   
-  revalidatePath(`/admin/teams/${teamId}`);
   return { success: true };
 }
 
@@ -232,7 +216,7 @@ export async function createMatchEvent(eventData: {
   minute?: number | null;
   description?: string | null;
 }) {
-  const supabase = await createClient();
+  const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error("No autorizado");
 
@@ -279,13 +263,11 @@ export async function createMatchEvent(eventData: {
     }
   }
 
-  revalidatePath(`/admin/tournaments/${eventData.tournament_id}`);
-  revalidatePath(`/t/${eventData.tournament_id}`);
   return { success: true, event: data };
 }
 
 export async function createAndRegisterPlayer(playerName: string, tournamentId: string, teamId: string) {
-  const supabase = await createClient();
+  const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error("No autorizado");
 
@@ -310,13 +292,11 @@ export async function createAndRegisterPlayer(playerName: string, tournamentId: 
 
   if (registerError) throw new Error("Error registrando jugador al equipo: " + registerError.message);
 
-  revalidatePath(`/admin/tournaments/${tournamentId}`);
-  revalidatePath(`/admin/teams/${teamId}`);
   return { success: true, player };
 }
 
 export async function addPlayerToTournamentTeam(playerId: string, tournamentId: string, teamId: string) {
-  const supabase = await createClient();
+  const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error("No autorizado");
 
@@ -331,13 +311,11 @@ export async function addPlayerToTournamentTeam(playerId: string, tournamentId: 
 
   if (error) throw new Error("Error asociando jugador al equipo: " + error.message);
 
-  revalidatePath(`/admin/tournaments/${tournamentId}`);
-  revalidatePath(`/admin/teams/${teamId}`);
   return { success: true };
 }
 
 export async function removePlayerFromTournamentTeam(playerId: string, tournamentId: string, teamId: string) {
-  const supabase = await createClient();
+  const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error("No autorizado");
 
@@ -349,13 +327,11 @@ export async function removePlayerFromTournamentTeam(playerId: string, tournamen
 
   if (error) throw new Error("Error eliminando jugador de la plantilla: " + error.message);
 
-  revalidatePath(`/admin/tournaments/${tournamentId}`);
-  revalidatePath(`/admin/teams/${teamId}`);
   return { success: true };
 }
 
 export async function updatePlayerGoals(playerId: string, tournamentId: string, teamId: string, goals: number) {
-  const supabase = await createClient();
+  const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error("No autorizado");
 
@@ -367,13 +343,11 @@ export async function updatePlayerGoals(playerId: string, tournamentId: string, 
 
   if (error) throw new Error("Error actualizando goles: " + error.message);
 
-  revalidatePath(`/admin/tournaments/${tournamentId}`);
-  revalidatePath(`/admin/teams/${teamId}`);
   return { success: true };
 }
 
 export async function createGlobalPlayer(playerName: string, teamId: string) {
-  const supabase = await createClient();
+  const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error("No autorizado");
 
@@ -385,12 +359,11 @@ export async function createGlobalPlayer(playerName: string, teamId: string) {
 
   if (error) throw new Error("Error creando jugador del equipo: " + error.message);
 
-  revalidatePath(`/admin/teams/${teamId}`);
   return { success: true, player };
 }
 
 export async function addPlayerToTeamGlobally(playerId: string, teamId: string) {
-  const supabase = await createClient();
+  const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error("No autorizado");
 
@@ -401,12 +374,11 @@ export async function addPlayerToTeamGlobally(playerId: string, teamId: string) 
 
   if (error) throw new Error("Error asociando jugador al equipo: " + error.message);
 
-  revalidatePath(`/admin/teams/${teamId}`);
   return { success: true };
 }
 
 export async function removePlayerFromTeamGlobally(playerId: string, teamId: string) {
-  const supabase = await createClient();
+  const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error("No autorizado");
 
@@ -417,6 +389,5 @@ export async function removePlayerFromTeamGlobally(playerId: string, teamId: str
 
   if (error) throw new Error("Error removiendo jugador del equipo: " + error.message);
 
-  revalidatePath(`/admin/teams/${teamId}`);
   return { success: true };
 }

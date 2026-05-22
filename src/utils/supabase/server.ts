@@ -3,7 +3,17 @@ import { cookies } from "next/headers";
 import { Database } from "@/types/supabase";
 
 export const createClient = async () => {
-  const cookieStore = await cookies();
+  let cookieStore;
+  try {
+    cookieStore = await cookies();
+  } catch (e) {
+    // Falls back to a cookie-free client during build/static generation
+    const { createClient: createSimpleClient } = await import("@supabase/supabase-js");
+    return createSimpleClient<Database>(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    ) as any;
+  }
 
   return createServerClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,

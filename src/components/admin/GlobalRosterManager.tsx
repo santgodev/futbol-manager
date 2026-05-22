@@ -19,9 +19,10 @@ interface GlobalRosterManagerProps {
   teamId: string;
   initialPlayers: Player[]; // Players belonging globally to this team
   unassignedPlayers: Player[]; // Players globally not belonging to any team
+  onRosterChanged?: () => void;
 }
 
-export function GlobalRosterManager({ teamId, initialPlayers, unassignedPlayers }: GlobalRosterManagerProps) {
+export function GlobalRosterManager({ teamId, initialPlayers, unassignedPlayers, onRosterChanged }: GlobalRosterManagerProps) {
   const router = useRouter();
   const [currentTab, setCurrentTab] = useState<"existing" | "new">("existing");
   const [selectedPlayerId, setSelectedPlayerId] = useState("");
@@ -42,6 +43,7 @@ export function GlobalRosterManager({ teamId, initialPlayers, unassignedPlayers 
       setTimeout(() => {
         setLoadingState("idle");
         router.refresh();
+        onRosterChanged?.();
       }, 1000);
     } catch (err) {
       console.error(err);
@@ -60,6 +62,7 @@ export function GlobalRosterManager({ teamId, initialPlayers, unassignedPlayers 
       setTimeout(() => {
         setLoadingState("idle");
         router.refresh();
+        onRosterChanged?.();
       }, 1000);
     } catch (err) {
       console.error(err);
@@ -74,6 +77,7 @@ export function GlobalRosterManager({ teamId, initialPlayers, unassignedPlayers 
     try {
       await removePlayerFromTeamGlobally(playerId, teamId);
       router.refresh();
+      onRosterChanged?.();
     } catch (err) {
       console.error(err);
     } finally {

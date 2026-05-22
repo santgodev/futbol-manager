@@ -1,15 +1,35 @@
-import { createClient } from "@/utils/supabase/server";
+"use client";
+
+import { useEffect, useState } from "react";
+import { createClient } from "@/utils/supabase/client";
 import Link from "next/link";
 import { Shield } from "@/components/ui/Shield";
 
-export default async function AdminDashboard() {
-  const supabase = await createClient();
+export default function AdminDashboard() {
+  const [tournaments, setTournaments] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  // Fetch recent tournaments
-  const { data: tournaments } = await supabase
-    .from("tournaments")
-    .select("*, tournament_teams(count), matches(count)")
-    .order("created_at", { ascending: false });
+  useEffect(() => {
+    const fetchTournaments = async () => {
+      const supabase = createClient();
+      const { data } = await supabase
+        .from("tournaments")
+        .select("*, tournament_teams(count), matches(count)")
+        .order("created_at", { ascending: false });
+      if (data) setTournaments(data);
+      setLoading(false);
+    };
+    fetchTournaments();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="p-8 md:p-12 max-w-7xl mx-auto flex items-center justify-center min-h-[50vh]">
+        <Shield className="w-10 h-12 text-brand-teal animate-pulse" />
+      </div>
+    );
+  }
+
 
   return (
     <div className="p-8 md:p-12 max-w-7xl mx-auto">
@@ -31,13 +51,13 @@ export default async function AdminDashboard() {
         <div className="panel-stat">
           <span className="text-[10px] uppercase tracking-[0.2em] text-brand-aqua/60 block mb-4">Equipos Totales</span>
           <span className="text-5xl font-bold text-brand-sand hero-title !not-italic">
-            {tournaments?.reduce((acc, t) => acc + (t.tournament_teams?.[0]?.count || 0), 0) || 0}
+            {tournaments?.reduce((acc: number, t: any) => acc + (t.tournament_teams?.[0]?.count || 0), 0) || 0}
           </span>
         </div>
         <div className="panel-stat">
           <span className="text-[10px] uppercase tracking-[0.2em] text-brand-aqua/60 block mb-4">Partidos Disputados</span>
           <span className="text-5xl font-bold text-brand-sand hero-title !not-italic">
-            {tournaments?.reduce((acc, t) => acc + (t.matches?.[0]?.count || 0), 0) || 0}
+            {tournaments?.reduce((acc: number, t: any) => acc + (t.matches?.[0]?.count || 0), 0) || 0}
           </span>
         </div>
       </div>
@@ -55,7 +75,7 @@ export default async function AdminDashboard() {
         </div>
 
         <div className="flex flex-col gap-4">
-          {tournaments?.map((tournament) => (
+          {tournaments?.map((tournament: any) => (
             <Link 
               key={tournament.id} 
               href={`/admin/tournaments/${tournament.id}`}

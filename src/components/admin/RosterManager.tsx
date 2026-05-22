@@ -31,14 +31,18 @@ interface RosterManagerProps {
   tournaments: any[]; // Array of tournaments team belongs to
   initialPlayers: TournamentPlayer[];
   globalPlayers: Player[];
+  onRosterChanged?: () => void;
 }
 
-export function RosterManager({ teamId, tournaments, initialPlayers, globalPlayers }: RosterManagerProps) {
+export function RosterManager({ teamId, tournaments, initialPlayers, globalPlayers, onRosterChanged }: RosterManagerProps) {
   const router = useRouter();
   
   // Track tab type per tournament: 'existing' or 'new'
   const [tabStates, setTabStates] = useState<Record<string, "existing" | "new">>(
-    tournaments.reduce((acc, t) => ({ ...acc, [t.id]: "existing" }), {})
+    tournaments.reduce((acc, t) => {
+      const id = t.tournament?.id || t.id;
+      return id ? { ...acc, [id]: "existing" } : acc;
+    }, {})
   );
 
   const [selectedPlayerId, setSelectedPlayerId] = useState<Record<string, string>>({});
@@ -65,6 +69,7 @@ export function RosterManager({ teamId, tournaments, initialPlayers, globalPlaye
       setTimeout(() => {
         setLoadingStates(prev => ({ ...prev, [tournamentId]: "idle" }));
         router.refresh();
+        onRosterChanged?.();
       }, 1000);
     } catch (err) {
       console.error(err);
@@ -84,6 +89,7 @@ export function RosterManager({ teamId, tournaments, initialPlayers, globalPlaye
       setTimeout(() => {
         setLoadingStates(prev => ({ ...prev, [tournamentId]: "idle" }));
         router.refresh();
+        onRosterChanged?.();
       }, 1000);
     } catch (err) {
       console.error(err);
@@ -99,6 +105,7 @@ export function RosterManager({ teamId, tournaments, initialPlayers, globalPlaye
     try {
       await removePlayerFromTournamentTeam(playerId, tournamentId, teamId);
       router.refresh();
+      onRosterChanged?.();
     } catch (err) {
       console.error(err);
     } finally {
@@ -114,6 +121,7 @@ export function RosterManager({ teamId, tournaments, initialPlayers, globalPlaye
     try {
       await updatePlayerGoals(playerId, tournamentId, teamId, goals);
       router.refresh();
+      onRosterChanged?.();
     } catch (err) {
       console.error(err);
     } finally {
@@ -124,8 +132,8 @@ export function RosterManager({ teamId, tournaments, initialPlayers, globalPlaye
   return (
     <div className="flex flex-col gap-12">
       {tournaments.map((t) => {
-        const tournament = t.tournament;
-        if (!tournament) return null;
+        const tournament = t.tournament || t;
+        if (!tournament || !tournament.id) return null;
 
         // Players registered for this specific tournament and team
         const tournamentPlayers = initialPlayers.filter(

@@ -1,17 +1,38 @@
-import { createClient } from "@/utils/supabase/server";
+"use client";
+
+import { useEffect, useState } from "react";
+import { createClient } from "@/utils/supabase/client";
 import { Shield } from "lucide-react";
 import Link from "next/link";
 
-export default async function AdminTeamsPage() {
-  const supabase = await createClient();
+export default function AdminTeamsPage() {
+  const [teams, setTeams] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const { data: teams } = await supabase
-    .from("teams")
-    .select(`
-      *, 
-      players(count)
-    `)
-    .order("name", { ascending: true });
+  useEffect(() => {
+    const fetchTeams = async () => {
+      const supabase = createClient();
+      const { data } = await supabase
+        .from("teams")
+        .select(`
+          *, 
+          players(count)
+        `)
+        .order("name", { ascending: true });
+      if (data) setTeams(data);
+      setLoading(false);
+    };
+    fetchTeams();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="p-8 md:p-12 max-w-7xl mx-auto flex items-center justify-center min-h-[50vh]">
+        <Shield className="w-10 h-12 text-brand-teal animate-pulse" />
+      </div>
+    );
+  }
+
 
   return (
     <div className="p-8 md:p-12 max-w-6xl mx-auto">
@@ -37,7 +58,7 @@ export default async function AdminTeamsPage() {
       </header>
 
       <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
-        {teams?.map((team) => {
+        {teams?.map((team: any) => {
           const playersCount = (team.players as any)?.[0]?.count || 0;
           return (
             <Link 
