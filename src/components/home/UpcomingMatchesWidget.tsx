@@ -25,7 +25,7 @@ export const UpcomingMatchesWidget = ({ matches = [] }: { matches?: any[] }) => 
               className="flex items-center justify-between p-2.5 rounded border border-white/5 bg-white/[0.02] hover:bg-white/[0.04] transition-colors"
             >
               {/* Home */}
-              <div className="flex items-center gap-2 flex-1 justify-end">
+              <div className="flex items-center gap-2 flex-1 justify-end min-w-0">
                 <span className="text-[10px] font-bold text-white uppercase truncate text-right">
                   {m.home_team?.name}
                 </span>
@@ -37,7 +37,7 @@ export const UpcomingMatchesWidget = ({ matches = [] }: { matches?: any[] }) => 
               </div>
 
               {/* VS / Time */}
-              <div className="px-3 flex flex-col items-center justify-center">
+              <div className="px-3 flex flex-col items-center justify-center shrink-0">
                 <span className="text-[8px] font-semibold text-brand-text-muted mb-0.5 tracking-wider">
                   {new Date(m.match_date).toLocaleDateString("es-ES", { day: "2-digit", month: "short" })}
                 </span>
@@ -47,7 +47,7 @@ export const UpcomingMatchesWidget = ({ matches = [] }: { matches?: any[] }) => 
               </div>
 
               {/* Away */}
-              <div className="flex items-center gap-2 flex-1 justify-start">
+              <div className="flex items-center gap-2 flex-1 justify-start min-w-0">
                 <div className="w-5 h-5 rounded bg-brand-navy border border-brand-cyan/20 flex items-center justify-center shrink-0 overflow-hidden">
                   {m.away_team?.logo_url ? (
                     <Image src={m.away_team.logo_url} alt="Visitante" width={20} height={20} className="object-cover" unoptimized />
