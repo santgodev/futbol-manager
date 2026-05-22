@@ -9,6 +9,8 @@ import { TournamentStatusSwitcher } from "@/components/admin/TournamentStatusSwi
 import { MatchCreator } from "@/components/admin/MatchCreator";
 import { TournamentStandings } from "@/components/admin/TournamentStandings";
 import { TournamentTopScorers } from "@/components/admin/TournamentTopScorers";
+import { TournamentBracket } from "@/components/admin/TournamentBracket";
+import { FixtureGenerator } from "@/components/admin/FixtureGenerator";
 
 export default async function AdminTournamentDetails({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = await params;
@@ -165,14 +167,27 @@ export default async function AdminTournamentDetails({ params }: { params: Promi
           <div className="flex items-center gap-3 px-6 py-4 border-b border-[#0055cc]/20 bg-[#001122]/40">
             <Calendar size={16} className="text-[#00f0ff]" />
             <h2 className="text-sm font-bold uppercase tracking-widest text-white">
-              Programar Nuevo Partido
+              Programar Partidos
             </h2>
           </div>
-          <div className="p-6">
+          <div className="p-6 flex flex-col gap-8">
             <MatchCreator
               tournamentId={id}
               teams={tournament.tournament_teams || []}
             />
+            
+            <div className="relative border-t border-[#0055cc]/20 pt-8">
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-[#02060d] px-4 text-[10px] uppercase tracking-widest text-white/40 font-bold">
+                O Generar Masivamente
+              </div>
+              <div className="max-w-md mx-auto h-12">
+                <FixtureGenerator
+                  tournamentId={id}
+                  teamsCount={teamsCount}
+                  hasGroupMatches={matches?.some((m) => m.stage === "GROUP") || false}
+                />
+              </div>
+            </div>
           </div>
         </section>
 
@@ -187,7 +202,8 @@ export default async function AdminTournamentDetails({ params }: { params: Promi
               {matchesTotal} partido{matchesTotal !== 1 ? "s" : ""}
             </span>
           </div>
-          <div className="p-6">
+          <div className="p-6 flex flex-col gap-8">
+
             <div className="flex flex-col gap-4">
               {matches?.map(match => (
                 <MatchEditor key={match.id} match={match} tournamentId={id} />
@@ -234,6 +250,20 @@ export default async function AdminTournamentDetails({ params }: { params: Promi
             </div>
           </section>
         </div>
+
+        {/* ── SECCIÓN 6: Fase Eliminatoria (Brackets) ── */}
+        <section className="bg-[#02060d]/60 backdrop-blur-md border border-[#0055cc]/20 rounded-2xl overflow-hidden">
+          <div className="flex items-center gap-3 px-6 py-4 border-b border-[#0055cc]/20 bg-[#001122]/40">
+            <Trophy size={16} className="text-[#00f0ff]" />
+            <h2 className="text-sm font-bold uppercase tracking-widest text-white">
+              Cuadro Eliminatorio (Brackets)
+            </h2>
+          </div>
+          <div className="p-0">
+            {/* Se le pasan todos los partidos; internamente filtra is_knockout y los agrupa */}
+            <TournamentBracket matches={matches || []} />
+          </div>
+        </section>
 
       </div>
     </div>

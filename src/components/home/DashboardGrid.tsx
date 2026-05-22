@@ -20,9 +20,9 @@ export const DashboardGrid = async () => {
 
   console.log("DEBUG: latestTournament =", latestTournament, "Error =", tError);
 
-  let standings = [];
-  let scorers = [];
-  let upcomingMatches = [];
+  let standings: any[] = [];
+  let scorers: any[] = [];
+  let upcomingMatches: any[] = [];
 
   if (latestTournament) {
     const { data: stdData } = await supabase

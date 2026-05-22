@@ -1,18 +1,32 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { createMatchEvent, updateMatchScore } from "@/app/admin/actions";
-import { Play, Pause, Square, AlertTriangle, Clock, Shield, Goal, UserMinus, UserPlus, Activity, ExternalLink, CheckCircle } from "lucide-react";
+import { createMatchEvent, updateMatchScore, deleteMatchEvent, updateMatchEventFields } from "@/app/admin/actions";
+import { Play, Pause, Square, AlertTriangle, Clock, Shield, Goal, UserMinus, UserPlus, Activity, CheckCircle } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-
+import { EventContextMenu, type MatchEvent, type EventContextMenuCallbacks } from "@/components/admin/EventContextMenu";
+import { DeleteEventModal } from "@/components/admin/DeleteEventModal";
+import { EditMinuteModal } from "@/components/admin/EditMinuteModal";
+import { ChangePlayerModal } from "@/components/admin/ChangePlayerModal";
+import { PenaltyShootoutModal } from "@/components/admin/PenaltyShootoutModal";
+import { toggleMatchClock } from "@/app/admin/actions";
 export function LiveControlRoom({ match, homePlayers, awayPlayers }: { match: any, homePlayers: any[], awayPlayers: any[] }) {
   const router = useRouter();
   
-  // Timer State
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [seconds, setSeconds] = useState(0);
+  // Timer State (Initialized from DB)
+  const [isPlaying, setIsPlaying] = useState(match.clock_status === 'RUNNING');
+  const [isTogglingClock, setIsTogglingClock] = useState(false);
+  const [seconds, setSeconds] = useState(() => {
+    let base = match.clock_elapsed_seconds || 0;
+    if (match.clock_status === 'RUNNING' && match.clock_last_started_at) {
+      const start = new Date(match.clock_last_started_at).getTime();
+      const now = new Date().getTime();
+      base += Math.floor((now - start) / 1000);
+    }
+    return base;
+  });
   
   // Event State
   const [selectedPlayer, setSelectedPlayer] = useState<any>(null);
@@ -24,19 +38,98 @@ export function LiveControlRoom({ match, homePlayers, awayPlayers }: { match: an
   const [isSubMode, setIsSubMode] = useState(false);
   const [playerOut, setPlayerOut] = useState<any>(null);
 
-  // Timer logic
+  // ── Delete Event Modal State ──
+  const [eventToDelete, setEventToDelete] = useState<MatchEvent | null>(null);
+
+  // ── Edit Minute Modal State ──
+  const [eventToEditMinute, setEventToEditMinute] = useState<MatchEvent | null>(null);
+
+  // ── Change Player Modal State ──
+  const [eventToChangePlayer, setEventToChangePlayer] = useState<MatchEvent | null>(null);
+
+  // ── Penalty Shootout Modal State ──
+  const [showPenaltyModal, setShowPenaltyModal] = useState(false);
+
+  // ── Context Menu Callbacks ──
+  const eventMenuCallbacks: EventContextMenuCallbacks = {
+    onEditMinute: (ev: MatchEvent) => setEventToEditMinute(ev),
+    onChangePlayer: (ev: MatchEvent) => setEventToChangePlayer(ev),
+    onDelete: (ev: MatchEvent) => setEventToDelete(ev),
+  };
+
+  // Called by DeleteEventModal
+  const handleDeleteConfirm = async (eventId: string, tournamentId: string) => {
+    await deleteMatchEvent(eventId, tournamentId);
+    router.refresh();
+  };
+
+  // Called by EditMinuteModal
+  const handleEditMinuteConfirm = async (eventId: string, minute: number, matchId: string, tournamentId: string) => {
+    await updateMatchEventFields(eventId, { minute }, matchId, tournamentId);
+    router.refresh();
+  };
+
+  // Called by ChangePlayerModal
+  const handleChangePlayerConfirm = async (eventId: string, playerId: string, matchId: string, tournamentId: string) => {
+    await updateMatchEventFields(eventId, { player_id: playerId }, matchId, tournamentId);
+    router.refresh();
+  };
+
+  // Sync state if match prop changes from server (e.g., after router.refresh)
+  useEffect(() => {
+    if (isTogglingClock) return; // Prevent flashing during optimistic update
+    
+    const serverRunning = match.clock_status === 'RUNNING';
+    let base = match.clock_elapsed_seconds || 0;
+    
+    if (serverRunning && match.clock_last_started_at) {
+      const start = new Date(match.clock_last_started_at).getTime();
+      const now = new Date().getTime();
+      base += Math.floor((now - start) / 1000);
+    }
+    
+    setSeconds(base);
+    setIsPlaying(serverRunning);
+  }, [match.clock_status, match.clock_elapsed_seconds, match.clock_last_started_at, isTogglingClock]);
+
+  // Timer logic - Absolute time based
   useEffect(() => {
     let interval: any;
     if (isPlaying) {
       interval = setInterval(() => {
-        setSeconds(s => s + 1);
+        if (match.clock_last_started_at && match.clock_status === 'RUNNING' && !isTogglingClock) {
+           const start = new Date(match.clock_last_started_at).getTime();
+           const now = new Date().getTime();
+           setSeconds(Math.floor((now - start) / 1000) + (match.clock_elapsed_seconds || 0));
+        } else {
+           // Fallback for optimistic UI (ticks normally until server revalidates)
+           setSeconds(s => s + 1);
+        }
       }, 1000);
-    } else if (!isPlaying && seconds !== 0) {
-      clearInterval(interval);
     }
     return () => clearInterval(interval);
-  }, [isPlaying, seconds]);
+  }, [isPlaying, match.clock_last_started_at, match.clock_elapsed_seconds, match.clock_status, isTogglingClock]);
 
+  const handleToggleClock = async (start: boolean) => {
+    if (isTogglingClock) return;
+    setIsTogglingClock(true);
+    
+    // Optimistic update
+    setIsPlaying(start);
+
+    try {
+      await toggleMatchClock(match.id, start, seconds, match.tournament_id);
+      // Wait a bit for DB to settle before refreshing to avoid race conditions in UI
+      setTimeout(() => {
+        router.refresh();
+        setIsTogglingClock(false);
+      }, 500);
+    } catch(e) {
+      console.error(e);
+      setIsPlaying(!start); // Revert
+      setIsTogglingClock(false);
+    }
+  };
   const formatTime = (totalSeconds: number) => {
     const m = Math.floor(totalSeconds / 60);
     const s = totalSeconds % 60;
@@ -215,11 +308,16 @@ export function LiveControlRoom({ match, homePlayers, awayPlayers }: { match: an
             </div>
             <div className="flex items-center gap-3">
               <button 
-                onClick={() => setIsPlaying(!isPlaying)}
-                className="w-12 h-12 rounded-full bg-[#0055cc]/20 border border-[#0055cc] hover:bg-[#00f0ff] hover:text-black flex items-center justify-center transition-all hover:shadow-[0_0_20px_rgba(0,240,255,0.5)] text-white"
+                onClick={() => handleToggleClock(!isPlaying)}
+                disabled={isTogglingClock}
+                className={`w-12 h-12 rounded-full border flex items-center justify-center transition-all ${
+                  isPlaying 
+                    ? 'bg-[#00f0ff] text-black border-[#00f0ff] shadow-[0_0_20px_rgba(0,240,255,0.5)]'
+                    : 'bg-[#0055cc]/20 border-[#0055cc] hover:bg-[#00f0ff] hover:text-black hover:border-[#00f0ff] text-white hover:shadow-[0_0_20px_rgba(0,240,255,0.5)]'
+                } ${isTogglingClock ? 'opacity-50 cursor-wait' : ''}`}
                 title={isPlaying ? "Pausar" : "Iniciar"}
               >
-                {isPlaying ? <Pause size={20} className={isPlaying ? 'text-black' : ''} /> : <Play size={20} className="ml-1" />}
+                {isPlaying ? <Pause size={20} /> : <Play size={20} className="ml-1" />}
               </button>
               <button 
                 onClick={() => { setIsPlaying(false); setSeconds(0); }}
@@ -237,6 +335,16 @@ export function LiveControlRoom({ match, homePlayers, awayPlayers }: { match: an
               >
                 <CheckCircle size={16} /> Finalizar Partido
               </button>
+
+              {match.is_knockout && (
+                <button
+                  onClick={() => setShowPenaltyModal(true)}
+                  className="ml-2 h-12 px-6 rounded-full bg-[#00f0ff]/10 border border-[#00f0ff]/30 hover:bg-[#00f0ff] hover:text-black text-[#00f0ff] font-black uppercase tracking-widest text-xs flex items-center gap-2 transition-all hover:shadow-[0_0_20px_rgba(0,240,255,0.5)]"
+                  title="Registrar tanda de penales"
+                >
+                  Tanda de Penales
+                </button>
+              )}
             </div>
           </div>
 
@@ -254,15 +362,29 @@ export function LiveControlRoom({ match, homePlayers, awayPlayers }: { match: an
               </h2>
             </div>
             
-            {/* Puntos */}
+            {/* Puntos y Penales */}
             <div className="flex items-center justify-center gap-6 md:gap-10 shrink-0">
-              <span className="text-6xl md:text-9xl font-black text-white drop-shadow-[0_0_30px_rgba(255,255,255,0.2)] tabular-nums">
-                {match.home_score || 0}
-              </span>
+              <div className="flex items-baseline gap-2">
+                <span className="text-6xl md:text-9xl font-black text-white drop-shadow-[0_0_30px_rgba(255,255,255,0.2)] tabular-nums">
+                  {match.home_score || 0}
+                </span>
+                {match.home_penalty_score !== null && (
+                  <span className="text-2xl md:text-4xl font-bold text-[#00f0ff] opacity-80">
+                    ({match.home_penalty_score})
+                  </span>
+                )}
+              </div>
               <span className="text-4xl md:text-6xl font-black text-[#00f0ff]/30 pb-4">-</span>
-              <span className="text-6xl md:text-9xl font-black text-white drop-shadow-[0_0_30px_rgba(255,255,255,0.2)] tabular-nums">
-                {match.away_score || 0}
-              </span>
+              <div className="flex items-baseline gap-2">
+                {match.away_penalty_score !== null && (
+                  <span className="text-2xl md:text-4xl font-bold text-[#00f0ff] opacity-80">
+                    ({match.away_penalty_score})
+                  </span>
+                )}
+                <span className="text-6xl md:text-9xl font-black text-white drop-shadow-[0_0_30px_rgba(255,255,255,0.2)] tabular-nums">
+                  {match.away_score || 0}
+                </span>
+              </div>
             </div>
 
             {/* Visitante */}
@@ -409,14 +531,27 @@ export function LiveControlRoom({ match, homePlayers, awayPlayers }: { match: an
                    const isHome = ev.team_id === match.home_team_id;
 
                    return (
-                     <div key={ev.id} className={`flex items-start gap-3 p-3 rounded-lg bg-[#001122]/30 border border-[#0055cc]/10 ${isHome ? '' : 'flex-row-reverse text-right'}`}>
+                     <div
+                       key={ev.id}
+                       className={`group relative flex items-start gap-3 p-3 rounded-lg bg-[#001122]/30 border border-[#0055cc]/10 hover:border-[#0055cc]/25 hover:bg-[#001122]/50 transition-all duration-150 ${isHome ? '' : 'flex-row-reverse text-right'}`}
+                     >
                        <div className="pt-1 shrink-0">{icon}</div>
-                       <div className="flex flex-col">
+
+                       <div className="flex flex-col flex-1 min-w-0">
                          <div className={`flex items-center gap-2 ${isHome ? '' : 'flex-row-reverse'}`}>
-                           <span className="text-xs font-bold text-white uppercase">{ev.player?.name}</span>
-                           <span className="text-[9px] font-mono text-[#00f0ff]/50">{ev.minute ? `${ev.minute}'` : ''}</span>
+                           <span className="text-xs font-bold text-white uppercase truncate">{ev.player?.name}</span>
+                           <span className="text-[9px] font-mono text-[#00f0ff]/50 shrink-0">{ev.minute ? `${ev.minute}'` : ''}</span>
                          </div>
                          <span className="text-[9px] text-white/40 uppercase tracking-widest">{evName} {ev.description ? `(${ev.description})` : ''}</span>
+                       </div>
+
+                       {/* Context menu – visible on hover (desktop) and always on mobile */}
+                       <div className={`shrink-0 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity duration-150 ${isHome ? 'order-last' : 'order-first'}`}>
+                         <EventContextMenu
+                           event={ev as MatchEvent}
+                           callbacks={eventMenuCallbacks}
+                           alignRight={!isHome}
+                         />
                        </div>
                      </div>
                    );
@@ -440,6 +575,49 @@ export function LiveControlRoom({ match, homePlayers, awayPlayers }: { match: an
 
         </div>
       </div>
+
+      {/* ── Delete Event Modal ── */}
+      <DeleteEventModal
+        event={eventToDelete}
+        tournamentId={match.tournament_id}
+        onConfirm={handleDeleteConfirm}
+        onClose={() => setEventToDelete(null)}
+      />
+
+      {/* ── Edit Minute Modal ── */}
+      <EditMinuteModal
+        event={eventToEditMinute}
+        matchId={match.id}
+        tournamentId={match.tournament_id}
+        onConfirm={handleEditMinuteConfirm}
+        onClose={() => setEventToEditMinute(null)}
+      />
+
+      {/* ── Change Player Modal ── */}
+      <ChangePlayerModal
+        event={eventToChangePlayer}
+        matchId={match.id}
+        tournamentId={match.tournament_id}
+        allPlayers={[...homePlayers, ...awayPlayers]}
+        onConfirm={handleChangePlayerConfirm}
+        onClose={() => setEventToChangePlayer(null)}
+      />
+      {/* Penalty Shootout Modal */}
+      {showPenaltyModal && (
+        <PenaltyShootoutModal
+          matchId={match.id}
+          tournamentId={match.tournament_id}
+          homeTeamName={match.home_team?.name || 'Local'}
+          awayTeamName={match.away_team?.name || 'Visitante'}
+          currentHomeScore={match.home_score || 0}
+          currentAwayScore={match.away_score || 0}
+          currentHomePenalties={match.home_penalty_score}
+          currentAwayPenalties={match.away_penalty_score}
+          currentVersion={match.version || 1}
+          onClose={() => setShowPenaltyModal(false)}
+        />
+      )}
+
     </div>
   );
 }

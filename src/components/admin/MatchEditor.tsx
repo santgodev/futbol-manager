@@ -1,236 +1,169 @@
 "use client";
 import { useState, useEffect } from "react";
-import { updateMatchScore } from "@/app/admin/actions";
-import { AlertTriangle } from "lucide-react";
+import { updateMatchSchedule } from "@/app/admin/actions";
+import { Calendar, Clock, Loader2, CheckCircle2, ChevronDown, ChevronUp } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+
+function formatTimeAMPM(timeStr: string | null) {
+  if (!timeStr) return "";
+  const [hours, minutes] = timeStr.split(':');
+  let h = parseInt(hours, 10);
+  const ampm = h >= 12 ? 'PM' : 'AM';
+  h = h % 12;
+  h = h ? h : 12; 
+  return `${h.toString().padStart(2, '0')}:${minutes} ${ampm}`;
+}
 
 export function MatchEditor({ match, tournamentId }: { match: any, tournamentId: string }) {
   const [isOpen, setIsOpen] = useState(false);
-  const [homeScore, setHomeScore] = useState(match.home_score ?? "");
-  const [awayScore, setAwayScore] = useState(match.away_score ?? "");
-  const [homePenalty, setHomePenalty] = useState(match.home_penalty_score ?? "");
-  const [awayPenalty, setAwayPenalty] = useState(match.away_penalty_score ?? "");
-  const [matchStatus, setMatchStatus] = useState(match.status || 'SCHEDULED');
-  const [version, setVersion] = useState(match.version ?? 1);
+  const [matchDate, setMatchDate] = useState(match.match_date ?? "");
+  const [matchTime, setMatchTime] = useState(match.match_time ? match.match_time.slice(0, 5) : "");
   
   const [status, setStatus] = useState<"idle" | "saving" | "success" | "error">("idle");
   const [errorMessage, setErrorMessage] = useState("");
-  const [showLogs, setShowLogs] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     if (status === "success") {
-      const timer = setTimeout(() => setStatus("idle"), 3000);
+      const timer = setTimeout(() => {
+        setStatus("idle");
+        setIsOpen(false);
+      }, 1500);
       return () => clearTimeout(timer);
     }
   }, [status]);
 
-  const handleUpdate = async (isFinalizing: boolean = false) => {
+  const handleUpdate = async () => {
+    if (!matchDate || !matchTime) {
+      setErrorMessage("Fecha y hora son requeridas.");
+      setStatus("error");
+      return;
+    }
+    
     setStatus("saving");
     try {
-      const targetStatus = isFinalizing ? 'FINISHED' : 'SCHEDULED';
-      const result = await updateMatchScore(
-        match.id, 
-        homeScore === "" ? null : Number(homeScore), 
-        awayScore === "" ? null : Number(awayScore),
-        tournamentId,
-        version,
-        homePenalty === "" ? null : Number(homePenalty),
-        awayPenalty === "" ? null : Number(awayPenalty),
-        targetStatus
-      );
-      
-      // La acción updateMatchScore ya pone status 'FINISHED' si hay goles. 
-      // Para mayor claridad, lo forzamos en el estado local.
-      setMatchStatus(isFinalizing ? 'FINISHED' : 'SCHEDULED');
-      
-      if (result?.newVersion) {
-        setVersion(result.newVersion);
-      }
+      await updateMatchSchedule(match.id, matchDate, matchTime, tournamentId);
       setStatus("success");
-      
-      if (isFinalizing) {
-        // Pequeño delay para que el usuario vea el éxito antes de cerrar
-        setTimeout(() => setIsOpen(false), 1500);
-      }
+      router.refresh();
     } catch (err: any) {
       setStatus("error");
       setErrorMessage(err.message || "Error al guardar");
     }
   };
 
-  if (!isOpen) {
-    const isFinished = matchStatus === 'FINISHED';
-    return (
+  const isFinished = match.status === 'FINISHED';
+
+  return (
+    <div className={`border border-brand-navy/30 rounded-xl overflow-hidden transition-all ${isFinished ? 'opacity-70' : ''}`}>
+      {/* Main Row (Always Visible) */}
       <div 
-        onClick={() => setIsOpen(true)}
-        className={`group p-6 border transition-all cursor-pointer flex items-center justify-between ${
-          isFinished 
-            ? 'bg-brand-navy/5 border-brand-navy/20 opacity-70' 
-            : 'bg-brand-deep border-brand-navy/30 hover:border-brand-teal'
+        onClick={() => !isFinished && setIsOpen(!isOpen)}
+        className={`group p-4 lg:p-6 flex items-center justify-between transition-all ${
+          !isFinished ? 'bg-brand-deep hover:bg-[#001122] cursor-pointer' : 'bg-brand-navy/5 cursor-default'
         }`}
       >
-        <div className="flex items-center gap-6">
-          <div className={`w-2 h-2 rounded-full ${isFinished ? 'bg-brand-navy' : 'bg-brand-teal animate-pulse'}`} />
+        <div className="flex items-center gap-4 lg:gap-6">
+          <div className={`w-2 h-2 rounded-full shrink-0 ${isFinished ? 'bg-brand-navy' : 'bg-brand-cyan animate-pulse'}`} />
           <div className="flex flex-col">
-            <span className="text-[8px] text-brand-aqua/50 uppercase tracking-[0.2em] font-bold">
-              {match.stage} • {isFinished ? 'FINALIZADO' : 'PENDIENTE'}
+            <span className="text-[8px] text-brand-aqua/50 uppercase tracking-[0.2em] font-bold flex items-center gap-2">
+              <span>{match.stage} • {isFinished ? 'FINALIZADO' : 'PENDIENTE'}</span>
+              {match.match_date && (
+                <>
+                  <span className="text-brand-aqua/30">•</span>
+                  <span className="text-brand-cyan">
+                    {new Date(match.match_date + "T12:00:00").toLocaleDateString("es-MX", { weekday: "short", day: "numeric", month: "short" })} {formatTimeAMPM(match.match_time)}
+                  </span>
+                </>
+              )}
             </span>
-            <div className="flex items-center gap-3">
-              <span className="font-black text-xl text-brand-sand uppercase tracking-tighter group-hover:text-white transition-colors">
+            <div className="flex items-center gap-2 lg:gap-3 mt-1">
+              <span className="font-black text-sm lg:text-xl text-brand-sand uppercase tracking-tighter group-hover:text-white transition-colors">
                 {match.home_team?.name || 'TBD'} <span className="text-brand-aqua/20">vs</span> {match.away_team?.name || 'TBD'}
               </span>
             </div>
           </div>
         </div>
         
-        <div className="flex items-center gap-8">
-          <div className="text-3xl font-black text-brand-sand flex items-center gap-2 tabular-nums">
-            <span>{homeScore || 0}</span>
-            <span className="text-brand-aqua/20 text-xl">:</span>
-            <span>{awayScore || 0}</span>
+        <div className="flex items-center gap-4 lg:gap-8">
+          <div className="text-xl lg:text-3xl font-black text-brand-sand flex items-center gap-2 tabular-nums">
+            <span>{match.home_score ?? "-"}</span>
+            <span className="text-brand-aqua/20 text-lg lg:text-xl">:</span>
+            <span>{match.away_score ?? "-"}</span>
           </div>
           <Link 
             href={`/admin/matches/${match.id}`}
-            className="bg-brand-teal/10 border border-brand-teal/20 text-brand-teal px-4 py-2 text-[10px] font-bold uppercase tracking-widest hover:bg-brand-teal hover:text-brand-deep transition-all"
+            className="hidden lg:flex bg-brand-cyan/10 border border-brand-cyan/20 text-brand-cyan px-4 py-2 text-[10px] font-bold uppercase tracking-widest hover:bg-brand-cyan hover:text-brand-deep transition-all rounded"
             onClick={(e) => e.stopPropagation()}
           >
-            Abrir Control Room
+            Control Room
           </Link>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="flex flex-col bg-black border-2 border-brand-teal p-8 relative shadow-[0_0_50px_rgba(35,210,203,0.1)]">
-      {/* Status Bar */}
-      <div className={`absolute top-0 left-0 w-full h-1.5 transition-colors duration-500 ${
-        status === 'saving' ? 'bg-yellow-500 animate-pulse' :
-        status === 'success' ? 'bg-green-500' :
-        status === 'error' ? 'bg-red-500' : 'bg-brand-teal'
-      }`} />
-
-      <div className="flex justify-between items-start mb-12">
-         <div>
-            <h4 className="text-[10px] text-brand-teal font-black uppercase tracking-[0.3em] mb-2">Editor de Encuentro</h4>
-            <div className="flex items-center gap-3">
-              <span className="text-2xl font-black text-white uppercase tracking-tighter">{match.stage}</span>
-              <span className={`px-3 py-1 text-[9px] font-bold rounded-sm ${matchStatus === 'FINISHED' ? 'bg-brand-navy text-brand-aqua' : 'bg-brand-teal/20 text-brand-teal'}`}>
-                {matchStatus === 'FINISHED' ? 'FINALIZADO' : 'EN VIVO / PROGRAMADO'}
-              </span>
-            </div>
-         </div>
-         <button onClick={() => setIsOpen(false)} className="text-brand-aqua/50 hover:text-white text-xs uppercase tracking-widest flex items-center gap-2 transition-colors">
-           <span className="text-lg">×</span> Cerrar Editor
-         </button>
-      </div>
-
-      <div className="flex items-center gap-12 mb-12">
-        {/* Local */}
-        <div className="flex-1 flex flex-col items-end gap-4">
-          <span className="font-black text-2xl md:text-4xl text-brand-sand uppercase tracking-tighter text-right">
-            {match.home_team?.name || 'TBD'}
-          </span>
-          {match.is_knockout && (
-            <div className="flex flex-col items-end">
-              <span className="text-[9px] text-brand-aqua/40 uppercase font-bold mb-1">Penales</span>
-              <input 
-                type="number" 
-                value={homePenalty}
-                onChange={(e) => { setHomePenalty(e.target.value); setStatus("idle"); }}
-                className="w-12 h-12 bg-brand-navy/10 border border-brand-navy text-center text-lg font-bold text-brand-teal focus:border-brand-teal outline-none transition-all"
-                placeholder="0"
-              />
-            </div>
-          )}
-        </div>
-
-        {/* Marcador Central */}
-        <div className="flex items-center gap-4">
-          <input 
-            type="number" 
-            value={homeScore} 
-            onChange={(e) => { setHomeScore(e.target.value); setStatus("idle"); }}
-            className="w-20 h-28 md:w-28 md:h-36 bg-brand-deep border-4 border-brand-navy text-center text-5xl md:text-7xl font-black text-white focus:border-brand-teal focus:outline-none transition-all shadow-inner"
-            placeholder="-"
-          />
-          <span className="text-brand-aqua/20 font-black text-4xl md:text-6xl">:</span>
-          <input 
-            type="number" 
-            value={awayScore} 
-            onChange={(e) => { setAwayScore(e.target.value); setStatus("idle"); }}
-            className="w-20 h-28 md:w-28 md:h-36 bg-brand-deep border-4 border-brand-navy text-center text-5xl md:text-7xl font-black text-white focus:border-brand-teal focus:outline-none transition-all shadow-inner"
-            placeholder="-"
-          />
-        </div>
-
-        {/* Visitante */}
-        <div className="flex-1 flex flex-col items-start gap-4">
-          <span className="font-black text-2xl md:text-4xl text-brand-sand uppercase tracking-tighter text-left">
-            {match.away_team?.name || 'TBD'}
-          </span>
-          {match.is_knockout && (
-            <div className="flex flex-col items-start">
-              <span className="text-[9px] text-brand-aqua/40 uppercase font-bold mb-1">Penales</span>
-              <input 
-                type="number" 
-                value={awayPenalty}
-                onChange={(e) => { setAwayPenalty(e.target.value); setStatus("idle"); }}
-                className="w-12 h-12 bg-brand-navy/10 border border-brand-navy text-center text-lg font-bold text-brand-teal focus:border-brand-teal outline-none transition-all"
-                placeholder="0"
-              />
+          {!isFinished && (
+            <div className="text-brand-aqua/30 lg:hidden">
+              {isOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
             </div>
           )}
         </div>
       </div>
 
-      {/* Footer Actions */}
-      <div className="flex items-center justify-between pt-8 border-t border-brand-navy/30">
-        <button 
-          onClick={() => setShowLogs(!showLogs)}
-          className="text-[10px] text-brand-aqua/30 hover:text-brand-teal uppercase tracking-widest transition-colors flex items-center gap-2"
-        >
-          {showLogs ? 'Ocultar Historial' : `Ver Historial de Cambios (${match.match_logs?.length || 0})`}
-        </button>
-
-        <div className="flex items-center gap-4">
-          <button 
-            onClick={() => handleUpdate(false)} 
-            disabled={status === 'saving'}
-            className="bg-brand-navy/50 text-brand-sand border border-brand-navy px-6 py-4 text-xs font-bold uppercase tracking-widest hover:bg-brand-navy transition-colors disabled:opacity-50"
-          >
-            Guardar Parcial
-          </button>
-          
-          <button 
-            onClick={() => handleUpdate(true)} 
-            disabled={status === 'saving'}
-            className="bg-brand-teal text-brand-deep px-10 py-4 text-xs font-black uppercase tracking-widest hover:bg-white hover:scale-105 transition-all disabled:opacity-50 shadow-[0_0_30px_rgba(35,210,203,0.3)]"
-          >
-            {status === 'saving' ? 'Procesando...' : 'Finalizar Partido →'}
-          </button>
-        </div>
-      </div>
-
-      {/* Error Message */}
-      {status === 'error' && (
-        <div className="mt-4 bg-red-500/10 border border-red-500/20 p-4 flex items-center gap-3 text-red-500 text-xs font-bold uppercase tracking-widest">
-          <AlertTriangle className="w-4 h-4" /> {errorMessage}
-        </div>
-      )}
-
-      {/* Historial */}
-      {showLogs && (
-        <div className="mt-8 bg-brand-navy/5 p-6 border border-brand-navy/20">
-          <h5 className="text-[10px] font-bold text-brand-teal uppercase tracking-widest mb-4">Registro de Auditoría</h5>
-          <div className="flex flex-col gap-3 max-h-48 overflow-y-auto custom-scrollbar">
-            {match.match_logs?.sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()).map((log: any) => (
-              <div key={log.id} className="flex items-center justify-between text-[11px] pb-2 border-b border-brand-navy/10 last:border-0">
-                <span className="text-brand-aqua/40">{new Date(log.created_at).toLocaleString()}</span>
-                <span className="font-mono text-brand-sand">{log.old_home_score}:{log.old_away_score} <span className="text-brand-teal">→</span> {log.new_home_score}:{log.new_away_score}</span>
-              </div>
-            ))}
+      {/* Expandable Scheduler */}
+      {isOpen && !isFinished && (
+        <div className="bg-[#001122]/80 border-t border-brand-cyan/20 p-5 flex flex-col gap-4">
+          <div className="flex items-center gap-2 mb-2">
+            <Calendar size={14} className="text-brand-cyan" />
+            <span className="text-[10px] font-bold uppercase tracking-widest text-brand-cyan">
+              Agendar Partido
+            </span>
           </div>
+
+          <div className="flex flex-col lg:flex-row items-end gap-4">
+            <div className="flex-1 w-full flex gap-4">
+              <div className="flex-1 flex flex-col gap-1.5">
+                <label className="text-[9px] uppercase tracking-[0.15em] text-brand-aqua/60 font-bold">Fecha</label>
+                <input 
+                  type="date" 
+                  value={matchDate} 
+                  onChange={(e) => { setMatchDate(e.target.value); setStatus("idle"); setErrorMessage(""); }}
+                  className="w-full bg-brand-deep border border-brand-navy focus:border-brand-cyan px-3 py-2 text-brand-sand font-mono text-xs outline-none transition-all rounded [color-scheme:dark]"
+                />
+              </div>
+              <div className="flex-1 flex flex-col gap-1.5">
+                <label className="text-[9px] uppercase tracking-[0.15em] text-brand-aqua/60 font-bold">Hora</label>
+                <input 
+                  type="time" 
+                  value={matchTime} 
+                  onChange={(e) => { setMatchTime(e.target.value); setStatus("idle"); setErrorMessage(""); }}
+                  className="w-full bg-brand-deep border border-brand-navy focus:border-brand-cyan px-3 py-2 text-brand-sand font-mono text-xs outline-none transition-all rounded [color-scheme:dark]"
+                />
+              </div>
+            </div>
+
+            <div className="w-full lg:w-auto flex gap-3">
+              <Link 
+                href={`/admin/matches/${match.id}`}
+                className="lg:hidden flex-1 flex items-center justify-center bg-brand-cyan/10 border border-brand-cyan/20 text-brand-cyan px-4 py-2 text-[10px] font-bold uppercase tracking-widest hover:bg-brand-cyan hover:text-brand-deep transition-all rounded"
+              >
+                Control Room
+              </Link>
+              <button 
+                onClick={handleUpdate} 
+                disabled={status === 'saving' || !matchDate || !matchTime}
+                className="flex-1 lg:flex-none bg-brand-cyan/10 text-brand-cyan border border-brand-cyan/30 px-6 py-2 text-[10px] font-bold uppercase tracking-widest hover:bg-brand-cyan/20 transition-all disabled:opacity-50 flex items-center justify-center gap-2 rounded h-9"
+              >
+                {status === 'saving' ? (
+                  <><Loader2 size={12} className="animate-spin" /> Guardando...</>
+                ) : status === 'success' ? (
+                  <><CheckCircle2 size={12} /> Agendado</>
+                ) : (
+                  'Guardar Fecha'
+                )}
+              </button>
+            </div>
+          </div>
+          
+          {errorMessage && (
+            <p className="text-[10px] text-red-400 bg-red-500/10 border border-red-500/30 p-2 rounded">{errorMessage}</p>
+          )}
         </div>
       )}
     </div>

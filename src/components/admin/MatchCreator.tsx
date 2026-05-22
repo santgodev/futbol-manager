@@ -11,6 +11,7 @@ export function MatchCreator({ tournamentId, teams }: { tournamentId: string; te
   const [homeTeamId, setHomeTeamId] = useState("");
   const [awayTeamId, setAwayTeamId] = useState("");
   const [stage, setStage] = useState("GROUP");
+  const [bracketOrder, setBracketOrder] = useState<number>(1);
   const [matchDate, setMatchDate] = useState(new Date().toISOString().split("T")[0]);
   const [matchTime, setMatchTime] = useState("18:00");
   const [loading, setLoading] = useState(false);
@@ -30,6 +31,7 @@ export function MatchCreator({ tournamentId, teams }: { tournamentId: string; te
         home_team_id: homeTeamId,
         away_team_id: awayTeamId,
         stage,
+        bracket_order: stage !== "GROUP" ? bracketOrder : null,
         match_date: matchDate || null,
         match_time: matchTime || null,
         is_knockout: stage !== "GROUP",
@@ -66,6 +68,21 @@ export function MatchCreator({ tournamentId, teams }: { tournamentId: string; te
           <option value="FINAL"         className="bg-[#040c1a]">Final</option>
         </select>
       </div>
+
+      {/* Orden (solo eliminatorias) */}
+      {stage !== "GROUP" && (
+        <div className="flex flex-col gap-1.5 col-span-1">
+          <label className="text-[10px] uppercase tracking-[0.15em] text-[#00f0ff]/70 font-bold">Orden Bracket</label>
+          <input
+            type="number"
+            min="1"
+            value={bracketOrder}
+            onChange={e => setBracketOrder(parseInt(e.target.value) || 1)}
+            className={inputClass}
+            title="Posición de arriba hacia abajo (1, 2, 3...) en el árbol del torneo."
+          />
+        </div>
+      )}
 
       {/* Local */}
       <div className="flex flex-col gap-1.5 col-span-1">

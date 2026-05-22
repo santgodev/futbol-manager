@@ -128,6 +128,10 @@ export type Database = {
           away_penalty_score: number | null
           away_score: number | null
           away_team_id: string | null
+          bracket_order: number | null
+          clock_elapsed_seconds: number | null
+          clock_last_started_at: string | null
+          clock_status: string | null
           created_at: string | null
           home_penalty_score: number | null
           home_score: number | null
@@ -138,16 +142,22 @@ export type Database = {
           match_time: string | null
           next_match_home_side: boolean | null
           next_match_id: string | null
+          round_number: number | null
           stage: Database["public"]["Enums"]["match_stage"]
           status: string | null
           tournament_id: string | null
           updated_by: string | null
           version: number
+          winner_team_id: string | null
         }
         Insert: {
           away_penalty_score?: number | null
           away_score?: number | null
           away_team_id?: string | null
+          bracket_order?: number | null
+          clock_elapsed_seconds?: number | null
+          clock_last_started_at?: string | null
+          clock_status?: string | null
           created_at?: string | null
           home_penalty_score?: number | null
           home_score?: number | null
@@ -158,16 +168,22 @@ export type Database = {
           match_time?: string | null
           next_match_home_side?: boolean | null
           next_match_id?: string | null
+          round_number?: number | null
           stage?: Database["public"]["Enums"]["match_stage"]
           status?: string | null
           tournament_id?: string | null
           updated_by?: string | null
           version?: number
+          winner_team_id?: string | null
         }
         Update: {
           away_penalty_score?: number | null
           away_score?: number | null
           away_team_id?: string | null
+          bracket_order?: number | null
+          clock_elapsed_seconds?: number | null
+          clock_last_started_at?: string | null
+          clock_status?: string | null
           created_at?: string | null
           home_penalty_score?: number | null
           home_score?: number | null
@@ -178,6 +194,7 @@ export type Database = {
           match_time?: string | null
           next_match_home_side?: boolean | null
           next_match_id?: string | null
+          round_number?: number | null
           stage?: Database["public"]["Enums"]["match_stage"]
           status?: string | null
           tournament_id?: string | null

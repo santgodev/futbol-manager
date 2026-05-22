@@ -24,7 +24,7 @@ export default async function AdminTeamDetailsPage({ params }: { params: Promise
   if (!team) return notFound();
 
   // Active players
-  const activePlayers = team.players?.filter(p => p.is_active) || [];
+  const activePlayers = team.players?.filter((p: any) => p.is_active) || [];
   
   const teamColor = team.primary_color || "#0066cc";
 
