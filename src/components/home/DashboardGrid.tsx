@@ -84,13 +84,13 @@ export const DashboardGrid = async () => {
           <StandingsWidget standings={standings} />
         </div>
 
-        {/* Col 3 — Goleador (3 cols) */}
-        <div id="goleador" className="lg:col-span-3 min-h-[380px] scroll-mt-24">
+        {/* Col 3 — Goleador (2 cols) */}
+        <div id="goleador" className="lg:col-span-2 min-h-[380px] scroll-mt-24">
           <ScorersWidget scorers={scorers} />
         </div>
 
-        {/* Col 4 + 5 — Próximos Partidos + Tarjetas stacked (3 cols) */}
-        <div className="lg:col-span-3 flex flex-col gap-3">
+        {/* Col 4 + 5 — Próximos Partidos + Tarjetas stacked (4 cols) */}
+        <div className="lg:col-span-4 flex flex-col gap-3">
           <div id="partidos" className="flex-1 min-h-[184px] scroll-mt-24">
             <UpcomingMatchesWidget matches={upcomingMatches} />
           </div>
