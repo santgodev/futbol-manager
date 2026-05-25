@@ -7,11 +7,13 @@ import { Loader2, Wand2, X, AlertTriangle } from "lucide-react";
 export function FixtureGenerator({
   tournamentId,
   teamsCount,
-  hasGroupMatches
+  hasGroupMatches,
+  onUpdate
 }: {
   tournamentId: string;
   teamsCount: number;
   hasGroupMatches: boolean;
+  onUpdate?: () => void;
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -32,6 +34,7 @@ export function FixtureGenerator({
     setErrorMsg("");
     try {
       await generateRoundRobinFixture(tournamentId);
+      if (onUpdate) onUpdate();
       setIsOpen(false);
     } catch (err: any) {
       setErrorMsg(err.message || "Error al generar el fixture.");

@@ -10,7 +10,7 @@ export const MobileBottomNav = () => {
           <Home className="w-5 h-5 mb-1" />
           <span className="text-[9px] uppercase tracking-widest font-bold">Inicio</span>
         </a>
-        <a href="#matches" className="flex flex-col items-center justify-center w-full h-full text-brand-aqua/60 hover:text-brand-teal transition-colors">
+        {/* <a href="#matches" className="flex flex-col items-center justify-center w-full h-full text-brand-aqua/60 hover:text-brand-teal transition-colors">
           <Calendar className="w-5 h-5 mb-1" />
           <span className="text-[9px] uppercase tracking-widest font-bold">Partidos</span>
         </a>
@@ -25,7 +25,7 @@ export const MobileBottomNav = () => {
         <a href="#rules" className="flex flex-col items-center justify-center w-full h-full text-brand-aqua/60 hover:text-brand-teal transition-colors">
           <BookOpen className="w-5 h-5 mb-1" />
           <span className="text-[9px] uppercase tracking-widest font-bold">Reglas</span>
-        </a>
+        </a> */}
       </div>
     </nav>
   );

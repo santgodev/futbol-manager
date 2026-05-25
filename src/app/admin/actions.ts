@@ -299,10 +299,10 @@ export async function createAndRegisterPlayer(playerName: string, tournamentId: 
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error("No autorizado");
 
-  // 1. Create player globally
+  // 1. Create player globally, assigned to the team
   const { data: player, error: playerError } = await supabase
     .from("players")
-    .insert({ name: playerName })
+    .insert({ name: playerName, team_id: teamId, created_by: user.id, is_active: true })
     .select()
     .single();
 
@@ -381,7 +381,7 @@ export async function createGlobalPlayer(playerName: string, teamId: string) {
 
   const { data: player, error } = await supabase
     .from("players")
-    .insert({ name: playerName, team_id: teamId })
+    .insert({ name: playerName, team_id: teamId, created_by: user.id, is_active: true })
     .select()
     .single();
 
@@ -395,12 +395,14 @@ export async function addPlayerToTeamGlobally(playerId: string, teamId: string) 
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error("No autorizado");
 
-  const { error } = await supabase
+  const { data, error } = await supabase
     .from("players")
     .update({ team_id: teamId })
-    .eq("id", playerId);
+    .eq("id", playerId)
+    .select();
 
   if (error) throw new Error("Error asociando jugador al equipo: " + error.message);
+  if (!data || data.length === 0) throw new Error("No se pudo asignar el jugador. Es posible que no tengas permiso para modificarlo.");
 
   return { success: true };
 }

@@ -61,32 +61,36 @@ export default function AdminTournamentsPage() {
             href={`/admin/tournaments/${tournament.id}`}
             className="group flex flex-col panel-premium-interactive"
           >
-            <div className="flex items-start justify-between mb-8">
-              <div className="p-3 bg-brand-navy/20 border border-brand-navy/30 rounded-xl group-hover:border-brand-teal/50 transition-colors">
-                <Shield className="w-8 h-8 text-brand-teal" />
+            {/* Hover ambient glows */}
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-[2px] bg-gradient-to-r from-transparent via-brand-teal to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1/2 h-[30px] bg-brand-teal/10 blur-[20px] pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+
+            <div className="flex items-start justify-between mb-8 relative z-10">
+              <div className="p-3 bg-[#02060d]/80 shadow-[inset_0_0_10px_rgba(0,0,0,0.5)] border border-brand-navy/30 rounded-xl group-hover:border-brand-teal/50 group-hover:shadow-[0_0_15px_rgba(0,240,255,0.1)] transition-all">
+                <Shield className="w-8 h-8 text-brand-teal drop-shadow-[0_0_0_rgba(0,0,0,0)] group-hover:drop-shadow-[0_0_8px_rgba(0,240,255,0.5)] transition-all" />
               </div>
-              <span className="text-[9px] text-brand-teal font-black uppercase tracking-widest border border-brand-teal/30 bg-black px-3 py-1 rounded-full">
+              <span className="text-[9px] text-brand-teal font-black uppercase tracking-widest border border-brand-teal/30 bg-[#02060d]/80 px-3 py-1 rounded-full shadow-[0_0_10px_rgba(0,240,255,0.05)]">
                 {tournament.status}
               </span>
             </div>
             
-            <div className="flex flex-col mb-6">
-              <span className="font-bold text-xl tracking-wide uppercase text-brand-sand group-hover:text-white transition-colors mb-1 line-clamp-1">
+            <div className="flex flex-col mb-6 relative z-10">
+              <span className="font-bold text-xl tracking-wide uppercase text-brand-sand group-hover:text-white transition-colors mb-1 line-clamp-1 drop-shadow-[0_0_0_rgba(0,0,0,0)] group-hover:drop-shadow-[0_0_5px_rgba(255,255,255,0.3)]">
                 {tournament.name}
               </span>
-              <span className="text-[10px] text-brand-aqua/50 uppercase tracking-widest">
+              <span className="text-[10px] text-brand-aqua/50 uppercase tracking-widest group-hover:text-brand-teal/70 transition-colors">
                 📍 {tournament.location}
               </span>
             </div>
             
-            <div className="flex items-center gap-8 mt-auto pt-5 border-t border-brand-navy/20">
+            <div className="flex items-center gap-8 mt-auto pt-5 border-t border-brand-navy/30 relative z-10">
               <div className="flex flex-col">
-                <span className="text-[9px] text-brand-aqua/40 uppercase tracking-widest mb-1">Equipos</span>
-                <span className="font-bold text-brand-sand text-lg group-hover:text-brand-teal transition-colors">{(tournament.tournament_teams as any)?.[0]?.count || 0}</span>
+                <span className="text-[9px] text-brand-aqua/40 uppercase tracking-widest mb-1 group-hover:text-brand-aqua/60 transition-colors">Equipos</span>
+                <span className="font-bold text-brand-sand text-lg group-hover:text-brand-teal drop-shadow-[0_0_0_rgba(0,0,0,0)] group-hover:drop-shadow-[0_0_8px_rgba(0,240,255,0.5)] transition-all">{(tournament.tournament_teams as any)?.[0]?.count || 0}</span>
               </div>
               <div className="flex flex-col">
-                <span className="text-[9px] text-brand-aqua/40 uppercase tracking-widest mb-1">Partidos</span>
-                <span className="font-bold text-brand-sand text-lg group-hover:text-brand-teal transition-colors">{(tournament.matches as any)?.[0]?.count || 0}</span>
+                <span className="text-[9px] text-brand-aqua/40 uppercase tracking-widest mb-1 group-hover:text-brand-aqua/60 transition-colors">Partidos</span>
+                <span className="font-bold text-brand-sand text-lg group-hover:text-brand-teal drop-shadow-[0_0_0_rgba(0,0,0,0)] group-hover:drop-shadow-[0_0_8px_rgba(0,240,255,0.5)] transition-all">{(tournament.matches as any)?.[0]?.count || 0}</span>
               </div>
             </div>
           </Link>

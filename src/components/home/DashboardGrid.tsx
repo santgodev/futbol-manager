@@ -5,32 +5,43 @@ import { StandingsWidget } from "./StandingsWidget";
 import { ScorersWidget } from "./ScorersWidget";
 import { UpcomingMatchesWidget } from "./UpcomingMatchesWidget";
 import { CardsStatsWidget } from "./CardsStatsWidget";
+import { GlobalSearchResults } from "./GlobalSearchResults";
 import { createClient } from "@/utils/supabase/server";
 
 export const DashboardGrid = async ({ tournamentId }: { tournamentId?: string }) => {
   const supabase = await createClient();
 
   let activeTournament = null;
+  let globalTournaments = null;
   let tError = null;
 
   if (tournamentId) {
     const { data: tData, error } = await supabase
       .from("tournaments")
-      .select("id, name, image_url, status, location, start_date")
+      .select("id, slug, name, image_url, status, location, start_date")
       .eq("id", tournamentId)
       .single();
     activeTournament = tData;
     tError = error;
   } else {
-    // Fetch the latest active tournament
-    const { data: latestTournament, error: latestError } = await supabase
+    // Fetch multiple active tournaments for the global carousel
+    const { data: latestTournaments, error: latestError } = await supabase
       .from("tournaments")
-      .select("id, name, image_url, status, location, start_date")
+      .select("id, slug, name, image_url, status, location, start_date")
       .order("created_at", { ascending: false })
-      .limit(1)
-      .single();
-    activeTournament = latestTournament;
+      .limit(20);
+    globalTournaments = latestTournaments || [];
     tError = latestError;
+  }
+
+  // If no tournamentId is provided, we are on the global landing page.
+  // We just return the carousel and skip the specific dashboard grid.
+  if (!tournamentId) {
+    return (
+      <section id="torneos" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8 mb-6 scroll-mt-24 min-h-[400px]">
+        <GlobalSearchResults initialTournaments={globalTournaments || []} />
+      </section>
+    );
   }
 
   console.log("DEBUG: activeTournament =", activeTournament, "Error =", tError);
@@ -70,27 +81,9 @@ export const DashboardGrid = async ({ tournamentId }: { tournamentId?: string })
     if (matchesData) upcomingMatches = matchesData;
   }
   return (
-    <section id="torneos" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8 mb-6 scroll-mt-24">
-      {/* Section Header */}
-      {!tournamentId && (
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-3">
-            <Trophy size={18} className="text-brand-yellow" />
-            <h2 className="text-sm font-bold uppercase tracking-[0.2em] text-white">
-              Torneos Destacados
-            </h2>
-          </div>
-          <Link
-            href="/torneos"
-            className="text-xs text-brand-cyan hover:text-white transition-colors tracking-wider"
-          >
-            Ver todos
-          </Link>
-        </div>
-      )}
-
+    <section id="dashboard" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8 mb-6 scroll-mt-24">
       {/* 5-Column Dashboard Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 items-stretch">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-4 items-stretch">
 
         {/* Col 1 — Featured Tournament Card (3 cols) */}
         <div id="equipos" className="lg:col-span-3 min-h-[410px] scroll-mt-24">
@@ -98,25 +91,24 @@ export const DashboardGrid = async ({ tournamentId }: { tournamentId?: string })
         </div>
 
         {/* Col 2 — Posiciones (3 cols) */}
-        <div id="posiciones" className="lg:col-span-3 min-h-[410px] scroll-mt-24">
-          <StandingsWidget standings={standings} />
-        </div>
+            <div id="posiciones" className="lg:col-span-3 min-h-[410px] scroll-mt-24">
+              <StandingsWidget standings={standings} />
+            </div>
 
-        {/* Col 3 — Goleador (3 cols) */}
-        <div id="goleador" className="lg:col-span-3 min-h-[410px] scroll-mt-24">
-          <ScorersWidget scorers={scorers} />
-        </div>
+            {/* Col 3 — Goleador (3 cols) */}
+            <div id="goleador" className="lg:col-span-3 min-h-[410px] scroll-mt-24">
+              <ScorersWidget scorers={scorers} />
+            </div>
 
-        {/* Col 4 + 5 — Próximos Partidos + Tarjetas stacked (3 cols) */}
-        <div className="lg:col-span-3 flex flex-col gap-3">
-          <div id="partidos" className="flex-1 min-h-[199px] scroll-mt-24">
-            <UpcomingMatchesWidget matches={upcomingMatches} />
-          </div>
-          <div id="tarjetas" className="flex-1 min-h-[199px] scroll-mt-24">
-            <CardsStatsWidget />
-          </div>
-        </div>
-
+            {/* Col 4 + 5 — Próximos Partidos + Tarjetas stacked (3 cols) */}
+            <div className="lg:col-span-3 flex flex-col gap-6 lg:gap-4">
+              <div id="partidos" className="flex-1 min-h-[199px] scroll-mt-24">
+                <UpcomingMatchesWidget matches={upcomingMatches} />
+              </div>
+              <div id="tarjetas" className="flex-1 min-h-[199px] scroll-mt-24">
+                <CardsStatsWidget />
+              </div>
+            </div>
       </div>
     </section>
   );

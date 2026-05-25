@@ -30,10 +30,11 @@ export function GlobalRosterManager({ teamId, initialPlayers, unassignedPlayers,
   const [playerSearchQuery, setPlayerSearchQuery] = useState("");
   const [loadingState, setLoadingState] = useState<"idle" | "adding" | "success">("idle");
   const [deletingStates, setDeletingStates] = useState<Record<string, boolean>>({});
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const handleRegisterExisting = async () => {
     if (!selectedPlayerId) return;
-
+    setErrorMsg(null);
     setLoadingState("adding");
     try {
       await addPlayerToTeamGlobally(selectedPlayerId, teamId);
@@ -45,15 +46,16 @@ export function GlobalRosterManager({ teamId, initialPlayers, unassignedPlayers,
         router.refresh();
         onRosterChanged?.();
       }, 1000);
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
+      setErrorMsg(err.message || "Error al fichar jugador");
       setLoadingState("idle");
     }
   };
 
   const handleRegisterNew = async () => {
     if (!newPlayerName || !newPlayerName.trim()) return;
-
+    setErrorMsg(null);
     setLoadingState("adding");
     try {
       await createGlobalPlayer(newPlayerName.trim(), teamId);
@@ -64,8 +66,9 @@ export function GlobalRosterManager({ teamId, initialPlayers, unassignedPlayers,
         router.refresh();
         onRosterChanged?.();
       }, 1000);
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
+      setErrorMsg(err.message || "Error al crear jugador");
       setLoadingState("idle");
     }
   };
@@ -158,10 +161,10 @@ export function GlobalRosterManager({ teamId, initialPlayers, unassignedPlayers,
             })}
 
             {initialPlayers.length === 0 && (
-              <div className="p-12 text-center border border-dashed border-brand-navy/30 bg-black/10">
-                <Users className="w-8 h-8 text-brand-navy/40 mx-auto mb-3" />
-                <span className="text-[10px] text-brand-aqua/40 uppercase tracking-widest font-black block">
-                  El club no tiene jugadores registrados. ¡Añade algunos a continuación!
+              <div className="p-6 py-12 text-center border border-dashed border-brand-teal/30 bg-[#050b14]/50 rounded-xl">
+                <Users className="w-8 h-8 text-brand-teal/40 mx-auto mb-4" />
+                <span className="text-[10px] text-white/50 uppercase tracking-widest font-black block leading-relaxed">
+                  El club no tiene jugadores registrados.<br/>¡Añade algunos a continuación!
                 </span>
               </div>
             )}
@@ -169,7 +172,7 @@ export function GlobalRosterManager({ teamId, initialPlayers, unassignedPlayers,
         </div>
 
         {/* Add player form - column span 5 */}
-        <div className="lg:col-span-5 bg-black/30 border border-brand-navy/20 p-6 flex flex-col gap-6">
+        <div className="lg:col-span-5 bg-[#050b14]/60 border border-brand-teal/20 p-6 flex flex-col gap-6 rounded-2xl">
           <div className="flex border-b border-brand-navy/30">
             <button 
               onClick={() => setCurrentTab("existing")}
@@ -207,14 +210,14 @@ export function GlobalRosterManager({ teamId, initialPlayers, unassignedPlayers,
                   value={playerSearchQuery}
                   onChange={(e) => setPlayerSearchQuery(e.target.value)}
                   placeholder="Filtrar jugadores libres..."
-                  className="input-premium !pl-10 !bg-black/60"
+                  className="input-premium !pl-10 !bg-[#001122]/80 !border-brand-teal/30 focus:!border-brand-teal"
                 />
               </div>
 
               <select
                 value={selectedPlayerId}
                 onChange={(e) => setSelectedPlayerId(e.target.value)}
-                className="select-premium"
+                className="select-premium !bg-[#001122]/80 !border-brand-teal/30 focus:!border-brand-teal"
               >
                 <option value="">Seleccionar Jugador...</option>
                 {filteredAvailablePlayers.map(p => (
@@ -248,7 +251,7 @@ export function GlobalRosterManager({ teamId, initialPlayers, unassignedPlayers,
                 value={newPlayerName}
                 onChange={(e) => setNewPlayerName(e.target.value)}
                 placeholder="Nombre completo del jugador"
-                className="input-premium"
+                className="input-premium !bg-[#001122]/80 !border-brand-teal/30 focus:!border-brand-teal"
               />
 
               <button 
@@ -265,6 +268,13 @@ export function GlobalRosterManager({ teamId, initialPlayers, unassignedPlayers,
                 )}
                 {isAdding ? "Creando..." : isSuccess ? "¡Creado y Fichado!" : "Registrar y Fichar"}
               </button>
+            </div>
+          )}
+
+          {/* Error Display */}
+          {errorMsg && (
+            <div className="mt-3 p-3 bg-red-500/10 border border-red-500/30 rounded-lg flex items-start gap-2">
+              <span className="text-red-400 text-[10px] font-bold uppercase tracking-widest leading-relaxed">{errorMsg}</span>
             </div>
           )}
         </div>

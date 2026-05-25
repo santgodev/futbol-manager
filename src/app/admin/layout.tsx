@@ -15,11 +15,11 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
   useEffect(() => {
     const checkUser = async () => {
       const supabase = createClient();
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.user) {
         router.replace("/login");
       } else {
-        setUser(user);
+        setUser(session.user);
         setLoading(false);
       }
     };
@@ -44,8 +44,8 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
       {/* Background Decor */}
       <div className="fixed top-0 left-1/4 w-[800px] h-[800px] bg-[#0066cc]/5 rounded-full blur-[120px] pointer-events-none" />
 
-      {/* Sidebar */}
-      <aside className="w-64 border-r border-[#0055cc]/30 bg-[#02060d]/80 backdrop-blur-xl flex flex-col relative z-20">
+      {/* Sidebar (Desktop) */}
+      <aside className="hidden md:flex w-64 border-r border-[#0055cc]/30 bg-[#02060d]/80 backdrop-blur-xl flex-col relative z-20">
         <div className="h-24 flex items-center px-8 border-b border-[#0055cc]/30">
           <Link href="/admin" className="flex items-center gap-3 group">
             <Shield className="w-6 h-8 text-[#00f0ff] drop-shadow-[0_0_8px_rgba(0,240,255,0.5)] transition-all group-hover:scale-105" />
@@ -69,11 +69,33 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 relative overflow-y-auto z-10">
+      <main className="flex-1 relative overflow-y-auto z-10 pb-16 md:pb-0">
         {/* Cinematic Grain Overlay */}
         <div className="fixed inset-0 z-50 pointer-events-none opacity-[0.02]" style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E\")" }} />
-        {children}
+        
+        {/* Mobile Top Header */}
+        <header className="md:hidden sticky top-0 z-40 bg-[#02060d]/90 backdrop-blur-xl border-b border-[#0055cc]/30 px-6 py-4 flex items-center justify-between">
+          <Link href="/admin" className="flex items-center gap-3">
+            <Shield className="w-5 h-6 text-[#00f0ff] drop-shadow-[0_0_8px_rgba(0,240,255,0.5)]" />
+            <span className="font-bold tracking-widest text-xs uppercase text-white">Pegasight</span>
+          </Link>
+          
+          <form action="/auth/signout" method="post">
+            <button className="text-[10px] text-red-400 border border-red-500/30 bg-red-500/5 px-3 py-2 rounded hover:bg-red-500/20 transition-colors uppercase tracking-widest font-bold">
+              Salir
+            </button>
+          </form>
+        </header>
+
+        <div className="p-4 md:p-0">
+          {children}
+        </div>
       </main>
+
+      {/* Mobile Bottom Nav */}
+      <div className="md:hidden fixed bottom-0 left-0 w-full h-16 bg-[#02060d]/95 backdrop-blur-xl border-t border-[#0055cc]/30 z-50 flex">
+        <AdminSidebarNav isMobile={true} />
+      </div>
     </div>
   );
 }

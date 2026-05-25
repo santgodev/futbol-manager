@@ -257,10 +257,10 @@ export function RosterManager({ teamId, tournaments, initialPlayers, globalPlaye
                   })}
 
                   {tournamentPlayers.length === 0 && (
-                    <div className="p-12 text-center border border-dashed border-brand-navy/30 bg-black/10">
-                      <Users className="w-8 h-8 text-brand-navy/40 mx-auto mb-3" />
-                      <span className="text-[10px] text-brand-aqua/40 uppercase tracking-widest font-black block">
-                        No hay jugadores registrados
+                    <div className="p-6 py-12 text-center border border-dashed border-brand-teal/30 bg-[#050b14]/50 rounded-xl">
+                      <Users className="w-8 h-8 text-brand-teal/40 mx-auto mb-4" />
+                      <span className="text-[10px] text-white/50 uppercase tracking-widest font-black block leading-relaxed">
+                        No hay jugadores registrados.<br/>¡Añade algunos a continuación!
                       </span>
                     </div>
                   )}
@@ -268,7 +268,7 @@ export function RosterManager({ teamId, tournaments, initialPlayers, globalPlaye
               </div>
 
               {/* Add player form - column span 5 */}
-              <div className="lg:col-span-5 bg-black/30 border border-brand-navy/20 p-6 flex flex-col gap-6">
+              <div className="lg:col-span-5 bg-[#050b14]/60 border border-brand-teal/20 p-6 flex flex-col gap-6 rounded-2xl">
                 <div className="flex border-b border-brand-navy/30">
                   <button 
                     onClick={() => setTabStates(prev => ({ ...prev, [tournament.id]: "existing" }))}
@@ -306,14 +306,14 @@ export function RosterManager({ teamId, tournaments, initialPlayers, globalPlaye
                         value={searchQuery}
                         onChange={(e) => setPlayerSearchQuery(prev => ({ ...prev, [tournament.id]: e.target.value }))}
                         placeholder="Buscar jugador..."
-                        className="input-premium !pl-10 !bg-black/60"
+                        className="input-premium !pl-10 !bg-[#001122]/80 !border-brand-teal/30 focus:!border-brand-teal"
                       />
                     </div>
 
                     <select
                       value={selectedId}
                       onChange={(e) => setSelectedPlayerId(prev => ({ ...prev, [tournament.id]: e.target.value }))}
-                      className="select-premium"
+                      className="select-premium !bg-[#001122]/80 !border-brand-teal/30 focus:!border-brand-teal"
                     >
                       <option value="">Seleccionar Jugador...</option>
                       {availableGlobalPlayers.map(p => (
@@ -347,7 +347,7 @@ export function RosterManager({ teamId, tournaments, initialPlayers, globalPlaye
                       value={newPlayerName[tournament.id] || ""}
                       onChange={(e) => setNewPlayerName(prev => ({ ...prev, [tournament.id]: e.target.value }))}
                       placeholder="Nombre completo del jugador"
-                      className="input-premium"
+                      className="input-premium !bg-[#001122]/80 !border-brand-teal/30 focus:!border-brand-teal"
                     />
 
                     <button 

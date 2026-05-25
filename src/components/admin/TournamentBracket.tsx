@@ -135,9 +135,9 @@ function BracketMatchCard({ match }: { match: Match }) {
   return (
     <div className="relative group">
       {/* Glow on hover */}
-      <div className="absolute -inset-0.5 bg-gradient-to-r from-[#0055cc] to-[#00f0ff] rounded-xl blur opacity-0 group-hover:opacity-20 transition duration-500" />
+      <div className="absolute -inset-0.5 bg-gradient-to-r from-brand-teal to-brand-cyan rounded-xl blur opacity-0 group-hover:opacity-20 transition duration-500" />
       
-      <div className="bg-[#02060d]/90 backdrop-blur-xl border border-[#0055cc]/30 rounded-xl overflow-hidden relative z-10 flex flex-col shadow-[0_0_20px_rgba(0,0,0,0.5)]">
+      <div className="bg-[#050b14]/90 backdrop-blur-xl border border-brand-teal/30 rounded-xl overflow-hidden relative z-10 flex flex-col shadow-[inset_0_0_15px_rgba(0,0,0,0.5),0_10px_30px_rgba(0,0,0,0.6)] group-hover:border-brand-teal/50 transition-all">
         
         {/* Info top bar */}
         <div className="bg-[#001122] px-3 py-1.5 flex justify-between items-center border-b border-[#0055cc]/20">

@@ -42,8 +42,8 @@ export default function AdminTeamsPage() {
 
       <header className="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6 pb-6 border-b border-brand-navy/30">
         <div>
-          <h1 className="text-3xl md:text-5xl font-bold tracking-tighter text-brand-sand hero-title !not-italic mb-2">
-            Clubes y Equipos
+          <h1 className="text-3xl md:text-5xl font-black tracking-tighter text-[#00f0ff] hero-title !not-italic mb-2 drop-shadow-[0_0_12px_rgba(0,240,255,0.3)]">
+            CLUBES Y EQUIPOS
           </h1>
           <p className="text-brand-aqua/50 text-xs uppercase tracking-widest">
             Directorio global de equipos registrados
@@ -64,21 +64,24 @@ export default function AdminTeamsPage() {
             <Link 
               key={team.id} 
               href={`/admin/teams/${team.id}`}
-              className="group flex flex-col items-center panel-premium-interactive"
+              className="group flex flex-col items-center panel-premium-interactive overflow-hidden"
             >
+              <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-brand-teal to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-20" />
+              <div className="absolute top-0 inset-x-0 h-[60px] bg-brand-teal/20 blur-[50px] opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+              
               {team.logo_url ? (
-                <div className="w-20 h-20 mb-6 flex items-center justify-center">
+                <div className="w-20 h-20 mb-6 flex items-center justify-center relative z-10">
                   <img src={team.logo_url} alt={team.name} className="max-w-full max-h-full object-contain" />
                 </div>
               ) : (
-                <Shield className="w-16 h-20 text-brand-aqua/20 group-hover:text-brand-teal transition-colors mb-6" />
+                <Shield className="w-16 h-20 text-brand-aqua/20 group-hover:text-brand-teal transition-colors mb-6 relative z-10" />
               )}
               
-              <span className="font-bold text-sm text-center tracking-wide uppercase text-brand-sand group-hover:text-white transition-colors mb-2">
+              <span className="font-bold text-sm text-center tracking-wide uppercase text-brand-sand group-hover:text-white transition-colors mb-2 relative z-10 line-clamp-1">
                 {team.name}
               </span>
               
-              <span className="text-[10px] text-brand-aqua/50 uppercase tracking-widest text-center">
+              <span className="text-[10px] text-brand-aqua/50 uppercase tracking-widest text-center relative z-10">
                 {playersCount} Jugador{playersCount !== 1 ? 'es' : ''}
               </span>
             </Link>

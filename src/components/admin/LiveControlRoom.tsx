@@ -31,6 +31,7 @@ export function LiveControlRoom({ match, homePlayers, awayPlayers }: { match: an
   // Event State
   const [selectedPlayer, setSelectedPlayer] = useState<any>(null);
   const [selectedTeamId, setSelectedTeamId] = useState<string | null>(null);
+  const [activeRosterTab, setActiveRosterTab] = useState<'home' | 'away'>('home');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
 
@@ -227,9 +228,15 @@ export function LiveControlRoom({ match, homePlayers, awayPlayers }: { match: an
     }
   };
 
-  const renderRoster = (players: any[], teamId: string, align: 'left' | 'right', teamColor: string) => {
+  const renderRoster = (
+    players: any[],
+    teamId: string,
+    align: 'left' | 'right',
+    teamColor: string,
+    displayClass = 'flex'
+  ) => {
     return (
-      <div className="flex-1 bg-[#02060d]/80 backdrop-blur-xl border border-[#0055cc]/30 rounded-2xl flex flex-col overflow-hidden shadow-[0_0_30px_rgba(0,100,255,0.05)]">
+      <div className={`${displayClass} flex-1 min-h-[320px] lg:min-h-0 bg-[#02060d]/80 backdrop-blur-xl border border-[#0055cc]/30 rounded-2xl flex-col overflow-hidden shadow-[0_0_30px_rgba(0,100,255,0.05)]`}>
         <div 
           className="h-1.5 w-full" 
           style={{ backgroundColor: teamColor || (align === 'left' ? '#0066cc' : '#ff0055') }} 
@@ -269,6 +276,53 @@ export function LiveControlRoom({ match, homePlayers, awayPlayers }: { match: an
             })}
           </div>
         </div>
+      </div>
+    );
+  };
+
+  const renderRosterTabs = () => {
+    const tabs = [
+      {
+        id: 'home' as const,
+        label: match.home_team?.name || 'Local',
+        color: match.home_team?.primary_color || '#0066cc',
+      },
+      {
+        id: 'away' as const,
+        label: match.away_team?.name || 'Visitante',
+        color: match.away_team?.primary_color || '#ff0055',
+      },
+    ];
+
+    return (
+      <div className="lg:hidden bg-[#02060d]/90 backdrop-blur-md border border-[#0055cc]/30 rounded-2xl p-1.5 grid grid-cols-2 gap-1 shadow-[0_0_24px_rgba(0,100,255,0.08)]">
+        {tabs.map((tab) => {
+          const isActive = activeRosterTab === tab.id;
+
+          return (
+            <button
+              key={tab.id}
+              type="button"
+              onClick={() => {
+                setActiveRosterTab(tab.id);
+                setSelectedPlayer(null);
+                setSelectedTeamId(null);
+                setErrorMsg("");
+              }}
+              className={`relative min-h-12 rounded-xl px-3 py-2 text-[10px] font-black uppercase tracking-[0.18em] transition-all overflow-hidden ${
+                isActive
+                  ? 'text-white bg-[#001f3f] border border-[#00f0ff]/50 shadow-[0_0_18px_rgba(0,240,255,0.16)]'
+                  : 'text-white/45 border border-transparent hover:text-white hover:bg-white/5'
+              }`}
+            >
+              <span
+                className={`absolute inset-x-4 top-0 h-0.5 rounded-full transition-opacity ${isActive ? 'opacity-100' : 'opacity-0'}`}
+                style={{ backgroundColor: tab.color }}
+              />
+              <span className="block truncate">{tab.label}</span>
+            </button>
+          );
+        })}
       </div>
     );
   };

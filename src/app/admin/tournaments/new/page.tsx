@@ -33,7 +33,7 @@ export default function NewTournamentPage() {
     try {
       const res = await createTournament(data);
       if (res.success) {
-        router.push("/admin");
+        router.push("/admin/tournaments");
       }
     } catch (err: any) {
       setError(err.message);
@@ -45,8 +45,8 @@ export default function NewTournamentPage() {
     <div className="p-8 md:p-12 max-w-4xl mx-auto relative">
 
       {/* Back button */}
-      <Link href="/admin" className="inline-flex items-center gap-2 text-[#00f0ff]/60 hover:text-[#00f0ff] uppercase tracking-widest text-xs font-bold mb-8 transition-colors">
-        <ArrowLeft size={16} /> Volver al Dashboard
+      <Link href="/admin/tournaments" className="inline-flex items-center gap-2 text-[#00f0ff]/60 hover:text-[#00f0ff] uppercase tracking-widest text-xs font-bold mb-8 transition-colors">
+        <ArrowLeft size={16} /> Volver a Torneos
       </Link>
 
       <header className="mb-10">
@@ -138,14 +138,14 @@ export default function NewTournamentPage() {
           )}
 
           {/* Actions */}
-          <div className="flex items-center justify-end gap-4 pt-6 border-t border-[#0055cc]/30">
-            <Link href="/admin" className="px-8 py-3.5 text-white/60 hover:text-white text-xs font-bold uppercase tracking-widest transition-colors">
+          <div className="flex flex-col-reverse md:flex-row items-center justify-end gap-4 md:gap-6 pt-6 border-t border-[#0055cc]/30 mt-4">
+            <Link href="/admin/tournaments" className="w-full md:w-auto text-center px-8 py-3.5 text-white/60 hover:text-white text-xs font-bold uppercase tracking-widest transition-colors">
               Cancelar
             </Link>
             <button
               type="submit"
               disabled={loading}
-              className="bg-gradient-to-r from-[#0066cc] to-[#00aaff] text-white px-10 py-3.5 text-xs font-bold uppercase tracking-widest rounded-lg hover:shadow-[0_0_25px_rgba(0,170,255,0.5)] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              className="w-full md:w-auto bg-gradient-to-r from-[#0066cc] to-[#00aaff] text-white px-10 py-3.5 text-xs font-bold uppercase tracking-widest rounded-lg hover:shadow-[0_0_25px_rgba(0,170,255,0.5)] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex justify-center items-center gap-2"
             >
               <Shield size={16} />
               {loading ? "Creando..." : "Crear Torneo"}

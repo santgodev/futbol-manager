@@ -117,10 +117,10 @@ export function TeamForm() {
         )}
 
         {/* Acciones */}
-        <div className="flex items-center justify-end gap-4 pt-6 border-t border-brand-navy/30">
+        <div className="flex flex-col sm:flex-row items-center justify-end gap-3 pt-6 border-t border-brand-navy/30 mt-4">
           <Link 
             href="/admin/teams" 
-            className="text-[10px] text-brand-aqua/60 hover:text-brand-sand uppercase tracking-widest font-bold px-4 py-2 transition-colors"
+            className="w-full sm:w-auto text-center px-6 py-3 border border-brand-navy/50 text-brand-aqua/60 hover:text-white hover:border-white/30 rounded-xl uppercase tracking-widest text-[10px] font-bold transition-all order-2 sm:order-1"
           >
             Cancelar
           </Link>
@@ -128,7 +128,7 @@ export function TeamForm() {
           <button
             type="submit"
             disabled={status === "submitting" || status === "success"}
-            className="btn-premium-teal min-w-[160px]"
+            className="w-full sm:w-auto sm:min-w-[160px] btn-premium-teal order-1 sm:order-2"
           >
             {status === "submitting" ? (
               <Loader2 className="w-4 h-4 animate-spin" />

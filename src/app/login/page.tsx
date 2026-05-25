@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { motion } from "framer-motion";
+import { useRouter } from "next/navigation";
 import { Shield } from "@/components/ui/Shield";
 import { login } from "./actions";
 
@@ -9,16 +9,27 @@ export default function LoginPage() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
+  const router = useRouter();
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError(null);
     setLoading(true);
     
-    const formData = new FormData(e.currentTarget);
-    const res = await login(formData);
-    
-    if (res?.error) {
-      setError(res.error);
+    try {
+      const formData = new FormData(e.currentTarget);
+      const res = await login(formData);
+      
+      if (res?.error) {
+        setError(res.error);
+        setLoading(false);
+      } else {
+        setTimeout(() => {
+          window.location.href = "/admin";
+        }, 500);
+      }
+    } catch (err: any) {
+      setError(err.message || "Error al autenticar");
       setLoading(false);
     }
   };
@@ -32,12 +43,7 @@ export default function LoginPage() {
       {/* Background Decor */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-brand-teal/5 rounded-full blur-[120px] pointer-events-none" />
 
-      <motion.div 
-        initial={{ opacity: 0, scale: 0.95, y: 20 }}
-        animate={{ opacity: 1, scale: 1, y: 0 }}
-        transition={{ duration: 0.8, ease: "easeOut" }}
-        className="panel-premium w-full max-w-md md:!p-12 backdrop-blur-xl relative z-10"
-      >
+      <div className="panel-premium w-full max-w-md md:!p-12 backdrop-blur-xl relative z-10 animate-[fade-in-up_0.8s_ease-out_forwards]">
         {/* Top accent border */}
         <div className="absolute top-0 left-0 w-full h-[3px] bg-gradient-to-r from-brand-teal via-brand-aqua to-brand-gold" />
 
@@ -58,7 +64,7 @@ export default function LoginPage() {
               type="email" 
               name="email"
               required
-              className="input-premium !px-4 !py-3 !text-sm"
+              className="input-premium !px-4 !py-3 !text-sm !normal-case !tracking-normal"
               placeholder="admin@torneo.com"
             />
           </div>
@@ -69,19 +75,15 @@ export default function LoginPage() {
               type="password" 
               name="password"
               required
-              className="input-premium !px-4 !py-3 !text-sm"
+              className="input-premium !px-4 !py-3 !text-sm !normal-case !tracking-normal font-mono"
               placeholder="••••••••"
             />
           </div>
 
           {error && (
-            <motion.div 
-              initial={{ opacity: 0, y: -10 }} 
-              animate={{ opacity: 1, y: 0 }} 
-              className="bg-red-500/10 border border-red-500/30 text-red-400 text-xs p-3 text-center"
-            >
+            <div className="bg-red-500/10 border border-red-500/30 text-red-400 text-xs p-3 text-center animate-[fade-in_0.3s_ease-out]">
               {error}
-            </motion.div>
+            </div>
           )}
 
           <div className="flex flex-col gap-3 mt-4">
@@ -103,7 +105,7 @@ export default function LoginPage() {
           </div>
         </form>
 
-      </motion.div>
+      </div>
     </div>
   );
 }

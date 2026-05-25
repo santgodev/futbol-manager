@@ -166,12 +166,12 @@ export function TournamentDetailsClient({ id }: { id: string }) {
           </div>
 
           {/* Actions */}
-          <div className="flex items-center gap-3 shrink-0">
+          <div className="flex flex-col sm:flex-row w-full md:w-auto items-stretch sm:items-center gap-3 shrink-0">
             <TournamentStatusSwitcher tournament={tournament} />
             <Link
               href={`/t/${tournament.slug}`}
               target="_blank"
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-xs font-bold uppercase tracking-widest text-white/70 border border-white/10 hover:border-[#00f0ff]/50 hover:text-[#00f0ff] transition-all"
+              className="flex justify-center items-center gap-2 px-6 py-3 rounded-xl text-xs font-bold uppercase tracking-widest bg-gradient-to-r from-brand-teal to-[#00f0ff] text-brand-deep shadow-[0_0_20px_rgba(0,240,255,0.3)] hover:shadow-[0_0_30px_rgba(0,240,255,0.6)] hover:scale-[1.02] active:scale-95 transition-all"
             >
               <ExternalLink size={14} /> Ver en Vivo
             </Link>
@@ -198,6 +198,7 @@ export function TournamentDetailsClient({ id }: { id: string }) {
               tournamentId={id}
               availableTeams={availableTeams || []}
               currentTeams={tournament.tournament_teams || []}
+              onUpdate={fetchAllData}
             />
           </div>
         </section>
@@ -214,9 +215,15 @@ export function TournamentDetailsClient({ id }: { id: string }) {
             <MatchCreator
               tournamentId={id}
               teams={tournament.tournament_teams || []}
+              onUpdate={fetchAllData}
             />
             <div className="mt-8 pt-8 border-t border-[#0055cc]/20">
-              <FixtureGenerator tournamentId={id} />
+              <FixtureGenerator 
+                tournamentId={id} 
+                teamsCount={teamsCount}
+                hasGroupMatches={matches?.some((m: any) => m.stage === "GROUP" || m.stage === "GRUPOS")}
+                onUpdate={fetchAllData}
+              />
             </div>
           </div>
         </section>
@@ -253,9 +260,9 @@ export function TournamentDetailsClient({ id }: { id: string }) {
         </section>
 
         {/* ── SECCIÓN 3.5: Fase Eliminatoria ── */}
-        <section className="bg-[#02060d]/60 backdrop-blur-md border border-[#0055cc]/20 rounded-2xl overflow-hidden">
-          <div className="flex items-center gap-3 px-6 py-4 border-b border-[#0055cc]/20 bg-[#001122]/40">
-            <Trophy size={16} className="text-[#00f0ff]" />
+        <section className="bg-[#050b14]/80 backdrop-blur-xl border border-brand-teal/20 shadow-[inset_0_0_20px_rgba(0,0,0,0.5)] rounded-2xl overflow-hidden">
+          <div className="flex items-center gap-3 px-6 py-4 border-b border-brand-teal/20 bg-[#0a1526]/40">
+            <Trophy size={16} className="text-brand-teal" />
             <h2 className="text-sm font-bold uppercase tracking-widest text-white">
               Fase Eliminatoria
             </h2>
@@ -272,9 +279,9 @@ export function TournamentDetailsClient({ id }: { id: string }) {
 
         <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
           {/* ── SECCIÓN 4: Tabla de Posiciones ── */}
-          <section className="xl:col-span-2 bg-[#02060d]/60 backdrop-blur-md border border-[#0055cc]/20 rounded-2xl overflow-hidden">
-            <div className="flex items-center gap-3 px-6 py-4 border-b border-[#0055cc]/20 bg-[#001122]/40">
-              <Trophy size={16} className="text-[#00f0ff]" />
+          <section className="xl:col-span-2 bg-[#050b14]/80 backdrop-blur-xl border border-brand-teal/20 shadow-[inset_0_0_20px_rgba(0,0,0,0.5)] rounded-2xl overflow-hidden">
+            <div className="flex items-center gap-3 px-6 py-4 border-b border-brand-teal/20 bg-[#0a1526]/40">
+              <Trophy size={16} className="text-brand-teal" />
               <h2 className="text-sm font-bold uppercase tracking-widest text-white">
                 Tabla de Posiciones
               </h2>
@@ -285,8 +292,8 @@ export function TournamentDetailsClient({ id }: { id: string }) {
           </section>
 
           {/* ── SECCIÓN 5: Top Goleadores ── */}
-          <section className="xl:col-span-1 bg-[#02060d]/60 backdrop-blur-md border border-[#0055cc]/20 rounded-2xl overflow-hidden">
-            <div className="flex items-center gap-3 px-6 py-4 border-b border-[#0055cc]/20 bg-[#001122]/40">
+          <section className="xl:col-span-1 bg-[#050b14]/80 backdrop-blur-xl border border-brand-teal/20 shadow-[inset_0_0_20px_rgba(0,0,0,0.5)] rounded-2xl overflow-hidden">
+            <div className="flex items-center gap-3 px-6 py-4 border-b border-brand-teal/20 bg-[#0a1526]/40">
               <Trophy size={16} className="text-yellow-400" />
               <h2 className="text-sm font-bold uppercase tracking-widest text-white">
                 Top Goleadores

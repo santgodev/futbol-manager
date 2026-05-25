@@ -19,5 +19,5 @@ export async function login(formData: FormData) {
     return { error: "Credenciales inválidas" };
   }
 
-  window.location.href = "/admin";
+  return { success: true };
 }

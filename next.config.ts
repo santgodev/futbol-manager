@@ -6,6 +6,8 @@ const nextConfig: NextConfig = {
   images: {
     unoptimized: true,
   },
+  // @ts-ignore - Next.js 15 specific dev origins property
+  allowedDevOrigins: ['192.168.1.40'],
 };
 
 export default nextConfig;

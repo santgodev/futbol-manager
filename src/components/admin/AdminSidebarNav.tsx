@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-export const AdminSidebarNav = () => {
+export const AdminSidebarNav = ({ isMobile = false }: { isMobile?: boolean }) => {
   const pathname = usePathname();
 
   const links = [
@@ -11,6 +11,32 @@ export const AdminSidebarNav = () => {
     { href: "/admin/tournaments", label: "Torneos" },
     { href: "/admin/teams", label: "Equipos" },
   ];
+
+  if (isMobile) {
+    return (
+      <nav className="flex-1 flex items-center justify-around h-full w-full">
+        {links.map((link) => {
+          const isActive = link.href === "/admin" 
+            ? pathname === "/admin" 
+            : pathname.startsWith(link.href);
+
+          return (
+            <Link 
+              key={link.href}
+              href={link.href} 
+              className={`flex-1 h-full flex items-center justify-center text-[10px] font-bold uppercase tracking-widest transition-all ${
+                isActive 
+                  ? "text-[#00f0ff] border-t-2 border-[#00f0ff] bg-gradient-to-t from-[#0055cc]/20 to-transparent shadow-[inset_0_-10px_20px_-15px_rgba(0,100,255,0.3)]"
+                  : "text-white/50 border-t-2 border-transparent hover:text-white"
+              }`}
+            >
+              {link.label}
+            </Link>
+          );
+        })}
+      </nav>
+    );
+  }
 
   return (
     <nav className="flex-1 py-8 flex flex-col gap-2">

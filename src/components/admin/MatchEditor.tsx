@@ -55,54 +55,60 @@ export function MatchEditor({ match, tournamentId }: { match: any, tournamentId:
   const isFinished = match.status === 'FINISHED';
 
   return (
-    <div className={`border border-brand-navy/30 rounded-xl overflow-hidden transition-all ${isFinished ? 'opacity-70' : ''}`}>
+    <div className={`border border-brand-teal/30 shadow-[inset_0_0_15px_rgba(0,0,0,0.5)] rounded-2xl overflow-hidden transition-all ${isFinished ? 'opacity-70 border-brand-navy/30' : 'hover:border-brand-teal/50 hover:shadow-[0_0_20px_rgba(0,240,255,0.1)]'}`}>
       {/* Main Row (Always Visible) */}
       <div 
         onClick={() => !isFinished && setIsOpen(!isOpen)}
-        className={`group p-4 lg:p-6 flex items-center justify-between transition-all ${
-          !isFinished ? 'bg-brand-deep hover:bg-[#001122] cursor-pointer' : 'bg-brand-navy/5 cursor-default'
+        className={`group p-4 lg:p-6 flex flex-col sm:flex-row gap-4 sm:gap-0 sm:items-center justify-between transition-all ${
+          !isFinished ? 'bg-[#050b14]/80 hover:bg-[#0a1526]/90 cursor-pointer' : 'bg-[#02060d]/60 cursor-default'
         }`}
       >
-        <div className="flex items-center gap-4 lg:gap-6">
-          <div className={`w-2 h-2 rounded-full shrink-0 ${isFinished ? 'bg-brand-navy' : 'bg-brand-cyan animate-pulse'}`} />
-          <div className="flex flex-col">
-            <span className="text-[8px] text-brand-aqua/50 uppercase tracking-[0.2em] font-bold flex items-center gap-2">
+        <div className="flex items-start sm:items-center gap-3 lg:gap-6 w-full sm:w-auto">
+          <div className={`w-2 h-2 mt-1.5 sm:mt-0 rounded-full shrink-0 ${isFinished ? 'bg-brand-navy' : 'bg-brand-teal animate-pulse shadow-[0_0_8px_rgba(0,240,255,0.8)]'}`} />
+          <div className="flex flex-col flex-1 min-w-0">
+            <span className="text-[8px] text-brand-aqua/50 uppercase tracking-[0.2em] font-bold flex flex-wrap items-center gap-x-2 gap-y-1">
               <span>{match.stage} • {isFinished ? 'FINALIZADO' : 'PENDIENTE'}</span>
               {match.match_date && (
                 <>
-                  <span className="text-brand-aqua/30">•</span>
-                  <span className="text-brand-cyan">
+                  <span className="hidden sm:inline text-brand-aqua/30">•</span>
+                  <span className="text-brand-teal">
                     {new Date(match.match_date + "T12:00:00").toLocaleDateString("es-MX", { weekday: "short", day: "numeric", month: "short" })} {formatTimeAMPM(match.match_time)}
                   </span>
                 </>
               )}
             </span>
-            <div className="flex items-center gap-2 lg:gap-3 mt-1">
-              <span className="font-black text-sm lg:text-xl text-brand-sand uppercase tracking-tighter group-hover:text-white transition-colors">
-                {match.home_team?.name || 'TBD'} <span className="text-brand-aqua/20">vs</span> {match.away_team?.name || 'TBD'}
+            <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 mt-2">
+              <span className="font-black text-sm sm:text-lg lg:text-xl text-brand-sand uppercase tracking-tight group-hover:text-white transition-colors truncate">
+                {match.home_team?.name || 'TBD'}
+              </span>
+              <span className="text-[9px] font-black text-brand-teal/50 uppercase">vs</span>
+              <span className="font-black text-sm sm:text-lg lg:text-xl text-brand-sand uppercase tracking-tight group-hover:text-white transition-colors truncate">
+                {match.away_team?.name || 'TBD'}
               </span>
             </div>
           </div>
         </div>
         
-        <div className="flex items-center gap-4 lg:gap-8">
+        <div className="flex items-center justify-between sm:justify-end gap-4 lg:gap-8 w-full sm:w-auto pl-5 sm:pl-0 pt-2 sm:pt-0 border-t sm:border-0 border-brand-navy/30">
           <div className="text-xl lg:text-3xl font-black text-brand-sand flex items-center gap-2 tabular-nums">
-            <span>{match.home_score ?? "-"}</span>
-            <span className="text-brand-aqua/20 text-lg lg:text-xl">:</span>
-            <span>{match.away_score ?? "-"}</span>
+            <span className="min-w-[1ch] text-center">{match.home_score ?? "-"}</span>
+            <span className="text-brand-teal/40 text-sm lg:text-xl">:</span>
+            <span className="min-w-[1ch] text-center">{match.away_score ?? "-"}</span>
           </div>
-          <Link 
-            href={`/admin/matches/${match.id}`}
-            className="flex bg-brand-cyan/10 border border-brand-cyan/20 text-brand-cyan px-3 py-2 lg:px-4 lg:py-2 text-[10px] font-bold uppercase tracking-widest hover:bg-brand-cyan hover:text-brand-deep transition-all rounded z-10"
-            onClick={(e) => e.stopPropagation()}
-          >
-            Control Room
-          </Link>
-          {!isFinished && (
-            <div className="text-brand-aqua/30">
-              {isOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-            </div>
-          )}
+          <div className="flex items-center gap-3">
+            <Link 
+              href={`/admin/matches/${match.id}`}
+              className="flex items-center justify-center bg-brand-teal/10 border border-brand-teal/30 text-brand-teal px-4 py-2 text-[10px] font-bold uppercase tracking-widest hover:bg-brand-teal hover:text-brand-deep hover:shadow-[0_0_15px_rgba(0,240,255,0.4)] transition-all rounded-lg z-10"
+              onClick={(e) => e.stopPropagation()}
+            >
+              Control Room
+            </Link>
+            {!isFinished && (
+              <div className="text-brand-teal/50 p-1">
+                {isOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
@@ -138,13 +144,7 @@ export function MatchEditor({ match, tournamentId }: { match: any, tournamentId:
               </div>
             </div>
 
-            <div className="w-full lg:w-auto flex gap-3">
-              <Link 
-                href={`/admin/matches/${match.id}`}
-                className="lg:hidden flex-1 flex items-center justify-center bg-brand-cyan/10 border border-brand-cyan/20 text-brand-cyan px-4 py-2 text-[10px] font-bold uppercase tracking-widest hover:bg-brand-cyan hover:text-brand-deep transition-all rounded"
-              >
-                Control Room
-              </Link>
+            <div className="w-full lg:w-auto flex">
               <button 
                 onClick={handleUpdate} 
                 disabled={status === 'saving' || !matchDate || !matchTime}

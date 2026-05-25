@@ -3,21 +3,27 @@ import Image from "next/image";
 
 export const ScorersWidget = ({ scorers = [] }: { scorers?: any[] }) => {
   return (
-    <div className="glass-panel w-full p-5 flex flex-col h-full min-h-[410px]">
+    <div className="panel-premium w-full p-6 flex flex-col h-full min-h-[410px] relative overflow-hidden">
+      {/* Top ambient glow */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-[2px] bg-gradient-to-r from-transparent via-brand-yellow to-transparent opacity-30" />
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1/2 h-[30px] bg-brand-yellow/10 blur-[30px] pointer-events-none" />
+
       {/* Header */}
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-2">
-          <Medal className="text-brand-yellow" size={16} />
-          <h3 className="text-[11px] font-bold uppercase tracking-[0.18em] text-white">
+      <div className="flex items-center justify-between mb-6 relative z-10">
+        <div className="flex items-center gap-3">
+          <div className="p-2 rounded-lg bg-brand-navy/50 border border-brand-yellow/20 shadow-[0_0_10px_rgba(255,215,0,0.1)]">
+            <Medal className="text-brand-yellow drop-shadow-[0_0_8px_rgba(255,215,0,0.5)]" size={16} />
+          </div>
+          <h3 className="text-xs font-black uppercase tracking-[0.2em] text-white hero-title !not-italic">
             Goleadores
           </h3>
         </div>
       </div>
 
       {/* Content */}
-      <div className="flex flex-col gap-3 flex-1">
+      <div className="flex flex-col gap-3 flex-1 relative z-10">
         {scorers.length === 0 ? (
-          <div className="flex-1 flex items-center justify-center text-[10px] uppercase tracking-widest text-white/30 font-bold">
+          <div className="flex-1 flex items-center justify-center text-[10px] uppercase tracking-widest text-brand-aqua/50 font-bold border border-dashed border-brand-navy/50 rounded-xl">
             Aún no hay goleadores
           </div>
         ) : (
@@ -26,17 +32,17 @@ export const ScorersWidget = ({ scorers = [] }: { scorers?: any[] }) => {
             return (
               <div
                 key={scorer.player_id}
-                className={`relative flex items-center gap-2 p-2 rounded-lg border transition-all ${
+                className={`group relative flex items-center gap-3 p-3 rounded-xl transition-all ${
                   isFirst
-                    ? "bg-gradient-to-r from-brand-cyan/20 to-transparent border-brand-cyan/30"
-                    : "bg-white/[0.02] border-white/5 hover:border-brand-cyan/20"
+                    ? "bg-gradient-to-r from-brand-yellow/10 to-transparent border-l-[3px] border-brand-yellow shadow-[inset_15px_0_20px_-15px_rgba(255,215,0,0.2)]"
+                    : "bg-[#02060d]/80 border border-brand-navy/50 hover:bg-brand-teal/[0.05] hover:border-brand-teal/30 hover:shadow-[inset_3px_0_0_0_#00f0ff]"
                 }`}
               >
                 {/* Pos */}
-                <div className="w-4 text-center shrink-0">
+                <div className="w-5 text-center shrink-0">
                   <span
-                    className={`text-xs font-bold ${
-                      isFirst ? "text-brand-cyan" : "text-brand-text-muted"
+                    className={`text-xs font-black ${
+                      isFirst ? "text-brand-yellow drop-shadow-[0_0_5px_rgba(255,215,0,0.5)]" : "text-brand-aqua/50 group-hover:text-brand-teal transition-colors"
                     }`}
                   >
                     {idx + 1}
@@ -45,16 +51,16 @@ export const ScorersWidget = ({ scorers = [] }: { scorers?: any[] }) => {
 
                 {/* Avatar */}
                 <div
-                  className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 border overflow-hidden ${
+                  className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 overflow-hidden ${
                     isFirst
-                      ? "border-brand-cyan shadow-[0_0_10px_rgba(0,240,255,0.3)] bg-black/50"
-                      : "border-brand-cyan/20 bg-brand-navy"
+                      ? "border-2 border-brand-yellow shadow-[0_0_15px_rgba(255,215,0,0.3)] bg-[#02060d]"
+                      : "border border-brand-navy/80 group-hover:border-brand-teal/50 bg-[#02060d] shadow-[0_0_10px_rgba(0,0,0,0.5)] transition-colors"
                   }`}
                 >
                   {scorer.photo_url ? (
-                    <Image src={scorer.photo_url} alt={scorer.player_name} width={32} height={32} className="object-cover w-full h-full" unoptimized />
+                    <Image src={scorer.photo_url} alt={scorer.player_name} width={40} height={40} className="object-cover w-full h-full" unoptimized />
                   ) : (
-                    <span className="text-[10px] text-brand-cyan font-bold">{scorer.number || '-'}</span>
+                    <span className={`text-[10px] font-black ${isFirst ? "text-brand-yellow" : "text-brand-teal/50"}`}>{scorer.number || '-'}</span>
                   )}
                 </div>
 
@@ -62,22 +68,22 @@ export const ScorersWidget = ({ scorers = [] }: { scorers?: any[] }) => {
                 <div className="flex-1 min-w-0 flex flex-col justify-center">
                   <span
                     className={`text-xs font-bold truncate uppercase tracking-wide ${
-                      isFirst ? "text-white" : "text-brand-text-muted"
+                      isFirst ? "text-white" : "text-brand-sand group-hover:text-white transition-colors"
                     }`}
                   >
                     {scorer.player_name}
                   </span>
-                  <span className="text-[9px] text-brand-text-muted font-medium truncate uppercase tracking-wide">
+                  <span className="text-[9px] text-brand-aqua/60 font-medium truncate uppercase tracking-widest mt-0.5">
                     {scorer.team_name}
                   </span>
                 </div>
 
                 {/* Goals */}
-                <div className="flex items-center gap-1 px-2 py-1 bg-black/30 rounded-md border border-white/5 shrink-0">
-                  <span className={`text-base font-black font-mono ${isFirst ? "text-brand-cyan drop-shadow-[0_0_5px_rgba(0,240,255,0.4)]" : "text-white"}`}>
+                <div className="flex items-center gap-1.5 px-3 py-1.5 bg-[#02060d] rounded-lg border border-brand-navy/50 shrink-0 shadow-[inset_0_0_10px_rgba(0,0,0,0.5)]">
+                  <span className={`text-base font-black font-mono leading-none ${isFirst ? "text-brand-yellow drop-shadow-[0_0_8px_rgba(255,215,0,0.6)]" : "text-white group-hover:text-brand-teal transition-colors"}`}>
                     {scorer.goals}
                   </span>
-                  <Goal size={12} className={isFirst ? "text-brand-cyan" : "text-white/30"} />
+                  <Goal size={12} className={isFirst ? "text-brand-yellow" : "text-brand-aqua/40 group-hover:text-brand-teal transition-colors"} />
                 </div>
               </div>
             );

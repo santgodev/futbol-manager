@@ -42,7 +42,7 @@ export function TournamentStandings({ standings }: { standings: any[] }) {
             return (
               <tr 
                 key={team.team_id}
-                className={`border-b border-[#0055cc]/10 hover:bg-[#002244]/40 transition-colors ${isTop ? 'bg-[#0055cc]/5' : ''}`}
+                className={`border-b border-brand-teal/10 hover:bg-[#002244]/60 transition-colors ${isTop ? 'bg-brand-teal/10' : 'bg-transparent'}`}
               >
                 <td className="py-4 px-4 text-center">
                   <span className={`inline-flex items-center justify-center w-6 h-6 rounded-sm text-xs font-bold ${

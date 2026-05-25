@@ -1,5 +1,6 @@
 import React from "react";
-import { ChevronRight, ShoppingCart } from "lucide-react";
+import { ChevronRight, ShoppingCart, Search, MapPin, Calendar, Trophy, ChevronDown } from "lucide-react";
+import { HomeSearchInput } from "./HomeSearchInput";
 
 // Custom premium outline icons wrapped in a perfect circle, matching the reference mockup exactly
 const CalendarTicketIcon = ({ className = "" }: { className?: string }) => (
@@ -201,27 +202,43 @@ export const HomeHero = () => {
       {/* Blue atmosphere — centered where the player is */}
       <div className="absolute inset-0 pointer-events-none"
            style={{
-             background: "radial-gradient(ellipse 50% 90% at 50% 55%, rgba(0,55,160,0.22) 0%, transparent 70%)"
+             background: "radial-gradient(circle at 65% 55%, rgba(0, 150, 255, 0.15) 0%, transparent 60%)"
            }}
       />
 
+      {/* Cyberpunk Grid Floor */}
+      <div className="absolute inset-x-0 bottom-0 pointer-events-none overflow-hidden h-full lg:h-[60%]">
+        <div className="absolute inset-0"
+             style={{
+               backgroundImage: "linear-gradient(to top, rgba(0, 136, 255, 0.1) 1px, transparent 1px), linear-gradient(to right, rgba(0, 136, 255, 0.1) 1px, transparent 1px)",
+               backgroundSize: "50px 50px",
+               transform: "perspective(500px) rotateX(60deg) scale(2.5)",
+               transformOrigin: "top center",
+               maskImage: "linear-gradient(to bottom, transparent 0%, black 50%, transparent 100%)",
+               WebkitMaskImage: "linear-gradient(to bottom, transparent 0%, black 50%, transparent 100%)",
+             }}
+        />
+        {/* Floor reflection line */}
+        <div className="absolute top-[40%] left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-[#0088ff]/30 to-transparent" />
+      </div>
+
       {/* ── PLAYER: absolutely centered in hero, behind grid content ── */}
       {/* mix-blend-mode:screen removes the dark box — only bright pixels show */}
-      <div className="absolute hidden lg:flex items-center justify-center pointer-events-none"
-           style={{ inset: 0, zIndex: 1, top: "80px" }}>
+      <div className="absolute hidden lg:flex items-center justify-end pointer-events-none pr-[20%]"
+           style={{ inset: 0, zIndex: 1, top: "40px" }}>
         <img
           src="/jugador.png"
           alt=""
-          className="h-full w-auto"
+          className="h-[115%] w-auto opacity-95 drop-shadow-[0_0_15px_rgba(0,136,255,0.4)]"
           style={{
             mixBlendMode: "screen",
             WebkitMaskImage:
-              "linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%), " +
-              "linear-gradient(to bottom, transparent 0%, black 6%, black 100%)",
+              "linear-gradient(to right, transparent 0%, black 15%, black 85%, transparent 100%), " +
+              "linear-gradient(to bottom, transparent 0%, black 5%, black 90%, transparent 100%)",
             WebkitMaskComposite: "destination-in",
             maskImage:
-              "linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%), " +
-              "linear-gradient(to bottom, transparent 0%, black 6%, black 100%)",
+              "linear-gradient(to right, transparent 0%, black 15%, black 85%, transparent 100%), " +
+              "linear-gradient(to bottom, transparent 0%, black 5%, black 90%, transparent 100%)",
             maskComposite: "intersect",
           }}
         />
@@ -229,43 +246,58 @@ export const HomeHero = () => {
 
       {/* Content grid: text | spacer(player behind) | card */}
       <div className="relative w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8
-                      grid grid-cols-1 lg:grid-cols-12 items-center"
+                      grid grid-cols-1 lg:grid-cols-12 items-center gap-8 lg:gap-0"
            style={{ minHeight: "360px", zIndex: 10 }}>
 
-        {/* ── LEFT: Text (4 cols) ── */}
-        <div className="flex flex-col justify-center space-y-4 lg:col-span-4 py-10 relative">
-          <h1 className="font-bold italic uppercase select-none"
-              style={{ fontSize: "clamp(26px, 2.6vw, 38px)", lineHeight: 1.05 }}>
+        {/* ── LEFT: Text (5 cols) ── */}
+        <div className="flex flex-col justify-center space-y-5 lg:space-y-6 lg:col-span-5 py-6 lg:py-10 relative z-40">
+          <h1 className="font-bold italic uppercase select-none leading-tight"
+              style={{ fontSize: "clamp(28px, 7.5vw, 48px)" }}>
             <span className="block whitespace-nowrap text-white">
-              VIVE CADA <span className="text-[#0088ff]">TORNEO.</span>
+              VIVE CADA <span className="text-[#0088ff] drop-shadow-[0_0_10px_rgba(0,136,255,0.4)]">TORNEO.</span>
             </span>
             <span className="block whitespace-nowrap text-white">
-              SIGUE CADA <span className="text-[#0088ff]">PASIÓN.</span>
+              SIGUE CADA <span className="text-[#0088ff] drop-shadow-[0_0_10px_rgba(0,136,255,0.4)]">PASIÓN.</span>
             </span>
           </h1>
           <p className="text-brand-text-muted text-sm font-light leading-relaxed"
              style={{ maxWidth: "280px" }}>
             La plataforma definitiva para el seguimiento<br />de torneos deportivos.
           </p>
-          <div>
-            <button className="neon-button-solid flex items-center gap-2 px-6 py-2.5 text-sm
-                               shadow-[0_4px_20px_rgba(0,136,255,0.35)]">
-              Explorar Torneos <ChevronRight size={16} />
+          {/* Search Bar Container */}
+          <HomeSearchInput />
+
+          {/* Filters Row */}
+          <div className="flex items-center gap-3">
+            <button className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20 transition-all text-xs text-white/70 hover:text-white">
+              <Trophy className="w-3.5 h-3.5" />
+              Deporte
+              <ChevronDown className="w-3 h-3 opacity-50" />
+            </button>
+            <button className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20 transition-all text-xs text-white/70 hover:text-white">
+              <MapPin className="w-3.5 h-3.5" />
+              Ubicación
+              <ChevronDown className="w-3 h-3 opacity-50" />
+            </button>
+            <button className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20 transition-all text-xs text-white/70 hover:text-white">
+              <Calendar className="w-3.5 h-3.5" />
+              Fecha
+              <ChevronDown className="w-3 h-3 opacity-50" />
             </button>
           </div>
         </div>
 
         {/* ── CENTER: Empty spacer — player renders behind via absolute ── */}
-        <div className="hidden lg:block lg:col-span-4" />
+        <div className="hidden lg:block lg:col-span-3" />
         {/* ── RIGHT: Card (4 cols) ── */}
         <div className="flex items-center justify-center lg:justify-end w-full lg:col-span-4 py-6 relative">
 
-          <div className="w-full rounded-xl relative bg-[#030b17]/50 border border-[#1e3d70]/50"
+          <div className="w-full rounded-2xl relative bg-[#030b17]/30 backdrop-blur-[2px] border border-[#0088ff]/20"
                style={{
                  overflow: "visible",
                  padding: "18px",
                  minHeight: "200px",
-                 boxShadow: "0 0 50px rgba(0,70,200,0.15), inset 0 0 40px rgba(0,40,140,0.07)"
+                 boxShadow: "0 0 50px rgba(0,136,255,0.05), inset 0 0 40px rgba(0,136,255,0.02)"
                }}>
 
             {/* Glowing right edge border */}
@@ -287,7 +319,7 @@ export const HomeHero = () => {
 
               {/* Sparkles / Destellos behind the keychain */}
               <div className="absolute top-[40px] right-[40px] w-1.5 h-1.5 bg-white rounded-full shadow-[0_0_12px_4px_#00ccff] animate-pulse"></div>
-              <div className="absolute top-[130px] -right-[5px] w-1 h-1 bg-[#00e5ff] rounded-full shadow-[0_0_8px_3px_#0088ff] animate-pulse" style={{ animationDelay: "0.5s" }}></div>
+              <div className="absolute top-[130px] -right-[5px] w-1 h-1 bg-[#0088ff] rounded-full shadow-[0_0_8px_3px_#0088ff] animate-pulse" style={{ animationDelay: "0.5s" }}></div>
               <div className="absolute top-[100px] left-[15px] w-1.5 h-1.5 bg-white rounded-full shadow-[0_0_15px_4px_#00ccff] animate-pulse" style={{ animationDelay: "1s" }}></div>
                  
               {/* Neon Platform Base (rendered behind the keychain) */}
@@ -296,9 +328,9 @@ export const HomeHero = () => {
                 {/* Outer diffuse ambient glow */}
                 <div className="absolute inset-0 bg-[#0055ff] rounded-[50%] blur-[20px] opacity-50"></div>
                 {/* Sharp glowing cyan ellipse */}
-                <div className="absolute top-1/2 left-0 w-full h-[15px] -translate-y-1/2 border-[2px] border-[#00d2ff] rounded-[50%] shadow-[0_0_12px_#0088ff,inset_0_0_12px_#0088ff] opacity-100"></div>
+                <div className="absolute top-1/2 left-0 w-full h-[15px] -translate-y-1/2 border-[2px] border-[#0088ff] rounded-[50%] shadow-[0_0_12px_#0088ff,inset_0_0_12px_#0088ff] opacity-100"></div>
                 {/* Bright core spot in the center */}
-                <div className="absolute top-1/2 left-[25%] w-[50%] h-[6px] -translate-y-1/2 bg-[#00e5ff] rounded-[50%] blur-[6px] opacity-90"></div>
+                <div className="absolute top-1/2 left-[25%] w-[50%] h-[6px] -translate-y-1/2 bg-[#0088ff] rounded-[50%] blur-[6px] opacity-90"></div>
               </div>
 
               {/* Keychain Image */}
@@ -340,9 +372,8 @@ export const HomeHero = () => {
               </div>
 
               <div>
-                <button className="neon-button-solid flex items-center gap-2 px-4 py-2 text-[12px]
-                                   font-semibold shadow-[0_4px_15px_rgba(0,136,255,0.35)]">
-                  <ShoppingCart size={12} className="shrink-0" />
+                <button className="flex items-center justify-center gap-2 px-5 py-2.5 text-[12px] font-semibold text-white border-2 border-[#0088ff]/50 rounded-full hover:bg-[#0088ff]/10 hover:border-[#0088ff] hover:shadow-[0_0_15px_rgba(0,136,255,0.4)] transition-all duration-300 backdrop-blur-sm">
+                  <ShoppingCart size={14} className="shrink-0 text-[#0088ff]" />
                   Comprar ahora
                 </button>
                 <p className="text-[10px] text-gray-500 mt-2 italic leading-snug">

@@ -6,10 +6,11 @@ import { addTeamToTournament } from "@/app/admin/actions";
 import { Plus, Check, Loader2, Users, Shield } from "lucide-react";
 import { useRouter } from "next/navigation";
 
-export function TournamentTeamManager({ tournamentId, availableTeams, currentTeams }: {
+export function TournamentTeamManager({ tournamentId, availableTeams, currentTeams, onUpdate }: {
   tournamentId: string;
   availableTeams: any[];
   currentTeams: any[];
+  onUpdate?: () => void;
 }) {
   const [selectedTeamId, setSelectedTeamId] = useState("");
   const [status, setStatus] = useState<"idle" | "adding" | "success">("idle");
@@ -27,6 +28,7 @@ export function TournamentTeamManager({ tournamentId, availableTeams, currentTea
       setTimeout(() => {
         setStatus("idle");
         setSelectedTeamId("");
+        if (onUpdate) onUpdate();
         router.refresh();
       }, 1000);
     } catch (err) {
@@ -36,25 +38,22 @@ export function TournamentTeamManager({ tournamentId, availableTeams, currentTea
   };
 
   return (
-    <div className="panel-premium flex flex-col gap-6">
-      {/* Decorative accent */}
-      <div className="absolute top-0 left-0 w-full h-[3px] bg-gradient-to-r from-brand-teal via-brand-aqua to-brand-gold" />
-      
+    <div className="flex flex-col gap-6">
       <h3 className="text-sm font-bold uppercase tracking-widest text-brand-sand">
         Equipos Inscritos ({currentTeams.length})
       </h3>
 
       {/* Inscribir equipo */}
       {teamsToSelect.length > 0 ? (
-        <div className="flex gap-4">
+        <div className="flex flex-col sm:flex-row gap-4">
           <select
             value={selectedTeamId}
             onChange={(e) => setSelectedTeamId(e.target.value)}
-            className="flex-1 select-premium"
+            className="flex-1 w-full p-3 bg-black/60 border border-brand-navy/50 rounded-lg text-sm text-white focus:border-brand-teal focus:outline-none focus:ring-1 focus:ring-brand-teal appearance-none"
           >
-            <option value="" className="bg-black">Seleccionar equipo para inscribir...</option>
+            <option value="" className="bg-[#02060d]">Seleccionar equipo para inscribir...</option>
             {teamsToSelect.map(team => (
-              <option key={team.id} value={team.id} className="bg-black">
+              <option key={team.id} value={team.id} className="bg-[#02060d]">
                 {team.name}
               </option>
             ))}
@@ -62,7 +61,7 @@ export function TournamentTeamManager({ tournamentId, availableTeams, currentTea
           <button
             onClick={handleAdd}
             disabled={!selectedTeamId || status !== "idle"}
-            className="btn-premium-teal min-w-[120px]"
+            className="w-full sm:w-auto bg-gradient-to-r from-brand-teal to-brand-aqua text-brand-deep px-6 py-3 rounded-lg text-xs font-bold uppercase tracking-widest flex items-center justify-center gap-2 hover:shadow-[0_0_20px_rgba(0,240,255,0.4)] transition-all disabled:opacity-50"
           >
             {status === "adding" ? (
               <Loader2 className="w-4 h-4 animate-spin" />
@@ -88,25 +87,26 @@ export function TournamentTeamManager({ tournamentId, availableTeams, currentTea
           {currentTeams.map(tt => (
             <div
               key={tt.team_id}
-              className="flex flex-col items-center gap-3 p-4 bg-black/40 border border-brand-navy/20 hover:border-brand-teal/30 hover:bg-brand-navy/5 transition-all"
+              className="flex flex-col items-center gap-3 p-4 bg-[#050b14]/80 border border-brand-teal/30 hover:border-brand-teal hover:bg-[#0a1526] hover:shadow-[0_0_15px_rgba(0,240,255,0.15)] transition-all rounded-xl cursor-pointer"
             >
-              <div className="w-12 h-12 flex items-center justify-center bg-brand-navy/15 rounded border border-brand-navy/30 overflow-hidden">
+              <div className="w-12 h-12 flex items-center justify-center bg-[#02060d]/80 rounded-lg border border-brand-navy/30 overflow-hidden shadow-[inset_0_0_10px_rgba(0,0,0,0.5)]">
                 {tt.team?.logo_url ? (
-                  <img src={tt.team.logo_url} alt={tt.team.name} className="object-contain max-w-full max-h-full p-1" />
+                  <img src={tt.team.logo_url} alt={tt.team.name} className="object-contain max-w-full max-h-full p-1 drop-shadow-[0_0_5px_rgba(255,255,255,0.3)]" />
                 ) : (
-                  <Shield className="w-6 h-6 text-brand-aqua/20" />
+                  <Shield className="w-6 h-6 text-brand-aqua/30" />
                 )}
               </div>
-              <span className="text-[10px] font-bold uppercase tracking-wider text-brand-sand text-center leading-tight">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-brand-sand text-center leading-tight drop-shadow-[0_0_5px_rgba(0,0,0,0.5)]">
                 {tt.team?.name}
               </span>
             </div>
           ))}
         </div>
       ) : (
-        <div className="py-10 text-center flex flex-col items-center gap-3 border border-dashed border-brand-navy/20 bg-black/5 mt-4">
-          <Users size={28} className="text-brand-navy/40" />
-          <span className="text-brand-aqua/40 text-xs uppercase tracking-widest font-black">
+        <div className="py-12 text-center flex flex-col items-center gap-4 border border-dashed border-brand-teal/30 bg-brand-teal/5 mt-4 rounded-xl relative overflow-hidden">
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 bg-brand-teal/10 rounded-full blur-[40px] pointer-events-none" />
+          <Users size={32} className="text-brand-teal/60 drop-shadow-[0_0_10px_rgba(0,240,255,0.3)] relative z-10" />
+          <span className="text-brand-teal/80 text-xs uppercase tracking-widest font-black relative z-10">
             No hay equipos inscritos
           </span>
         </div>

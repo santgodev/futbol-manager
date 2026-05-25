@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState, useEffect } from "react";
+import { Globe, ChevronDown } from "lucide-react";
 // 1. Inicio Icon SVG (Rounded corners house with a small flag on the left roof and a 4-pointed star on the right roof)
 const InicioIcon = ({ className = "" }: { className?: string }) => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={className}>
@@ -116,22 +117,23 @@ export const Header = () => {
         {/* Navigation - Centered & Responsive */}
         <nav className="hidden md:flex items-center gap-2 lg:gap-4 xl:gap-6 h-full">
           <NavItem href="/" icon={<InicioIcon className="w-5 h-5" />} label="Inicio" active={activeTab === "/"} onClick={() => setActiveTab("/")} />
-          <NavItem href="#equipos" icon={<EquiposIcon className="w-5 h-5" />} label="Equipos" active={activeTab === "#equipos"} onClick={() => setActiveTab("#equipos")} />
+          {/* <NavItem href="#equipos" icon={<EquiposIcon className="w-5 h-5" />} label="Equipos" active={activeTab === "#equipos"} onClick={() => setActiveTab("#equipos")} />
           <NavItem href="#posiciones" icon={<PosicionesIcon className="w-5 h-5" />} label="Posiciones" active={activeTab === "#posiciones"} onClick={() => setActiveTab("#posiciones")} />
           <NavItem href="#goleador" icon={<GoleadorIcon className="w-5 h-5" />} label="Goleador" active={activeTab === "#goleador"} onClick={() => setActiveTab("#goleador")} />
-          <NavItem href="#partidos" icon={<PartidosIcon className="w-5 h-5" />} label="Partidos" active={activeTab === "#partidos"} onClick={() => setActiveTab("#partidos")} />
+          <NavItem href="#partidos" icon={<PartidosIcon className="w-5 h-5" />} label="Partidos" active={activeTab === "#partidos"} onClick={() => setActiveTab("#partidos")} /> */}
           <NavItem href="#torneos" icon={<TorneosIcon className="w-5 h-5" />} label="Torneos" active={activeTab === "#torneos"} onClick={() => setActiveTab("#torneos")} />
-          <NavItem href="#tarjetas" icon={<TarjetasIcon className="w-5 h-5" />} label="Tarjetas" active={activeTab === "#tarjetas"} onClick={() => setActiveTab("#tarjetas")} />
+          {/* <NavItem href="#tarjetas" icon={<TarjetasIcon className="w-5 h-5" />} label="Tarjetas" active={activeTab === "#tarjetas"} onClick={() => setActiveTab("#tarjetas")} /> */}
         </nav>
 
-        {/* Auth Buttons */}
-        <div className="flex items-center gap-3 sm:gap-4 shrink-0">
-          <Link href="/login" className="hidden md:block px-5 py-2 text-sm font-medium text-white border border-[#0055cc] rounded-[8px] hover:bg-[#0055cc]/15 transition-all duration-200 cursor-pointer">
-            Iniciar sesión
+        {/* Auth & Language */}
+        <div className="flex items-center gap-4 sm:gap-6 shrink-0">
+          <Link href="/login" className="px-4 py-1.5 md:px-6 md:py-2 text-xs md:text-sm font-semibold text-white border-2 border-[#0088ff]/50 rounded-full hover:bg-[#0088ff]/10 hover:border-[#0088ff] hover:shadow-[0_0_15px_rgba(0,136,255,0.4)] transition-all duration-300 cursor-pointer backdrop-blur-sm whitespace-nowrap relative z-50">
+            Iniciar Sesión
           </Link>
-          <Link href="/login" className="px-5 py-2 text-sm font-medium text-white bg-gradient-to-b from-[#0088ff] to-[#0044cc] rounded-[8px] hover:brightness-110 shadow-[0_2px_8px_rgba(0,136,255,0.2)] transition-all duration-200 cursor-pointer">
-            Registrarse
-          </Link>
+          <button className="hidden sm:flex items-center gap-1.5 text-gray-400 hover:text-white transition-colors duration-200">
+            <Globe className="w-5 h-5" />
+            <ChevronDown className="w-3.5 h-3.5 opacity-70" />
+          </button>
         </div>
 
       </div>
