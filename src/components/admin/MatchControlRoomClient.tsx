@@ -82,6 +82,7 @@ export function MatchControlRoomClient({ id }: { id: string }) {
       match={match} 
       homePlayers={homePlayers} 
       awayPlayers={awayPlayers} 
+      onUpdate={fetchAllData}
     />
   );
 }

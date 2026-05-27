@@ -6,11 +6,12 @@ import { addTeamToTournament } from "@/app/admin/actions";
 import { Plus, Check, Loader2, Users, Shield } from "lucide-react";
 import { useRouter } from "next/navigation";
 
-export function TournamentTeamManager({ tournamentId, availableTeams, currentTeams, onUpdate }: {
+export function TournamentTeamManager({ tournamentId, availableTeams, currentTeams, onUpdate, isDisabled = false }: {
   tournamentId: string;
   availableTeams: any[];
   currentTeams: any[];
   onUpdate?: () => void;
+  isDisabled?: boolean;
 }) {
   const [selectedTeamId, setSelectedTeamId] = useState("");
   const [status, setStatus] = useState<"idle" | "adding" | "success">("idle");
@@ -20,7 +21,7 @@ export function TournamentTeamManager({ tournamentId, availableTeams, currentTea
   const teamsToSelect = availableTeams.filter(t => !currentTeamIds.has(t.id));
 
   const handleAdd = async () => {
-    if (!selectedTeamId) return;
+    if (!selectedTeamId || isDisabled) return;
     setStatus("adding");
     try {
       await addTeamToTournament(tournamentId, selectedTeamId);
@@ -49,7 +50,11 @@ export function TournamentTeamManager({ tournamentId, availableTeams, currentTea
           <select
             value={selectedTeamId}
             onChange={(e) => setSelectedTeamId(e.target.value)}
-            className="flex-1 w-full p-3 bg-black/60 border border-brand-navy/50 rounded-lg text-sm text-white focus:border-brand-teal focus:outline-none focus:ring-1 focus:ring-brand-teal appearance-none"
+            disabled={isDisabled}
+            className={`flex-1 w-full p-3 bg-black/60 border border-brand-navy/50 focus:border-brand-teal focus:outline-none focus:ring-1 focus:ring-brand-teal appearance-none rounded-lg text-sm text-white ${
+              isDisabled ? 'opacity-40 cursor-not-allowed border-red-500/20 text-white/35' : ''
+            }`}
+            title={isDisabled ? "Inscripciones bloqueadas debido a inconsistencias críticas" : ""}
           >
             <option value="" className="bg-[#02060d]">Seleccionar equipo para inscribir...</option>
             {teamsToSelect.map(team => (
@@ -60,8 +65,8 @@ export function TournamentTeamManager({ tournamentId, availableTeams, currentTea
           </select>
           <button
             onClick={handleAdd}
-            disabled={!selectedTeamId || status !== "idle"}
-            className="w-full sm:w-auto bg-gradient-to-r from-brand-teal to-brand-aqua text-brand-deep px-6 py-3 rounded-lg text-xs font-bold uppercase tracking-widest flex items-center justify-center gap-2 hover:shadow-[0_0_20px_rgba(0,240,255,0.4)] transition-all disabled:opacity-50"
+            disabled={!selectedTeamId || status !== "idle" || isDisabled}
+            className="w-full sm:w-auto bg-gradient-to-r from-brand-teal to-brand-aqua text-brand-deep px-6 py-3 rounded-lg text-xs font-bold uppercase tracking-widest flex items-center justify-center gap-2 hover:shadow-[0_0_20px_rgba(0,240,255,0.4)] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {status === "adding" ? (
               <Loader2 className="w-4 h-4 animate-spin" />

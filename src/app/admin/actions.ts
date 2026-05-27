@@ -78,6 +78,31 @@ export async function updateMatchScore(
 }
 
 
+function sanitizeTeamName(rawName: string): string {
+  return rawName
+    .trim()
+    .split(/\s+/)
+    .map(word => {
+      const upperWord = word.toUpperCase();
+      if (["FC", "CF", "CD", "SC", "AC", "FK", "F.C."].includes(upperWord)) {
+        return upperWord;
+      }
+      return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+    })
+    .join(" ");
+}
+
+function sanitizePlayerName(rawName: string): string {
+  return rawName
+    .trim()
+    .split(/\s+/)
+    .map(word => {
+      if (word.length === 0) return "";
+      return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+    })
+    .join(" ");
+}
+
 export async function createTeam(teamData: {
   name: string;
   logo_url?: string | null;
@@ -89,16 +114,29 @@ export async function createTeam(teamData: {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error("No autorizado");
 
+  const cleanName = sanitizeTeamName(teamData.name);
+
+  // Validar duplicado exacto sin distinción de mayúsculas/minúsculas y espacios
+  const { data: existingTeam } = await supabase
+    .from("teams")
+    .select("id")
+    .ilike("name", cleanName)
+    .maybeSingle();
+
+  if (existingTeam) {
+    throw new Error(`Ya existe un equipo registrado con el nombre "${cleanName}".`);
+  }
+
   const { data, error } = await supabase
     .from("teams")
-    .insert({ ...teamData, created_by: user.id })
+    .insert({ ...teamData, name: cleanName, created_by: user.id })
     .select()
     .single();
 
   if (error) throw new Error(error.message);
-  
   return { success: true, team: data };
 }
+
 
 export async function createTournament(tournamentData: any) {
   const supabase = createClient();
@@ -207,9 +245,11 @@ export async function createPlayer(playerData: {
     if (existingDoc) throw new Error(`El documento ${playerData.document_id} ya está registrado para el jugador ${existingDoc.name}.`);
   }
 
+  const cleanName = sanitizePlayerName(playerData.name);
+
   const { data, error } = await supabase
     .from("players")
-    .insert({ ...playerData, created_by: user.id, is_active: true })
+    .insert({ ...playerData, name: cleanName, created_by: user.id, is_active: true })
     .select()
     .single();
 
@@ -300,9 +340,10 @@ export async function createAndRegisterPlayer(playerName: string, tournamentId: 
   if (!user) throw new Error("No autorizado");
 
   // 1. Create player globally, assigned to the team
+  const cleanName = sanitizePlayerName(playerName);
   const { data: player, error: playerError } = await supabase
     .from("players")
-    .insert({ name: playerName, team_id: teamId, created_by: user.id, is_active: true })
+    .insert({ name: cleanName, team_id: teamId, created_by: user.id, is_active: true })
     .select()
     .single();
 
@@ -374,14 +415,32 @@ export async function updatePlayerGoals(playerId: string, tournamentId: string, 
   return { success: true };
 }
 
-export async function createGlobalPlayer(playerName: string, teamId: string) {
+export async function createGlobalPlayer(
+  playerName: string,
+  teamId: string,
+  jerseyNumber?: number | null,
+  dateOfBirth?: string | null,
+  position?: string | null
+) {
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error("No autorizado");
 
+  const cleanName = sanitizePlayerName(playerName);
+  const insertData: Record<string, unknown> = {
+    name: cleanName,
+    team_id: teamId,
+    created_by: user.id,
+    is_active: true,
+  };
+
+  if (jerseyNumber !== null && jerseyNumber !== undefined) insertData.number = jerseyNumber;
+  if (dateOfBirth) insertData.date_of_birth = dateOfBirth;
+  if (position) insertData.position = position;
+
   const { data: player, error } = await supabase
     .from("players")
-    .insert({ name: playerName, team_id: teamId, created_by: user.id, is_active: true })
+    .insert(insertData)
     .select()
     .single();
 
@@ -422,12 +481,114 @@ export async function removePlayerFromTeamGlobally(playerId: string, teamId: str
   return { success: true };
 }
 
+export async function updateGlobalPlayer(
+  playerId: string,
+  name: string,
+  number: number | null,
+  dateOfBirth: string | null,
+  position: string | null
+) {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error("No autorizado");
+
+  const cleanName = sanitizePlayerName(name);
+  const { data, error } = await supabase
+    .from("players")
+    .update({
+      name: cleanName,
+      number,
+      date_of_birth: dateOfBirth,
+      position
+    })
+    .eq("id", playerId)
+    .select()
+    .single();
+
+  if (error) throw new Error("Error actualizando jugador: " + error.message);
+  return { success: true, player: data };
+}
+
+
+export async function updateTeamLogo(teamId: string, logoUrl: string) {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error("No autorizado");
+
+  const { error } = await supabase
+    .from("teams")
+    .update({ logo_url: logoUrl })
+    .eq("id", teamId);
+
+  if (error) throw new Error("Error actualizando el escudo del equipo: " + error.message);
+
+  return { success: true };
+}
+
 export async function generateKnockoutBracket(tournamentId: string, teamsCount: 2 | 4 | 8) {
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error("No autorizado");
 
-  // 1. Validar que no haya partidos eliminatorios ya finalizados
+  // Validar formato del torneo
+  const { data: tournament, error: tErr } = await supabase
+    .from('tournaments')
+    .select('format, is_double_round')
+    .eq('id', tournamentId)
+    .single();
+
+  if (tErr || !tournament) throw new Error("Error consultando el torneo.");
+  if (tournament.format === 'LEAGUE') {
+    throw new Error("No se pueden generar eliminatorias en un torneo con formato de Liga Directa.");
+  }
+
+  // 1. Validar que la fase de grupos esté matemáticamente terminada y sea consistente
+  const { data: groupMatches, error: gmErr } = await supabase
+    .from('matches')
+    .select('*')
+    .eq('tournament_id', tournamentId)
+    .or('stage.eq.GROUP,stage.eq.GRUPOS');
+
+  if (gmErr) throw new Error("Error consultando partidos de fase de grupos");
+
+  const { data: registeredTeams, error: rtErr } = await supabase
+    .from('tournament_teams')
+    .select('team_id')
+    .eq('tournament_id', tournamentId);
+
+  if (rtErr || !registeredTeams) throw new Error("Error consultando equipos inscritos");
+
+  if (tournament.format !== 'PLAYOFFS') {
+    // A. Validar que todos los partidos creados estén finalizados
+    const pendingGroup = groupMatches?.filter((m: any) => m.status !== 'FINISHED') || [];
+    if (pendingGroup.length > 0) {
+      throw new Error("No se pueden generar eliminatorias: Quedan partidos de grupos programados que aún no se han jugado.");
+    }
+
+    // B. Validar consistencia de partidos jugados vs requeridos (Todos contra todos)
+    const N = registeredTeams.length;
+    const isDoubleRound = !!tournament.is_double_round;
+    const singleRoundMatches = N >= 2 ? (N * (N - 1)) / 2 : 0;
+    const requiredMatches = isDoubleRound ? singleRoundMatches * 2 : singleRoundMatches;
+    const finishedGroup = groupMatches?.filter((m: any) => m.status === 'FINISHED') || [];
+
+    if (finishedGroup.length < requiredMatches) {
+      throw new Error(`Lógica competitiva rota: Se requieren jugar ${requiredMatches} partidos de grupo (todos contra todos para ${N} equipos) para generar las llaves, pero solo se han jugado ${finishedGroup.length} partidos.`);
+    }
+
+    // C. Validar que no haya equipos sin haber jugado partidos
+    const teamsWithNoMatches = registeredTeams.filter((tt: any) => {
+      return !groupMatches?.some((m: any) => 
+        m.status === 'FINISHED' && (m.home_team_id === tt.team_id || m.away_team_id === tt.team_id)
+      );
+    });
+
+    if (teamsWithNoMatches.length > 0) {
+      throw new Error("Lógica competitiva rota: Hay equipos inscritos que no han disputado ningún partido en el calendario de grupos. No se pueden generar cruces justos.");
+    }
+  }
+
+  // 2. Validar que no haya partidos eliminatorios ya finalizados
   const { data: existingKnockouts, error: existingErr } = await supabase
     .from('matches')
     .select('id, status')
@@ -436,7 +597,7 @@ export async function generateKnockoutBracket(tournamentId: string, teamsCount: 
     
   if (existingErr) throw new Error("Error verificando bracket existente");
   
-  const hasFinished = existingKnockouts.some(m => m.status === 'FINISHED');
+  const hasFinished = existingKnockouts?.some((m: any) => m.status === 'FINISHED') || false;
   if (hasFinished) {
     throw new Error("No se puede regenerar el bracket porque ya hay partidos eliminatorios finalizados.");
   }
@@ -450,19 +611,35 @@ export async function generateKnockoutBracket(tournamentId: string, teamsCount: 
       .eq('is_knockout', true);
   }
 
-  // 2. Obtener los mejores equipos de la fase de grupos usando la vista
-  const { data: standings, error: standingsErr } = await supabase
-    .from('tournament_standings_view')
-    .select('team_id')
-    .eq('tournament_id', tournamentId)
-    .order('points', { ascending: false })
-    .order('goals_for', { ascending: false })
-    .limit(teamsCount);
+  let topTeams: string[] = [];
 
-  if (standingsErr) throw new Error("Error obteniendo tabla de posiciones");
-  if (standings.length < teamsCount) throw new Error(`No hay suficientes equipos. Se requieren ${teamsCount}.`);
+  if (tournament.format === 'PLAYOFFS') {
+    // Para eliminación directa, tomamos los equipos inscritos directamente
+    const { data: ttTeams, error: ttErr } = await supabase
+      .from('tournament_teams')
+      .select('team_id')
+      .eq('tournament_id', tournamentId)
+      .limit(teamsCount);
 
-  const topTeams = standings.map(s => s.team_id);
+    if (ttErr || !ttTeams) throw new Error("Error obteniendo los equipos inscritos");
+    if (ttTeams.length < teamsCount) throw new Error(`No hay suficientes equipos inscritos en el torneo. Se requieren ${teamsCount} pero solo hay ${ttTeams.length}.`);
+    
+    topTeams = ttTeams.map((t: any) => t.team_id);
+  } else {
+    // Obtener los mejores equipos de la fase de grupos usando la vista
+    const { data: standings, error: standingsErr } = await supabase
+      .from('tournament_standings_view')
+      .select('team_id')
+      .eq('tournament_id', tournamentId)
+      .order('points', { ascending: false })
+      .order('goals_for', { ascending: false })
+      .limit(teamsCount);
+
+    if (standingsErr) throw new Error("Error obteniendo tabla de posiciones");
+    if (standings.length < teamsCount) throw new Error(`No hay suficientes equipos. Se requieren ${teamsCount}.`);
+
+    topTeams = standings.map((s: any) => s.team_id);
+  }
 
   // 3. Generar Árbol
   const matchesToInsert: any[] = [];
@@ -502,8 +679,8 @@ export async function generateKnockoutBracket(tournamentId: string, teamsCount: 
     ]).select();
     if (semiErr) throw new Error("Error creando Semis");
 
-    const semi1 = semiData.find(s => s.bracket_order === 1);
-    const semi2 = semiData.find(s => s.bracket_order === 2);
+    const semi1 = semiData?.find((s: any) => s.bracket_order === 1);
+    const semi2 = semiData?.find((s: any) => s.bracket_order === 2);
 
     matchesToInsert.push({ tournament_id: tournamentId, stage: 'QUARTERFINAL', is_knockout: true, home_team_id: topTeams[0], away_team_id: topTeams[7], bracket_order: 1, status: 'SCHEDULED', next_match_id: semi1?.id, next_match_home_side: true });
     matchesToInsert.push({ tournament_id: tournamentId, stage: 'QUARTERFINAL', is_knockout: true, home_team_id: topTeams[3], away_team_id: topTeams[4], bracket_order: 2, status: 'SCHEDULED', next_match_id: semi1?.id, next_match_home_side: false });
@@ -700,6 +877,19 @@ export async function generateRoundRobinFixture(tournamentId: string) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error("No autorizado");
 
+  const { data: tournament, error: tournamentError } = await supabase
+    .from("tournaments")
+    .select("format, is_double_round")
+    .eq("id", tournamentId)
+    .single();
+
+  if (tournamentError || !tournament) throw new Error("Error obteniendo el torneo.");
+  if (tournament.format === 'PLAYOFFS') {
+    throw new Error("No se pueden generar partidos de grupos para un torneo de Eliminatoria Directa (Copa).");
+  }
+
+  const isDoubleRound = !!tournament.is_double_round;
+
   const { count, error: countError } = await supabase
     .from("matches")
     .select("*", { count: 'exact', head: true })
@@ -719,7 +909,7 @@ export async function generateRoundRobinFixture(tournamentId: string) {
   if (teamsError || !tournamentTeams) throw new Error("Error obteniendo los equipos del torneo.");
   if (tournamentTeams.length < 3) throw new Error("Se requieren al menos 3 equipos inscritos para generar un fixture automático.");
 
-  let teams = tournamentTeams.map(t => t.team_id);
+  let teams = tournamentTeams.map((t: any) => t.team_id);
   const hasGhost = teams.length % 2 !== 0;
   if (hasGhost) {
     teams.push("GHOST"); 
@@ -759,11 +949,30 @@ export async function generateRoundRobinFixture(tournamentId: string) {
     teams = [pivot, last, ...teams.slice(1)];
   }
 
+  if (isDoubleRound) {
+    const leg1Length = matchesToInsert.length;
+    for (let index = 0; index < leg1Length; index++) {
+      const m = matchesToInsert[index];
+      matchesToInsert.push({
+        tournament_id: tournamentId,
+        home_team_id: m.away_team_id,
+        away_team_id: m.home_team_id,
+        stage: "GROUP",
+        is_knockout: false,
+        round_number: m.round_number + numRounds,
+      });
+    }
+  }
+
   const { error: insertError } = await supabase
     .from("matches")
     .insert(matchesToInsert);
 
   if (insertError) throw new Error("Error al insertar el fixture: " + insertError.message);
 
-  return { success: true, matchesGenerated: matchesToInsert.length, rounds: numRounds };
+  return { 
+    success: true, 
+    matchesGenerated: matchesToInsert.length, 
+    rounds: isDoubleRound ? numRounds * 2 : numRounds 
+  };
 }

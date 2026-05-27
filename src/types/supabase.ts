@@ -501,6 +501,9 @@ export type Database = {
           goals_for: number
           logo_url: string | null
           played: number
+          won: number
+          drawn: number
+          lost: number
           points: number
           team_id: string
           team_name: string

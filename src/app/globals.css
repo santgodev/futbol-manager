@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@1,800;1,900&family=Rajdhani:wght@500;600;700&display=swap');
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
@@ -73,6 +74,10 @@
 }
 
 :root {
+  --font-geist-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-geist-mono: SFMono-Regular, Consolas, "Liberation Mono", Menlo, Courier, monospace;
+  --font-rajdhani: "Rajdhani", sans-serif;
+  --font-montserrat: "Montserrat", sans-serif;
   --background: #050810;
   --foreground: #E2E8F0;
   --card: rgba(15, 23, 42, 0.6);
@@ -244,3 +249,345 @@
   text-transform: uppercase;
   color: var(--color-brand-sand);
 }
+
+/* ==========================================================================
+   React Day Picker v10 Premium Cinematic Cyberpunk Theme
+   ========================================================================== */
+.rdp-root {
+  --rdp-color: #00f0ff;
+  --rdp-background-color: #001122;
+  --rdp-accent-color: #00f0ff;
+  --rdp-selected-color: #000000;
+  color: #ffffff;
+  font-family: var(--font-mono), monospace;
+}
+
+.rdp-months {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+}
+
+.rdp-month {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+/* Caption (Month & Year Header with Dropdowns) */
+.rdp-caption {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.25rem 0.5rem;
+  width: 100%;
+}
+
+.rdp-dropdowns {
+  display: flex;
+  gap: 0.35rem;
+}
+
+.rdp-dropdown {
+  background-color: #001122 !important;
+  border: 1px solid rgba(0, 240, 255, 0.3) !important;
+  color: #ffffff !important;
+  font-size: 0.75rem !important;
+  font-family: var(--font-mono), monospace;
+  font-weight: bold;
+  padding: 0.25rem 0.35rem !important;
+  border-radius: 6px !important;
+  outline: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.rdp-dropdown:focus {
+  border-color: #00f0ff !important;
+  box-shadow: 0 0 8px rgba(0, 240, 255, 0.4);
+}
+
+.rdp-nav {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.rdp-button_next,
+.rdp-button_previous {
+  background-color: transparent !important;
+  border: 1px solid rgba(0, 85, 204, 0.2) !important;
+  color: #00f0ff !important;
+  width: 1.75rem !important;
+  height: 1.75rem !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px !important;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.rdp-button_next:hover,
+.rdp-button_previous:hover {
+  background-color: rgba(0, 240, 255, 0.15) !important;
+  border-color: rgba(0, 240, 255, 0.5) !important;
+}
+
+/* Calendar Grid */
+.rdp-weeks {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.rdp-weekday {
+  color: rgba(202, 213, 214, 0.4) !important;
+  font-weight: bold;
+  font-size: 0.65rem !important;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  width: 2rem;
+  height: 2rem;
+  text-align: center;
+}
+
+.rdp-day {
+  width: 2rem !important;
+  height: 2rem !important;
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem !important;
+  font-family: var(--font-mono), monospace;
+  color: rgba(255, 255, 255, 0.8) !important;
+  border-radius: 8px !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+  background: transparent !important;
+  border: none !important;
+}
+
+.rdp-day:hover:not(.rdp-selected) {
+  background-color: rgba(0, 240, 255, 0.15) !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(0, 240, 255, 0.3) !important;
+}
+
+.rdp-selected {
+  background-color: #00f0ff !important;
+  background-image: none !important;
+  color: #000000 !important;
+  font-weight: 900 !important;
+  box-shadow: 0 0 12px rgba(0, 240, 255, 0.6) !important;
+}
+
+.rdp-today {
+  border: 1px solid rgba(0, 240, 255, 0.4) !important;
+  color: #00f0ff !important;
+  font-weight: bold;
+}
+
+/* ==========================================================================
+   React Datepicker Premium Cinematic Cyberpunk Theme
+   ========================================================================== */
+.react-datepicker {
+  background-color: #050b14 !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(0, 240, 255, 0.3) !important;
+  font-family: var(--font-mono), monospace !important;
+  border-radius: 12px !important;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8) !important;
+  overflow: hidden;
+}
+
+.react-datepicker__header {
+  background-color: #02060d !important;
+  border-bottom: 1px solid rgba(0, 240, 255, 0.2) !important;
+  border-top-left-radius: 12px !important;
+  border-top-right-radius: 12px !important;
+  padding: 10px 0 !important;
+}
+
+.react-datepicker__month-container {
+  background-color: #050b14 !important;
+}
+
+.react-datepicker__current-month {
+  color: #00f0ff !important;
+  font-weight: 800 !important;
+  text-transform: uppercase !important;
+  font-size: 0.8rem !important;
+  letter-spacing: 0.1em;
+  margin-bottom: 8px !important;
+}
+
+.react-datepicker__day-name {
+  color: rgba(202, 213, 214, 0.4) !important;
+  font-weight: bold !important;
+  font-size: 0.65rem !important;
+  text-transform: uppercase;
+  width: 2rem !important;
+  line-height: 2rem !important;
+  margin: 0.166rem !important;
+}
+
+.react-datepicker__day {
+  color: rgba(255, 255, 255, 0.8) !important;
+  width: 2rem !important;
+  line-height: 2rem !important;
+  margin: 0.166rem !important;
+  border-radius: 8px !important;
+  transition: all 0.2s ease !important;
+  cursor: pointer !important;
+}
+
+.react-datepicker__day:hover:not(.react-datepicker__day--selected) {
+  background-color: rgba(0, 240, 255, 0.15) !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 5px rgba(0, 240, 255, 0.2) !important;
+}
+
+.react-datepicker__day--selected {
+  background-color: #00f0ff !important;
+  color: #000000 !important;
+  font-weight: 900 !important;
+  box-shadow: 0 0 12px rgba(0, 240, 255, 0.6) !important;
+}
+
+.react-datepicker__day--today {
+  border: 1px solid rgba(0, 240, 255, 0.4) !important;
+  color: #00f0ff !important;
+  font-weight: bold !important;
+}
+
+.react-datepicker__day--keyboard-selected {
+  background-color: rgba(0, 240, 255, 0.2) !important;
+  color: #00f0ff !important;
+}
+
+.react-datepicker__day--outside-month {
+  color: rgba(255, 255, 255, 0.25) !important;
+}
+
+/* Styled select tags inside header for Month/Year Selection */
+.react-datepicker__header select {
+  background-color: #02060d !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(0, 240, 255, 0.3) !important;
+  padding: 4px 8px !important;
+  font-size: 0.75rem !important;
+  font-weight: bold !important;
+  border-radius: 6px !important;
+  outline: none !important;
+  cursor: pointer !important;
+  margin: 0 4px !important;
+  font-family: var(--font-mono), monospace !important;
+  transition: border-color 0.2s ease !important;
+}
+
+.react-datepicker__header select:hover {
+  border-color: rgba(0, 240, 255, 0.6) !important;
+}
+
+.react-datepicker__header select:focus {
+  border-color: #00f0ff !important;
+  box-shadow: 0 0 8px rgba(0, 240, 255, 0.4) !important;
+}
+
+/* Fix dropdown option backgrounds */
+.react-datepicker__header select option {
+  background-color: #02060d !important;
+  color: #ffffff !important;
+}
+
+/* ==========================================================================
+   SPORT APP — Mobile-First Utilities
+   ========================================================================== */
+
+/* 🔴 Live badge — pulsing red dot + glow */
+@keyframes live-glow {
+  0%, 100% { box-shadow: 0 0 6px 2px rgba(239,68,68,0.6), 0 0 14px 4px rgba(239,68,68,0.3); opacity: 1; }
+  50%       { box-shadow: 0 0 10px 4px rgba(239,68,68,0.9), 0 0 24px 8px rgba(239,68,68,0.5); opacity: 0.85; }
+}
+.live-pulse {
+  animation: live-glow 1.4s ease-in-out infinite;
+}
+
+/* Skeleton shimmer loader */
+@keyframes shimmer {
+  0%   { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+.skeleton {
+  background: linear-gradient(90deg, #0a1122 25%, #0f1f3d 50%, #0a1122 75%);
+  background-size: 800px 100%;
+  animation: shimmer 1.4s ease-in-out infinite;
+  border-radius: 8px;
+}
+
+/* Score pop animation for live updates */
+@keyframes score-pop {
+  0%   { transform: scale(1); }
+  50%  { transform: scale(1.25); color: #00f0ff; }
+  100% { transform: scale(1); }
+}
+.score-pop {
+  animation: score-pop 0.4s ease-out;
+}
+
+/* Tap feedback — active scale for thumb interactions */
+.tap-feedback {
+  @apply transition-transform duration-100 active:scale-95;
+}
+
+/* Large CTA button — thumb-friendly (min 52px tall) */
+/* btn-cta-large base styles are inlined into each variant below
+   (Tailwind v4 does not support @apply on custom CSS classes) */
+.btn-cta-primary {
+  @apply flex items-center justify-center gap-2 min-h-[52px] px-6
+         font-black text-sm uppercase tracking-widest rounded-2xl
+         transition-all duration-200 active:scale-95 cursor-pointer
+         bg-gradient-to-r from-[#0055cc] to-[#0088ff] text-white
+         shadow-[0_4px_20px_rgba(0,102,255,0.4)] hover:shadow-[0_4px_30px_rgba(0,136,255,0.6)]
+         border border-[#0088ff]/40;
+}
+.btn-cta-secondary {
+  @apply flex items-center justify-center gap-2 min-h-[52px] px-6
+         font-black text-sm uppercase tracking-widest rounded-2xl
+         transition-all duration-200 active:scale-95 cursor-pointer
+         bg-brand-navy/60 text-brand-sand border border-brand-navy
+         hover:bg-brand-navy/90 hover:border-brand-teal/40;
+}
+
+
+/* Sport tab bar item */
+.sport-tab {
+  @apply flex flex-col items-center justify-center gap-1 flex-1
+         text-brand-aqua/50 transition-all duration-200
+         active:scale-90 cursor-pointer;
+}
+.sport-tab.active {
+  @apply text-[#00f0ff];
+}
+.sport-tab.active .sport-tab-icon {
+  @apply drop-shadow-[0_0_6px_rgba(0,240,255,0.7)];
+}
+
+/* Feed match card — emotional, social-style */
+.card-match-feed {
+  @apply relative flex flex-col rounded-2xl overflow-hidden
+         bg-[#050b14]/90 border border-brand-navy/60
+         transition-all duration-200 active:scale-[0.98]
+         snap-start shrink-0;
+}
+.card-match-feed:hover {
+  @apply border-brand-teal/30 shadow-[0_4px_20px_rgba(0,240,255,0.07)];
+}
+
+/* Collapsible section toggle */
+.section-toggle {
+  @apply flex items-center justify-between w-full py-4 px-1
+         text-xs font-black uppercase tracking-widest text-white/70
+         border-b border-white/5 cursor-pointer
+         hover:text-white transition-colors duration-150 select-none;
+}
+

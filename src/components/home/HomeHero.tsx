@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Suspense } from "react";
 import { ChevronRight, ShoppingCart, Search, MapPin, Calendar, Trophy, ChevronDown } from "lucide-react";
 import { HomeSearchInput } from "./HomeSearchInput";
 
@@ -265,7 +265,9 @@ export const HomeHero = () => {
             La plataforma definitiva para el seguimiento<br />de torneos deportivos.
           </p>
           {/* Search Bar Container */}
-          <HomeSearchInput />
+          <Suspense fallback={<div className="h-12 w-full max-w-md bg-white/5 animate-pulse rounded-full" />}>
+            <HomeSearchInput />
+          </Suspense>
 
           {/* Filters Row */}
           <div className="flex items-center gap-3">

@@ -1,29 +1,10 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Rajdhani, Montserrat } from "next/font/google";
 import "./globals.css";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
-
-const rajdhani = Rajdhani({
-  weight: ["500", "600", "700"],
-  variable: "--font-rajdhani",
-  subsets: ["latin"],
-});
-
-const montserrat = Montserrat({
-  weight: ["800", "900"],
-  style: ["italic"],
-  variable: "--font-montserrat",
-  subsets: ["latin"],
-});
+// Use static standard/google fonts imported via CSS to guarantee build environment reliability
+const geistSans = { variable: "font-sans" };
+const geistMono = { variable: "font-mono" };
+const rajdhani = { variable: "font-display" };
+const montserrat = { variable: "font-italic-title" };
 
 export const metadata: Metadata = {
   title: "PEGASIGHT SPORT",

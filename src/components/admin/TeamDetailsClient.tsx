@@ -5,8 +5,9 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
 import Link from "next/link";
 import { Shield } from "@/components/ui/Shield";
-import { RosterManager } from "@/components/admin/RosterManager";
 import { GlobalRosterManager } from "@/components/admin/GlobalRosterManager";
+import { LogoUploader } from "@/components/admin/LogoUploader";
+import { updateTeamLogo } from "@/app/admin/actions";
 
 export function TeamDetailsClient({ id }: { id: string }) {
   const router = useRouter();
@@ -115,8 +116,29 @@ export function TeamDetailsClient({ id }: { id: string }) {
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         
-        {/* Left Side: Info & Tournaments */}
+        {/* Left Side: Logo + Info + Tournaments */}
         <div className="md:col-span-1 flex flex-col gap-6">
+          {/* Escudo del Equipo */}
+          <section className="panel-premium p-6">
+            <h2 className="text-xs font-bold uppercase tracking-widest text-brand-sand mb-4">Escudo del Club</h2>
+            <div className="flex flex-col items-center gap-3">
+              <LogoUploader
+                defaultImage={team.logo_url || undefined}
+                onUploadSuccess={async (url) => {
+                  try {
+                    await updateTeamLogo(id, url);
+                    fetchAllData();
+                  } catch (err) {
+                    console.error("Error guardando escudo:", err);
+                  }
+                }}
+              />
+              <p className="text-[9px] text-brand-aqua/40 uppercase tracking-widest text-center">
+                Haz click para subir o cambiar el escudo
+              </p>
+            </div>
+          </section>
+
           <section className="panel-premium p-6">
             <h2 className="text-xs font-bold uppercase tracking-widest text-brand-sand mb-4">Información General</h2>
             <div className="flex flex-col gap-3">
@@ -158,10 +180,10 @@ export function TeamDetailsClient({ id }: { id: string }) {
         {/* Right Side: Roster Managers */}
         <div className="md:col-span-2 flex flex-col gap-8">
           {/* Global Club Roster */}
-          <section className="panel-premium p-6">
-            <div className="mb-6">
+          <section className="w-full">
+            <div className="mb-4 pl-1">
               <h2 className="text-sm font-bold uppercase tracking-widest text-brand-sand mb-2">Plantilla del Club (Nómina Global)</h2>
-              <p className="text-[10px] text-brand-aqua/50 uppercase tracking-widest">
+              <p className="text-[10px] text-brand-aqua/50 uppercase tracking-widest leading-relaxed">
                 Administra los jugadores oficiales del club. Los jugadores creados o agregados aquí pertenecerán al club globalmente y estarán libres para ser inscritos en torneos específicos.
               </p>
             </div>
@@ -174,23 +196,7 @@ export function TeamDetailsClient({ id }: { id: string }) {
             />
           </section>
 
-          {/* Tournament Roster (per tournament) */}
-          <section className="panel-premium p-6">
-            <div className="mb-6">
-              <h2 className="text-sm font-bold uppercase tracking-widest text-brand-sand mb-2">Inscripción en Torneos Activos</h2>
-              <p className="text-[10px] text-brand-aqua/50 uppercase tracking-widest">
-                Inscribe jugadores de la plantilla global en los torneos donde el club esté participando para que puedan registrar estadísticas en vivo (goles, tarjetas, etc.).
-              </p>
-            </div>
 
-            <RosterManager 
-              teamId={id} 
-              tournaments={teamTournaments.map(tt => tt.tournament) || []}
-              initialPlayers={rosterPlayers || []}
-              globalPlayers={globalTeamPlayers || []}
-              onRosterChanged={fetchAllData}
-            />
-          </section>
         </div>
 
       </div>

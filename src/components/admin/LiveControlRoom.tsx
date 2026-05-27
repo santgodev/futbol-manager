@@ -12,7 +12,7 @@ import { EditMinuteModal } from "@/components/admin/EditMinuteModal";
 import { ChangePlayerModal } from "@/components/admin/ChangePlayerModal";
 import { PenaltyShootoutModal } from "@/components/admin/PenaltyShootoutModal";
 import { toggleMatchClock } from "@/app/admin/actions";
-export function LiveControlRoom({ match, homePlayers, awayPlayers }: { match: any, homePlayers: any[], awayPlayers: any[] }) {
+export function LiveControlRoom({ match, homePlayers, awayPlayers, onUpdate }: { match: any, homePlayers: any[], awayPlayers: any[], onUpdate?: () => void }) {
   const router = useRouter();
   
   // Timer State (Initialized from DB)
@@ -61,18 +61,21 @@ export function LiveControlRoom({ match, homePlayers, awayPlayers }: { match: an
   // Called by DeleteEventModal
   const handleDeleteConfirm = async (eventId: string, tournamentId: string) => {
     await deleteMatchEvent(eventId, tournamentId);
+    if (onUpdate) onUpdate();
     router.refresh();
   };
 
   // Called by EditMinuteModal
   const handleEditMinuteConfirm = async (eventId: string, minute: number, matchId: string, tournamentId: string) => {
     await updateMatchEventFields(eventId, { minute }, matchId, tournamentId);
+    if (onUpdate) onUpdate();
     router.refresh();
   };
 
   // Called by ChangePlayerModal
   const handleChangePlayerConfirm = async (eventId: string, playerId: string, matchId: string, tournamentId: string) => {
     await updateMatchEventFields(eventId, { player_id: playerId }, matchId, tournamentId);
+    if (onUpdate) onUpdate();
     router.refresh();
   };
 
@@ -122,6 +125,7 @@ export function LiveControlRoom({ match, homePlayers, awayPlayers }: { match: an
       await toggleMatchClock(match.id, start, seconds, match.tournament_id);
       // Wait a bit for DB to settle before refreshing to avoid race conditions in UI
       setTimeout(() => {
+        if (onUpdate) onUpdate();
         router.refresh();
         setIsTogglingClock(false);
       }, 500);
@@ -178,6 +182,7 @@ export function LiveControlRoom({ match, homePlayers, awayPlayers }: { match: an
       });
       setSelectedPlayer(null);
       setSelectedTeamId(null);
+      if (onUpdate) onUpdate();
       router.refresh();
     } catch (err: any) {
       setErrorMsg(err.message || "Error al registrar evento");
@@ -202,6 +207,7 @@ export function LiveControlRoom({ match, homePlayers, awayPlayers }: { match: an
       });
       setIsSubMode(false);
       setPlayerOut(null);
+      if (onUpdate) onUpdate();
       router.refresh();
     } catch (err: any) {
       setErrorMsg(err.message || "Error al registrar cambio");

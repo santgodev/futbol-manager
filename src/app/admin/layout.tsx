@@ -46,10 +46,13 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
 
       {/* Sidebar (Desktop) */}
       <aside className="hidden md:flex w-64 border-r border-[#0055cc]/30 bg-[#02060d]/80 backdrop-blur-xl flex-col relative z-20">
-        <div className="h-24 flex items-center px-8 border-b border-[#0055cc]/30">
-          <Link href="/admin" className="flex items-center gap-3 group">
-            <Shield className="w-6 h-8 text-[#00f0ff] drop-shadow-[0_0_8px_rgba(0,240,255,0.5)] transition-all group-hover:scale-105" />
-            <span className="font-bold tracking-widest text-sm uppercase text-white group-hover:text-[#00f0ff] transition-colors">Pegasight</span>
+        <div className="h-24 flex items-center px-6 border-b border-[#0055cc]/30">
+          <Link href="/admin" className="relative block h-12 w-[160px] select-none group">
+            <img 
+              src="/logo.png" 
+              alt="Pegasight Sport" 
+              className="h-full w-full object-contain filter drop-shadow-[0_0_8px_rgba(0,240,255,0.25)] transition-all duration-300 group-hover:drop-shadow-[0_0_15px_rgba(0,240,255,0.5)]"
+            />
           </Link>
         </div>
         
@@ -74,10 +77,13 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
         <div className="fixed inset-0 z-50 pointer-events-none opacity-[0.02]" style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E\")" }} />
         
         {/* Mobile Top Header */}
-        <header className="md:hidden sticky top-0 z-40 bg-[#02060d]/90 backdrop-blur-xl border-b border-[#0055cc]/30 px-6 py-4 flex items-center justify-between">
-          <Link href="/admin" className="flex items-center gap-3">
-            <Shield className="w-5 h-6 text-[#00f0ff] drop-shadow-[0_0_8px_rgba(0,240,255,0.5)]" />
-            <span className="font-bold tracking-widest text-xs uppercase text-white">Pegasight</span>
+        <header className="md:hidden sticky top-0 z-40 bg-[#02060d]/90 backdrop-blur-xl border-b border-[#0055cc]/30 px-6 py-3 flex items-center justify-between">
+          <Link href="/admin" className="relative block h-8 w-[110px] select-none">
+            <img 
+              src="/logo.png" 
+              alt="Pegasight Sport" 
+              className="h-full w-full object-contain filter drop-shadow-[0_0_8px_rgba(0,240,255,0.25)]"
+            />
           </Link>
           
           <form action="/auth/signout" method="post">

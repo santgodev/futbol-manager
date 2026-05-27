@@ -5,11 +5,28 @@ import { generateKnockoutBracket } from "@/app/admin/actions";
 import { Trophy, Shield, Loader2, AlertTriangle, Users } from "lucide-react";
 import { useRouter } from "next/navigation";
 
-export function BracketGenerator({ tournamentId }: { tournamentId: string }) {
+interface BracketGeneratorProps {
+  tournamentId: string;
+  isGroupStageComplete: boolean;
+  pendingGroupMatchesCount: number;
+  registeredTeamsCount: number;
+  matchesPlayed: number;
+}
+
+export function BracketGenerator({ 
+  tournamentId,
+  isGroupStageComplete,
+  pendingGroupMatchesCount,
+  registeredTeamsCount,
+  matchesPlayed
+}: BracketGeneratorProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [status, setStatus] = useState<"idle" | "generating" | "success" | "error">("idle");
   const [errorMessage, setErrorMessage] = useState("");
-  const [teamsCount, setTeamsCount] = useState<2 | 4 | 8>(4);
+  
+  // Calculate valid bracket sizes dynamically based on how many teams are in the tournament
+  const availableOptions = [2, 4, 8].filter(num => num <= registeredTeamsCount);
+  const [teamsCount, setTeamsCount] = useState<2 | 4 | 8>((availableOptions.includes(4) ? 4 : (availableOptions[0] || 2)) as 2 | 4 | 8);
   const router = useRouter();
 
   const handleGenerate = async () => {
@@ -35,6 +52,41 @@ export function BracketGenerator({ tournamentId }: { tournamentId: string }) {
       case 8: return "Se crearán 4 CUARTOS DE FINAL, 2 SEMIFINALES vacías y la FINAL vacía.";
     }
   };
+
+  if (!isGroupStageComplete) {
+    const requiredGroupMatches = registeredTeamsCount >= 2 ? (registeredTeamsCount * (registeredTeamsCount - 1)) / 2 : 0;
+    const progressPercentage = requiredGroupMatches > 0 
+      ? Math.min(100, Math.round((matchesPlayed / requiredGroupMatches) * 100))
+      : 0;
+
+    return (
+      <div className="flex flex-col items-center justify-center p-8 py-12 bg-[#050b14]/80 border border-amber-500/20 rounded-2xl relative overflow-hidden text-center shadow-inner">
+        <div className="w-12 h-12 rounded-full bg-amber-500/10 flex items-center justify-center mb-4 border border-amber-500/30">
+          <AlertTriangle className="w-6 h-6 text-amber-500 animate-pulse" />
+        </div>
+        
+        <h3 className="text-md font-black text-white uppercase tracking-widest mb-1">Eliminatorias Bloqueadas</h3>
+        <span className="text-[9px] text-amber-500/80 uppercase tracking-widest font-black mb-3">Fase de Grupos en Curso</span>
+        
+        <p className="text-white/50 text-xs max-w-md mb-6 leading-relaxed">
+          Se han completado <strong className="text-white font-mono">{matchesPlayed}</strong> de los <strong className="text-white font-mono">{requiredGroupMatches}</strong> partidos de grupos requeridos (todos contra todos para {registeredTeamsCount} equipos). Debes finalizar todos los enfrentamientos para calcular la clasificación deportiva y habilitar los cruces de playoffs.
+        </p>
+
+        <div className="flex items-center gap-3 bg-black/40 border border-white/5 px-4 py-2 rounded-xl text-[10px] text-brand-teal font-mono font-bold mb-6">
+          <span>Progreso de Grupos:</span>
+          <span className="text-white bg-brand-teal/20 px-2 py-0.5 rounded">{progressPercentage}%</span>
+        </div>
+
+        <button 
+          disabled
+          className="bg-white/5 border border-white/10 text-white/30 px-6 py-3 text-xs font-black uppercase tracking-[0.2em] rounded-lg cursor-not-allowed flex items-center gap-2 hover:bg-white/5 transition-all shadow-[inset_0_0_10px_rgba(0,0,0,0.5)]"
+          title="Completa todos los partidos de la fase de grupos para habilitar"
+        >
+          Generar Eliminatorias 🔒
+        </button>
+      </div>
+    );
+  }
 
   if (!isOpen) {
     return (
@@ -84,7 +136,7 @@ export function BracketGenerator({ tournamentId }: { tournamentId: string }) {
 
       {/* Selector */}
       <div className="grid grid-cols-3 gap-4 mb-8">
-        {[2, 4, 8].map((num) => (
+        {availableOptions.map((num) => (
           <button
             key={num}
             onClick={() => setTeamsCount(num as 2|4|8)}

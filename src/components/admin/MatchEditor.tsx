@@ -54,6 +54,38 @@ export function MatchEditor({ match, tournamentId }: { match: any, tournamentId:
 
   const isFinished = match.status === 'FINISHED';
 
+  const getMatchStatus = () => {
+    if (match.status === 'FINISHED') {
+      return {
+        label: 'FINALIZADO',
+        colorClass: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30',
+        dotClass: 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)]'
+      };
+    }
+    const isLive = match.status === 'LIVE' || match.status === 'IN_PROGRESS' || match.clock_status === 'RUNNING' || ((match.home_score !== null || match.away_score !== null));
+    if (isLive) {
+      return {
+        label: 'EN VIVO',
+        colorClass: 'bg-rose-500/25 text-rose-400 border-rose-500/40 animate-pulse',
+        dotClass: 'bg-rose-500 animate-pulse shadow-[0_0_10px_rgba(244,63,94,0.9)]'
+      };
+    }
+    if (match.match_date && match.match_time) {
+      return {
+        label: 'PROGRAMADO',
+        colorClass: 'bg-amber-500/20 text-amber-400 border-amber-500/30',
+        dotClass: 'bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.8)]'
+      };
+    }
+    return {
+      label: 'POR AGENDAR',
+      colorClass: 'bg-blue-500/20 text-blue-400 border-blue-500/30',
+      dotClass: 'bg-blue-400 animate-pulse shadow-[0_0_8px_rgba(59,130,246,0.6)]'
+    };
+  };
+
+  const currentStatus = getMatchStatus();
+
   return (
     <div className={`border border-brand-teal/30 shadow-[inset_0_0_15px_rgba(0,0,0,0.5)] rounded-2xl overflow-hidden transition-all ${isFinished ? 'opacity-70 border-brand-navy/30' : 'hover:border-brand-teal/50 hover:shadow-[0_0_20px_rgba(0,240,255,0.1)]'}`}>
       {/* Main Row (Always Visible) */}
@@ -64,20 +96,22 @@ export function MatchEditor({ match, tournamentId }: { match: any, tournamentId:
         }`}
       >
         <div className="flex items-start sm:items-center gap-3 lg:gap-6 w-full sm:w-auto">
-          <div className={`w-2 h-2 mt-1.5 sm:mt-0 rounded-full shrink-0 ${isFinished ? 'bg-brand-navy' : 'bg-brand-teal animate-pulse shadow-[0_0_8px_rgba(0,240,255,0.8)]'}`} />
+          <div className={`w-2 h-2 mt-1.5 sm:mt-0 rounded-full shrink-0 ${currentStatus.dotClass}`} />
           <div className="flex flex-col flex-1 min-w-0">
-            <span className="text-[8px] text-brand-aqua/50 uppercase tracking-[0.2em] font-bold flex flex-wrap items-center gap-x-2 gap-y-1">
-              <span>{match.stage} • {isFinished ? 'FINALIZADO' : 'PENDIENTE'}</span>
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-[8px] text-brand-aqua/50 uppercase tracking-[0.2em] font-black bg-brand-navy/30 border border-brand-navy/55 px-2 py-0.5 rounded-full">
+                {match.stage}
+              </span>
+              <span className={`text-[8px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full border ${currentStatus.colorClass}`}>
+                {currentStatus.label}
+              </span>
               {match.match_date && (
-                <>
-                  <span className="hidden sm:inline text-brand-aqua/30">•</span>
-                  <span className="text-brand-teal">
-                    {new Date(match.match_date + "T12:00:00").toLocaleDateString("es-MX", { weekday: "short", day: "numeric", month: "short" })} {formatTimeAMPM(match.match_time)}
-                  </span>
-                </>
+                <span className="text-[8px] font-mono text-brand-teal bg-[#001122]/80 border border-brand-teal/20 px-2 py-0.5 rounded-full">
+                  {new Date(match.match_date + "T12:00:00").toLocaleDateString("es-MX", { weekday: "short", day: "numeric", month: "short" })} {formatTimeAMPM(match.match_time)}
+                </span>
               )}
-            </span>
-            <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 mt-2">
+            </div>
+            <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 mt-3">
               <span className="font-black text-sm sm:text-lg lg:text-xl text-brand-sand uppercase tracking-tight group-hover:text-white transition-colors truncate">
                 {match.home_team?.name || 'TBD'}
               </span>
@@ -97,7 +131,7 @@ export function MatchEditor({ match, tournamentId }: { match: any, tournamentId:
           </div>
           <div className="flex items-center gap-3">
             <Link 
-              href={`/admin/matches/${match.id}`}
+              href={`/admin/match-room?id=${match.id}`}
               className="flex items-center justify-center bg-brand-teal/10 border border-brand-teal/30 text-brand-teal px-4 py-2 text-[10px] font-bold uppercase tracking-widest hover:bg-brand-teal hover:text-brand-deep hover:shadow-[0_0_15px_rgba(0,240,255,0.4)] transition-all rounded-lg z-10"
               onClick={(e) => e.stopPropagation()}
             >

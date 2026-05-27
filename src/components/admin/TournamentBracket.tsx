@@ -174,10 +174,11 @@ function BracketMatchCard({ match }: { match: Match }) {
         
         {/* Enlace al partido si el admin quiere ir a LiveControlRoom */}
         <Link 
-          href={`/admin/matches/${match.id}`}
+          href={`/admin/match-room?id=${match.id}`}
           className="absolute inset-0 z-20"
           title="Ver Partido"
         />
+
       </div>
     </div>
   );

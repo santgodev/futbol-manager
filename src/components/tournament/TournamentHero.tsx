@@ -2,85 +2,158 @@
 
 import { motion } from "framer-motion";
 import { Tables } from "@/types/supabase";
+import { MapPin, Calendar, Users, ChevronDown } from "lucide-react";
 
 interface TournamentHeroProps {
   tournament: Tables<"tournaments"> & { teams_count: number };
 }
 
+/** Status → badge config */
+function getStatusConfig(status: string, registrationStatus?: string | null) {
+  switch (status) {
+    case "IN_PROGRESS":
+      return { label: "EN CURSO", isLive: false, color: "text-emerald-400", borderColor: "border-emerald-500/30", bg: "bg-emerald-500/10" };
+    case "REGISTRATION":
+      return { label: "INSCRIPCIONES ABIERTAS", isLive: false, color: "text-emerald-400", borderColor: "border-emerald-500/30", bg: "bg-emerald-500/10" };
+    case "UPCOMING":
+      return { label: "PRÓXIMAMENTE", isLive: false, color: "text-brand-sand", borderColor: "border-brand-sand/20", bg: "bg-brand-sand/5" };
+    case "FINISHED":
+      return { label: "FINALIZADO", isLive: false, color: "text-white/40", borderColor: "border-white/10", bg: "bg-white/5" };
+    default:
+      return { label: status, isLive: false, color: "text-brand-teal", borderColor: "border-brand-teal/20", bg: "bg-brand-teal/5" };
+  }
+}
+
+/** Fecha compacta: "20 may. 2026" */
+function formatDate(dateStr: string | null): string {
+  if (!dateStr) return "Por definir";
+  try {
+    const d = new Date(dateStr + "T00:00:00");
+    if (isNaN(d.getTime())) return "Por definir";
+    return new Intl.DateTimeFormat("es-ES", { day: "numeric", month: "short", year: "numeric" }).format(d);
+  } catch {
+    return "Por definir";
+  }
+}
+
 export const TournamentHero = ({ tournament }: TournamentHeroProps) => {
+  const status = getStatusConfig(tournament.status, tournament.registration_status);
+  const startDateLabel = formatDate(tournament.start_date);
+
+  const scrollTo = (id: string) => {
+    const el = document.getElementById(id);
+    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
   return (
-    <section className="relative w-full min-h-[50vh] flex flex-col border-b border-[#1e3d70]/30 overflow-hidden bg-[#04080f] py-12">
+    <section className="relative w-full flex flex-col overflow-hidden bg-[#04080f] pt-16 pb-8">
       {/* Base gradient */}
-      <div className="absolute inset-0"
-           style={{ background: "linear-gradient(160deg, #020408 0%, #04080f 55%, #060c18 100%)" }}
+      <div className="absolute inset-0" style={{ background: "linear-gradient(160deg, #020408 0%, #04080f 55%, #060c18 100%)" }} />
+
+      {/* Atmosphere glow */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{ background: "radial-gradient(ellipse 60% 70% at 50% 60%, rgba(0,55,160,0.2) 0%, transparent 70%)" }}
       />
 
-      {/* Blue atmosphere */}
-      <div className="absolute inset-0 pointer-events-none"
-           style={{
-             background: "radial-gradient(ellipse 50% 90% at 50% 55%, rgba(0,55,160,0.22) 0%, transparent 70%)"
-           }}
-      />
-      
-      <div className="relative z-10 flex-1 flex flex-col justify-center items-center text-center p-4 mt-8">
-        <motion.span 
-          initial={{ opacity: 0, y: 20 }}
+      {/* Cyberpunk grid floor */}
+      <div className="absolute inset-x-0 bottom-0 pointer-events-none overflow-hidden h-[50%]">
+        <div
+          className="absolute inset-0"
+          style={{
+            backgroundImage: "linear-gradient(to top, rgba(0,136,255,0.08) 1px, transparent 1px), linear-gradient(to right, rgba(0,136,255,0.08) 1px, transparent 1px)",
+            backgroundSize: "40px 40px",
+            transform: "perspective(400px) rotateX(55deg) scale(2)",
+            transformOrigin: "top center",
+            maskImage: "linear-gradient(to bottom, transparent 0%, black 60%, transparent 100%)",
+            WebkitMaskImage: "linear-gradient(to bottom, transparent 0%, black 60%, transparent 100%)",
+          }}
+        />
+      </div>
+
+      <div className="relative z-10 flex flex-col items-center text-center px-5 gap-5">
+
+        {/* Status badge */}
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.2 }}
-          className="text-brand-teal text-xs font-bold tracking-[0.4em] uppercase mb-6 block animate-pulse"
+          transition={{ duration: 0.5 }}
+          className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full border text-xs font-bold tracking-[0.3em] uppercase ${status.color} ${status.borderColor} ${status.bg}`}
         >
-          {tournament.status}
-        </motion.span>
-        
-        <motion.h2 
-          initial={{ opacity: 0, y: 40 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.4, ease: "easeOut" }}
-          className="hero-title text-[4rem] md:text-[8rem] lg:text-[130px] leading-[0.85] mb-6"
-        >
-          {tournament.name.split(" ")[0]}<br />
-          {tournament.name.split(" ").slice(1).join(" ") && (
-            <span className="text-brand-sand">{tournament.name.split(" ").slice(1).join(" ")}</span>
+          {status.isLive && (
+            <span className="w-2 h-2 rounded-full bg-red-500 live-pulse shrink-0" />
           )}
-        </motion.h2>
-
-        <motion.div 
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.8, delay: 0.6 }}
-          className="flex items-center justify-center gap-4 w-full max-w-lg mt-4"
-        >
-           <div className="flex-1 h-[1px] bg-brand-aqua/30" />
-           <p className="text-sm md:text-lg text-brand-aqua/80 tracking-[0.3em] uppercase whitespace-nowrap">
-             Futuro Insurance
-           </p>
-           <div className="flex-1 h-[1px] bg-brand-aqua/30" />
+          {status.label}
         </motion.div>
 
-        {/* Tournament Quick Info Bar */}
-        <motion.div 
+        {/* Tournament name */}
+        <motion.h1
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.8 }}
-          className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-16 text-center backdrop-blur-md bg-brand-navy/20 p-8 border border-brand-navy/50 rounded-sm"
+          transition={{ duration: 0.7, delay: 0.15, ease: "easeOut" }}
+          className="hero-title text-[3.5rem] md:text-[7rem] lg:text-[110px] leading-[0.88]"
         >
-          <div className="flex flex-col gap-2">
-            <span className="text-[10px] text-brand-aqua/60 uppercase tracking-[0.2em]">Sede</span>
-            <span className="text-sm md:text-base font-bold text-brand-sand tracking-widest uppercase">{tournament.location}</span>
-          </div>
-          <div className="flex flex-col gap-2">
-            <span className="text-[10px] text-brand-aqua/60 uppercase tracking-[0.2em]">Inicio</span>
-            <span className="text-sm md:text-base font-bold text-brand-sand tracking-widest uppercase">{tournament.start_date || "Por definir"}</span>
-          </div>
-          <div className="flex flex-col gap-2">
-            <span className="text-[10px] text-brand-aqua/60 uppercase tracking-[0.2em]">Equipos</span>
-            <span className="text-sm md:text-base font-bold text-brand-sand tracking-widest uppercase">{tournament.teams_count}</span>
-          </div>
-          <div className="flex flex-col gap-2">
-            <span className="text-[10px] text-brand-aqua/60 uppercase tracking-[0.2em]">Admin</span>
-            <span className="text-sm md:text-base font-bold text-brand-sand tracking-widest uppercase truncate max-w-[120px] mx-auto">{tournament.admin_name || "Sin asignar"}</span>
-          </div>
+          {tournament.name.split(" ")[0]}
+          {tournament.name.split(" ").slice(1).join(" ") && (
+            <><br /><span className="text-brand-sand">{tournament.name.split(" ").slice(1).join(" ")}</span></>
+          )}
+        </motion.h1>
+
+        {/* Compact metadata — 1 line */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5, delay: 0.35 }}
+          className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-[11px] text-brand-aqua/60 font-mono uppercase tracking-wider"
+        >
+          {tournament.location && (
+            <span className="flex items-center gap-1">
+              <MapPin size={11} /> {tournament.location}
+            </span>
+          )}
+          {tournament.start_date && (
+            <span className="flex items-center gap-1">
+              <Calendar size={11} /> {startDateLabel}
+            </span>
+          )}
+          {tournament.teams_count > 0 && (
+            <span className="flex items-center gap-1">
+              <Users size={11} /> {tournament.teams_count} equipos
+            </span>
+          )}
         </motion.div>
+
+        {/* CTA buttons — thumb-friendly */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.5 }}
+          className="flex gap-3 w-full max-w-sm mt-1"
+        >
+          <button
+            onClick={() => scrollTo("posiciones")}
+            className="btn-cta-primary flex-1 text-xs"
+          >
+            <span>🏆</span> Ver Tabla
+          </button>
+          <button
+            onClick={() => scrollTo("partidos")}
+            className="btn-cta-secondary flex-1 text-xs"
+          >
+            <span>⚽</span> Partidos
+          </button>
+        </motion.div>
+
+        {/* Scroll hint */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5, delay: 1 }}
+          className="flex flex-col items-center gap-1 mt-2 text-white/20"
+        >
+          <ChevronDown size={16} className="animate-bounce" />
+        </motion.div>
+
       </div>
     </section>
   );

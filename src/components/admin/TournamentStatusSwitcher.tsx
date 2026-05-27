@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 
 const selectClass = "bg-[#040c1a]/80 border border-[#0055cc]/50 focus:border-[#00f0ff] px-3 py-2 text-white text-xs rounded-lg outline-none transition-all appearance-none cursor-pointer pr-8";
 
-export function TournamentStatusSwitcher({ tournament }: { tournament: any }) {
+export function TournamentStatusSwitcher({ tournament, isDisabled = false }: { tournament: any, isDisabled?: boolean }) {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
@@ -31,8 +31,9 @@ export function TournamentStatusSwitcher({ tournament }: { tournament: any }) {
           <select
             value={tournament.status}
             onChange={(e) => update("status", e.target.value)}
-            disabled={loading}
-            className={selectClass}
+            disabled={loading || isDisabled}
+            className={`${selectClass} ${isDisabled ? 'opacity-40 cursor-not-allowed border-red-500/30 text-white/40' : ''}`}
+            title={isDisabled ? "Bloqueado por inconsistencias críticas de integridad" : ""}
           >
             <option value="PRÓXIMAMENTE"        className="bg-[#040c1a]">Próximamente</option>
             <option value="INSCRIPCIONES ABIERTAS" className="bg-[#040c1a]">Inscripciones</option>

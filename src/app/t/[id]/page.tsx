@@ -10,6 +10,9 @@ import { KnockoutBracket } from "@/components/tournament/KnockoutBracket";
 import { createClient } from "@/utils/supabase/server";
 import { notFound } from "next/navigation";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export default async function TournamentDashboard({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = await params;
   const { id } = resolvedParams;
@@ -32,7 +35,7 @@ export default async function TournamentDashboard({ params }: { params: Promise<
   }
 
   // Calculate teams count from the related table, but the query returns [{count: X}]
-  const teams_count = tournament.tournament_teams?.[0]?.count || 0;
+  const teams_count = Number(tournament.tournament_teams?.[0]?.count || 0);
   
   // Format the tournament object to match our component props
   const tournamentProps = {
@@ -99,7 +102,7 @@ export default async function TournamentDashboard({ params }: { params: Promise<
 
         <MatchCenter matches={matches || []} />
         <TournamentCalendar matches={matches || []} />
-        <KnockoutBracket matches={matches || []} />
+        <KnockoutBracket matches={matches || []} totalTeams={teams_count} />
         <TournamentRules rules={rules || []} />
       </main>
 

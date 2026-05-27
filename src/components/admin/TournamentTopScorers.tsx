@@ -5,8 +5,14 @@ import { Medal, Goal } from "lucide-react";
 export function TournamentTopScorers({ scorers }: { scorers: any[] }) {
   if (!scorers || scorers.length === 0) {
     return (
-      <div className="py-12 text-center text-white/40 text-xs uppercase tracking-widest font-bold">
-        Aún no hay goles registrados en este torneo
+      <div className="py-12 text-center flex flex-col items-center gap-3">
+        <Goal size={32} className="text-[#0055cc]/30" />
+        <span className="text-white/40 text-xs uppercase tracking-widest font-semibold">
+          Aún no hay goles registrados
+        </span>
+        <p className="text-white/25 text-xs max-w-xs leading-relaxed mx-auto">
+          Ingresa al <span className="text-[#00f0ff] font-bold">Control Room</span> de cualquier partido en vivo para añadir goles y eventos en tiempo real.
+        </p>
       </div>
     );
   }
@@ -43,11 +49,11 @@ export function TournamentTopScorers({ scorers }: { scorers: any[] }) {
             </div>
 
             <div className="flex flex-col flex-1 min-w-0">
-              <span className={`font-black uppercase tracking-widest text-sm truncate ${isTop ? 'text-white' : 'text-white/80'}`}>
+              <span className={`font-black uppercase tracking-wider text-sm leading-tight ${isTop ? 'text-white' : 'text-white/80'}`}>
                 {scorer.player_name}
               </span>
-              <div className="flex items-center gap-2">
-                <span className="text-[10px] text-white/40 uppercase tracking-wider truncate">
+              <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5">
+                <span className="text-[10px] text-white/40 uppercase tracking-normal">
                   {scorer.team_name}
                 </span>
                 <span className="text-[9px] text-[#00f0ff]/50 font-mono">#{scorer.number || 'N/A'}</span>
