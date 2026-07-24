@@ -9,7 +9,7 @@ const nextConfig: NextConfig = {
     unoptimized: true,
   },
   // @ts-ignore - Next.js 15 specific dev origins property
-  allowedDevOrigins: ['192.168.1.40'],
+  allowedDevOrigins: ['192.168.1.40', '192.168.20.38', 'localhost', '0.0.0.0'],
 };
 
 export default nextConfig;

@@ -6,8 +6,9 @@ import { createClient } from "@/utils/supabase/client";
 import Link from "next/link";
 import Image from "next/image";
 import { Shield, ArrowLeft, ExternalLink, Users, Calendar, BarChart2, Trophy, AlertTriangle } from "lucide-react";
+import { TournamentGroupManager } from "@/components/admin/TournamentTeamManager";
+import { TournamentEnrollmentManager } from "@/components/admin/TournamentEnrollmentManager";
 import { MatchEditor } from "@/components/admin/MatchEditor";
-import { TournamentTeamManager } from "@/components/admin/TournamentTeamManager";
 import { TournamentStatusSwitcher } from "@/components/admin/TournamentStatusSwitcher";
 import { MatchCreator } from "@/components/admin/MatchCreator";
 import { TournamentStandings } from "@/components/admin/TournamentStandings";
@@ -16,6 +17,7 @@ import { TournamentBracket } from "@/components/admin/TournamentBracket";
 import { BracketGenerator } from "@/components/admin/BracketGenerator";
 import { FixtureGenerator } from "@/components/admin/FixtureGenerator";
 import { CompetitionEngine } from "@/utils/CompetitionEngine";
+import { CollapsibleEliminatoriaSection } from "@/components/admin/CollapsibleEliminatoriaSection";
 
 export function TournamentDetailsClient({ id }: { id: string }) {
   const router = useRouter();
@@ -95,8 +97,8 @@ export function TournamentDetailsClient({ id }: { id: string }) {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#030b17] flex items-center justify-center text-white">
-        <Shield className="w-12 h-16 text-brand-teal animate-pulse" />
+      <div className="min-h-[50vh] flex items-center justify-center text-white">
+        <Shield className="w-12 h-16 text-brand-teal animate-pulse drop-shadow-[0_0_15px_rgba(0,240,255,0.5)]" />
       </div>
     );
   }
@@ -149,76 +151,79 @@ export function TournamentDetailsClient({ id }: { id: string }) {
   };
 
   return (
-    <div className="p-6 md:p-10 max-w-6xl mx-auto">
+    <div className="p-4 md:p-10 max-w-6xl mx-auto">
 
       {/* ── Back ── */}
-      <Link href="/admin font-bold" className="inline-flex items-center gap-2 text-[#00f0ff]/60 hover:text-[#00f0ff] uppercase tracking-widest text-xs font-bold mb-8 transition-colors">
+      <Link href="/admin" className="inline-flex items-center gap-2 text-[#00f0ff]/60 hover:text-[#00f0ff] uppercase tracking-widest text-xs font-bold mb-8 transition-colors">
         <ArrowLeft size={14} /> Volver al Dashboard
       </Link>
 
       {/* ── HEADER ── */}
-      <header className="mb-8 bg-[#02060d]/80 backdrop-blur-xl border border-[#0055cc]/30 rounded-2xl p-6 md:p-8 relative overflow-hidden shadow-[0_0_40px_rgba(0,100,255,0.08)]">
-        {/* Glow */}
-        <div className="absolute top-0 right-0 w-72 h-72 bg-[#0066cc]/10 rounded-full blur-[80px] pointer-events-none" />
+      <header className="mb-8 relative rounded-2xl overflow-hidden border border-[#00f0ff]/15 shadow-[0_0_60px_rgba(0,136,255,0.08)]" style={{ background: "rgba(0,17,51,0.7)", backdropFilter: "blur(20px)" }}>
+        {/* Top glow line */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-px bg-gradient-to-r from-transparent via-[#00f0ff]/60 to-transparent" />
+        {/* Corner glow */}
+        <div className="absolute top-0 right-0 w-72 h-72 bg-[#0066cc]/8 rounded-full blur-[80px] pointer-events-none" />
+        <div className="absolute bottom-0 left-0 w-40 h-40 bg-[#00f0ff]/5 rounded-full blur-[60px] pointer-events-none" />
 
-        <div className="flex flex-col md:flex-row md:items-start gap-6 relative z-10">
+        <div className="flex flex-col md:flex-row md:items-start gap-6 p-6 md:p-8 relative z-10">
           {/* Logo */}
-          <div className="shrink-0 w-20 h-20 rounded-xl bg-[#001133] border border-[#0055cc]/30 flex items-center justify-center overflow-hidden shadow-[0_0_20px_rgba(0,100,255,0.2)]">
+          <div className="shrink-0 w-20 h-20 rounded-xl border border-[#00f0ff]/20 flex items-center justify-center overflow-hidden shadow-[0_0_20px_rgba(0,240,255,0.1)]" style={{ background: "rgba(0,34,102,0.5)" }}>
             {tournament.image_url ? (
               <Image src={tournament.image_url} alt={tournament.name} width={80} height={80} className="object-contain p-1" unoptimized />
             ) : (
-              <Trophy size={32} className="text-[#0066cc]" />
+              <Trophy size={32} className="text-[#00f0ff]/50" />
             )}
           </div>
 
           {/* Info */}
           <div className="flex-1 min-w-0">
-            <div className="flex flex-wrap items-center gap-3 mb-2">
-              <h1 className="text-2xl md:text-4xl font-black tracking-tighter text-white hero-title !not-italic truncate drop-shadow-[0_0_12px_rgba(0,240,255,0.3)]">
+            <div className="flex flex-wrap items-center gap-2 mb-2">
+              <h1 className="text-2xl md:text-4xl font-black tracking-tighter text-white hero-title !not-italic truncate" style={{ textShadow: "0 0 20px rgba(0,240,255,0.3)" }}>
                 {tournament.name}
               </h1>
-              <span className={`text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full border ${statusColor(tournament.status)}`}>
+            </div>
+            <div className="flex flex-wrap gap-2 mb-3">
+              <span className={`text-[9px] font-bold uppercase tracking-widest px-3 py-1 rounded-full border ${statusColor(tournament.status)}`}>
                 {tournament.status}
               </span>
-              <span className="text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full border border-[#00f0ff]/30 bg-[#00f0ff]/10 text-[#00f0ff] shadow-[0_0_8px_rgba(0,240,255,0.1)]">
+              <span className="text-[9px] font-bold uppercase tracking-widest px-3 py-1 rounded-full border border-[#00f0ff]/30 bg-[#00f0ff]/10 text-[#00f0ff]">
                 {CompetitionEngine.getFormatLabel(format, isDoubleRound)}
               </span>
-              <span className="text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full border border-purple-500/30 bg-purple-500/10 text-purple-400">
+              <span className="text-[9px] font-bold uppercase tracking-widest px-3 py-1 rounded-full border border-purple-500/30 bg-purple-500/10 text-purple-400">
                 {CompetitionEngine.getStateLabel(state)}
               </span>
               {tournament.category && (
-                <span className="text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full border border-[#0055cc]/40 bg-[#0055cc]/10 text-[#00f0ff]/80">
+                <span className="text-[9px] font-bold uppercase tracking-widest px-3 py-1 rounded-full border border-[#0055cc]/40 bg-[#0055cc]/10 text-[#00f0ff]/80">
                   {tournament.category}
                 </span>
               )}
             </div>
-            <p className="text-white/50 text-xs uppercase tracking-widest mb-4">
-              📍 {tournament.location}
-            </p>
+            <p className="text-white/40 text-xs uppercase tracking-widest mb-4">📍 {tournament.location}</p>
 
             {/* Quick stats */}
             <div className="flex flex-wrap gap-4">
-              <div className="flex items-center gap-2 text-sm">
-                <Users size={14} className="text-[#00f0ff]" />
-                <span className="text-white font-bold">{teamsCount}</span>
-                <span className="text-white/50 text-xs">equipos</span>
+              <div className="flex items-center gap-2">
+                <Users size={13} className="text-[#00f0ff]/70" />
+                <span className="text-white font-bold text-sm">{teamsCount}</span>
+                <span className="text-white/40 text-xs">equipos</span>
               </div>
               <div className="w-px h-4 bg-white/10 self-center" />
-              <div className="flex items-center gap-2 text-sm">
-                <Calendar size={14} className="text-[#00f0ff]" />
-                <span className="text-white font-bold">{matchesPlayed}</span>
-                <span className="text-white/50 text-xs">/ {theoreticalTotalMatches} partidos</span>
+              <div className="flex items-center gap-2">
+                <Calendar size={13} className="text-[#00f0ff]/70" />
+                <span className="text-white font-bold text-sm">{matchesPlayed}</span>
+                <span className="text-white/40 text-xs">/ {theoreticalTotalMatches} partidos</span>
               </div>
             </div>
           </div>
 
           {/* Actions */}
           <div className="flex flex-col sm:flex-row w-full md:w-auto items-stretch sm:items-center gap-3 shrink-0">
-            <TournamentStatusSwitcher tournament={tournament} isDisabled={integritySeverity === "CRITICAL"} />
+            <TournamentStatusSwitcher tournament={tournament} isDisabled={integritySeverity === "CRITICAL"} onUpdate={fetchAllData} />
             <Link
               href={`/t/${tournament.slug}`}
               target="_blank"
-              className="flex justify-center items-center gap-2 px-6 py-3 rounded-xl text-xs font-bold uppercase tracking-widest bg-gradient-to-r from-brand-teal to-[#00f0ff] text-brand-deep shadow-[0_0_20px_rgba(0,240,255,0.3)] hover:shadow-[0_0_30px_rgba(0,240,255,0.6)] hover:scale-[1.02] active:scale-95 transition-all"
+              className="flex justify-center items-center gap-2 px-6 py-3 rounded-xl text-xs font-bold uppercase tracking-widest bg-gradient-to-r from-[#0055cc] to-[#00f0ff] text-black shadow-[0_0_20px_rgba(0,240,255,0.3)] hover:shadow-[0_0_30px_rgba(0,240,255,0.6)] hover:scale-[1.02] active:scale-95 transition-all"
             >
               <ExternalLink size={14} /> Ver en Vivo
             </Link>
@@ -243,36 +248,57 @@ export function TournamentDetailsClient({ id }: { id: string }) {
       {/* ── TAB SECTIONS ── */}
       <div className="grid grid-cols-1 gap-8">
 
-        {/* ── SECCIÓN 1: Equipos Participantes ── */}
-        <section className="bg-[#02060d]/60 backdrop-blur-md border border-[#0055cc]/20 rounded-2xl overflow-hidden">
-          <div className="flex items-center gap-3 px-6 py-4 border-b border-[#0055cc]/20 bg-[#001122]/40">
-            <Users size={16} className="text-[#00f0ff]" />
-            <h2 className="text-sm font-bold uppercase tracking-widest text-white">
-              Equipos Participantes
-            </h2>
-            <span className="ml-auto bg-[#0055cc]/30 text-[#00f0ff] text-xs font-bold px-3 py-1 rounded-full">
-              {teamsCount}
+        {/* ── SECCIÓN 1: Inscripción de Equipos ── */}
+        <section className="relative rounded-2xl overflow-hidden border border-[#00f0ff]/10" style={{ background: "rgba(0,17,51,0.6)", backdropFilter: "blur(16px)" }}>
+          <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#00f0ff]/40 to-transparent" />
+          <div className="flex items-center gap-3 px-6 py-4 border-b border-[#00f0ff]/10">
+            <div className="p-1.5 rounded-lg border border-[#0055cc]/30" style={{ background: "rgba(0,34,102,0.5)" }}>
+              <Users size={14} className="text-[#00f0ff]" />
+            </div>
+            <h2 className="text-xs font-black uppercase tracking-[0.2em] text-white">Inscripción de Equipos</h2>
+            <span className="ml-auto text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full border border-[#00f0ff]/20 bg-[#00f0ff]/10 text-[#00f0ff]">
+              {teamsCount} Inscritos
             </span>
           </div>
           <div className="p-6">
-            <TournamentTeamManager
+            <TournamentEnrollmentManager
               tournamentId={id}
               availableTeams={availableTeams || []}
               currentTeams={tournament.tournament_teams || []}
               onUpdate={fetchAllData}
-              isDisabled={integritySeverity === "CRITICAL"}
+              isDisabled={integritySeverity === "CRITICAL" || matches.length > 0}
+            />
+          </div>
+        </section>
+
+        {/* ── SECCIÓN 2: Gestión de Grupos ── */}
+        <section className="relative rounded-2xl overflow-hidden border border-[#00f0ff]/10" style={{ background: "rgba(0,17,51,0.6)", backdropFilter: "blur(16px)" }}>
+          <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#00f0ff]/40 to-transparent" />
+          <div className="flex items-center gap-3 px-6 py-4 border-b border-[#00f0ff]/10">
+            <div className="p-1.5 rounded-lg border border-[#0055cc]/30" style={{ background: "rgba(0,34,102,0.5)" }}>
+              <Trophy size={14} className="text-[#00f0ff]" />
+            </div>
+            <h2 className="text-xs font-black uppercase tracking-[0.2em] text-white">Gestión de Grupos</h2>
+          </div>
+          <div className="p-6">
+            <TournamentGroupManager
+              tournamentId={id}
+              currentTeams={tournament.tournament_teams || []}
+              onUpdate={fetchAllData}
+              isDisabled={integritySeverity === "CRITICAL" || matches.length > 0}
             />
           </div>
         </section>
 
         {/* ── SECCIÓN 2: Programar Partido ── */}
         {format !== "PLAYOFFS" && (
-          <section className="bg-[#02060d]/60 backdrop-blur-md border border-[#0055cc]/20 rounded-2xl overflow-hidden">
-            <div className="flex items-center gap-3 px-6 py-4 border-b border-[#0055cc]/20 bg-[#001122]/40">
-              <Calendar size={16} className="text-[#00f0ff]" />
-              <h2 className="text-sm font-bold uppercase tracking-widest text-white">
-                Programar Nuevo Partido
-              </h2>
+          <section className="relative rounded-2xl overflow-hidden border border-[#00f0ff]/10" style={{ background: "rgba(0,17,51,0.6)", backdropFilter: "blur(16px)" }}>
+            <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#00f0ff]/40 to-transparent" />
+            <div className="flex items-center gap-3 px-6 py-4 border-b border-[#00f0ff]/10">
+              <div className="p-1.5 rounded-lg border border-[#0055cc]/30" style={{ background: "rgba(0,34,102,0.5)" }}>
+                <Calendar size={14} className="text-[#00f0ff]" />
+              </div>
+              <h2 className="text-xs font-black uppercase tracking-[0.2em] text-white">Programar Nuevo Partido</h2>
             </div>
             <div className="p-6">
               {integritySeverity === "CRITICAL" ? (
@@ -305,33 +331,37 @@ export function TournamentDetailsClient({ id }: { id: string }) {
         )}
 
         {/* ── SECCIÓN 3: Editor de Marcadores ── */}
-        <section className="bg-[#02060d]/60 backdrop-blur-md border border-[#0055cc]/20 rounded-2xl overflow-hidden">
-          <div className="flex items-center gap-3 px-6 py-4 border-b border-[#0055cc]/20 bg-[#001122]/40">
-            <BarChart2 size={16} className="text-[#00f0ff]" />
-            <h2 className="text-sm font-bold uppercase tracking-widest text-white">
-              Partidos
-            </h2>
-            <div className="ml-auto flex items-center gap-3">
-              <span className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-brand-teal bg-brand-teal/10 border border-brand-teal/20 px-2.5 py-1 rounded-full">
+        {/* ── SECCIÓN 3: Editor de Marcadores ── */}
+        <section className="relative rounded-2xl border border-[#00f0ff]/10 w-full max-w-full min-w-0" style={{ background: "rgba(0,17,51,0.6)", backdropFilter: "blur(16px)" }}>
+          <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#00f0ff]/40 to-transparent" />
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3 px-4 sm:px-6 py-4 border-b border-[#00f0ff]/10">
+            <div className="flex items-center gap-3 shrink-0">
+              <div className="p-1.5 rounded-lg border border-[#0055cc]/30" style={{ background: "rgba(0,34,102,0.5)" }}>
+                <BarChart2 size={14} className="text-[#00f0ff]" />
+              </div>
+              <h2 className="text-xs font-black uppercase tracking-[0.2em] text-white">Partidos</h2>
+            </div>
+            <div className="sm:ml-auto flex flex-wrap items-center gap-2 w-full sm:w-auto">
+              <span className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-brand-teal bg-brand-teal/10 border border-brand-teal/20 px-3 py-1.5 rounded-full shrink-0">
                 <span className="w-1.5 h-1.5 rounded-full bg-brand-teal animate-pulse inline-block" />
                 {matches?.filter((m: any) => m.status !== "FINISHED").length ?? 0} pendientes
               </span>
-              <span className="text-[10px] font-bold uppercase tracking-widest text-white/30 bg-white/5 border border-white/10 px-2.5 py-1 rounded-full">
+              <span className="text-[10px] font-bold uppercase tracking-widest text-white/30 bg-white/5 border border-white/10 px-3 py-1.5 rounded-full shrink-0">
                 {matchesPlayed} jugados
               </span>
             </div>
           </div>
-          <div className="p-6">
+          <div className="p-3 pl-14 sm:pl-6 sm:p-6 w-full overflow-hidden">
             {/* ── Warning & Progress stage if matches exist ── */}
             {matches && matches.length > 0 && (
               <>
                 {/* ── Warning for teams with 0 matches ── */}
                 {teamsWithNoMatches.length > 0 && (
-                  <div className="mb-6 p-4 bg-amber-500/10 border border-amber-500/30 rounded-xl flex gap-3 items-start animate-pulse">
+                  <div className="mb-6 p-4 bg-amber-500/10 border border-amber-500/30 rounded-xl flex gap-3 items-start animate-pulse w-full">
                     <AlertTriangle className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
-                    <div>
+                    <div className="min-w-0 flex-1">
                       <h4 className="text-amber-500 text-xs font-black uppercase tracking-wider mb-1">¡Inconsistencia de Calendario!</h4>
-                      <p className="text-white/70 text-xs leading-relaxed">
+                      <p className="text-white/70 text-xs leading-relaxed break-words">
                         Hay equipos inscritos que no tienen ningún partido programado en la fase de grupos:{" "}
                         <span className="text-amber-400 font-bold">
                           {teamsWithNoMatches.map((tt: any) => tt.team?.name).join(", ")}
@@ -344,13 +374,13 @@ export function TournamentDetailsClient({ id }: { id: string }) {
 
                 {/* ── Group Stage Progress ── */}
                 {requiredGroupMatches > 0 && (
-                  <div className="mb-6 bg-[#001122]/40 border border-[#0055cc]/20 rounded-xl p-4 relative overflow-hidden shadow-inner">
-                    <div className="flex justify-between items-center mb-2">
+                  <div className="mb-6 bg-[#001122]/40 border border-[#0055cc]/20 rounded-xl p-4 relative w-full overflow-hidden shadow-inner">
+                    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mb-2">
                       <div className="flex items-center gap-2">
                         <span className="w-1.5 h-1.5 rounded-full bg-[#00f0ff] animate-pulse" />
                         <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#00f0ff]">Progreso Fase de Grupos</span>
                       </div>
-                      <span className="text-xs font-mono font-bold text-white/90">
+                      <span className="text-[10px] sm:text-xs font-mono font-bold text-white/90">
                         {groupMatchesPlayed} / {requiredGroupMatches} <span className="text-white/40">partidos requeridos</span> ({Math.min(100, Math.round((groupMatchesPlayed / requiredGroupMatches) * 100))}%)
                       </span>
                     </div>
@@ -366,22 +396,22 @@ export function TournamentDetailsClient({ id }: { id: string }) {
             )}
 
             {(!matches || matches.length === 0) ? (
-              <div className="py-12 text-center flex flex-col items-center gap-3">
+              <div className="py-12 text-center flex flex-col items-center gap-3 w-full">
                 <Calendar size={32} className="text-[#0055cc]/30" />
                 <span className="text-white/40 text-xs uppercase tracking-widest font-semibold">
                   No hay partidos programados
                 </span>
-                <p className="text-white/25 text-xs">
+                <p className="text-white/25 text-[10px] sm:text-xs max-w-sm mx-auto">
                   Inscribe equipos y usa la sección de arriba para programar el primer partido.
                 </p>
               </div>
             ) : (
-              <div className="flex flex-col gap-8">
+              <div className="flex flex-col gap-6 sm:gap-8 w-full min-w-0">
                 {/* ── Round Selector (Jornadas Tabs) ── */}
                 {uniqueRounds.length > 0 && (
-                  <div className="mb-2">
+                  <div className="mb-2 w-full overflow-hidden">
                     <span className="text-[9px] uppercase tracking-widest font-black text-[#00f0ff]/50 block mb-2 font-mono">Filtrar por Jornada</span>
-                    <div className="flex gap-2 overflow-x-auto pb-2 custom-scrollbar">
+                    <div className="flex gap-2 overflow-x-auto pb-2 custom-scrollbar w-full">
                       <button
                         onClick={() => setSelectedRound("ALL")}
                         className={`px-4 py-2 text-[10px] font-black uppercase tracking-widest rounded-lg border transition-all shrink-0 cursor-pointer ${
@@ -413,15 +443,15 @@ export function TournamentDetailsClient({ id }: { id: string }) {
                 {(() => {
                   const pending = filteredMatches.filter((m: any) => m.status !== "FINISHED");
                   return pending.length > 0 ? (
-                    <div>
-                      <div className="flex items-center gap-3 mb-4">
-                        <span className="w-2 h-2 rounded-full bg-brand-teal animate-pulse shadow-[0_0_6px_rgba(0,240,255,0.8)]" />
-                        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-brand-teal">
+                    <div className="w-full min-w-0">
+                      <div className="flex items-center gap-3 mb-4 w-full">
+                        <span className="w-2 h-2 rounded-full bg-brand-teal animate-pulse shadow-[0_0_6px_rgba(0,240,255,0.8)] shrink-0" />
+                        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-brand-teal shrink-0">
                           Partidos Pendientes
                         </span>
-                        <div className="flex-1 h-px bg-brand-teal/10" />
+                        <div className="flex-1 h-px bg-brand-teal/10 min-w-0" />
                       </div>
-                      <div className="flex flex-col gap-4">
+                      <div className="flex flex-col gap-4 w-full min-w-0">
                         {pending.map((match: any) => (
                           <MatchEditor key={match.id} match={match} tournamentId={id} />
                         ))}
@@ -466,56 +496,44 @@ export function TournamentDetailsClient({ id }: { id: string }) {
 
         {/* ── SECCIÓN 3.5: Fase Eliminatoria ── */}
         {format !== "LEAGUE" && (
-          <section className="bg-[#050b14]/80 backdrop-blur-xl border border-brand-teal/20 shadow-[inset_0_0_20px_rgba(0,0,0,0.5)] rounded-2xl overflow-hidden">
-            <div className="flex items-center gap-3 px-6 py-4 border-b border-brand-teal/20 bg-[#0a1526]/40">
-              <Trophy size={16} className="text-brand-teal" />
-              <h2 className="text-sm font-bold uppercase tracking-widest text-white">
-                Fase Eliminatoria
-              </h2>
-            </div>
-            <div className="p-0">
-              {(!matches || !matches.some((m: any) => m.is_knockout)) && (
-                <div className="p-6 border-b border-[#0055cc]/20">
-                  <BracketGenerator 
-                    tournamentId={id} 
-                    isGroupStageComplete={isGroupStageComplete}
-                    pendingGroupMatchesCount={groupMatchesPending}
-                    registeredTeamsCount={teamsCount}
-                    matchesPlayed={groupMatchesPlayed}
-                  />
-                </div>
-              )}
-              <TournamentBracket matches={matches || []} />
-            </div>
-          </section>
+          <CollapsibleEliminatoriaSection
+            isGroupStageComplete={isGroupStageComplete}
+            matches={matches}
+            id={id}
+            teamsCount={teamsCount}
+            groupMatchesPending={groupMatchesPending}
+            groupMatchesPlayed={groupMatchesPlayed}
+          />
         )}
 
         <div className="grid grid-cols-1 xl:grid-cols-5 gap-6">
           {/* ── SECCIÓN 4: Tabla de Posiciones ── */}
           {format !== 'PLAYOFFS' && (
-            <section className="xl:col-span-3 bg-[#050b14]/80 backdrop-blur-xl border border-brand-teal/20 shadow-[inset_0_0_20px_rgba(0,0,0,0.5)] rounded-2xl overflow-hidden">
-              <div className="flex items-center gap-3 px-6 py-4 border-b border-brand-teal/20 bg-[#0a1526]/40">
-                <Trophy size={16} className="text-brand-teal" />
-                <h2 className="text-sm font-bold uppercase tracking-widest text-white">
-                  Tabla de Posiciones
-                </h2>
+            <section className="xl:col-span-3 relative rounded-2xl overflow-hidden border border-[#00f0ff]/15" style={{ background: "rgba(0,17,51,0.6)", backdropFilter: "blur(16px)" }}>
+              <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#00f0ff]/50 to-transparent" />
+              <div className="flex items-center gap-3 px-6 py-4 border-b border-[#00f0ff]/10">
+                <div className="p-1.5 rounded-lg border border-[#0055cc]/30" style={{ background: "rgba(0,34,102,0.5)" }}>
+                  <Trophy size={14} className="text-[#00f0ff]" />
+                </div>
+                <h2 className="text-xs font-black uppercase tracking-[0.2em] text-white">Tabla de Posiciones</h2>
               </div>
               <div className="p-0">
-                <TournamentStandings standings={standings || []} />
+                <TournamentStandings standings={standings || []} tournamentId={id} />
               </div>
             </section>
           )}
 
           {/* ── SECCIÓN 5: Top Goleadores ── */}
-          <section className={`${format === 'PLAYOFFS' ? 'xl:col-span-5' : 'xl:col-span-2'} bg-[#050b14]/80 backdrop-blur-xl border border-brand-teal/20 shadow-[inset_0_0_20px_rgba(0,0,0,0.5)] rounded-2xl overflow-hidden`}>
-            <div className="flex items-center gap-3 px-6 py-4 border-b border-brand-teal/20 bg-[#0a1526]/40">
-              <Trophy size={16} className="text-yellow-400" />
-              <h2 className="text-sm font-bold uppercase tracking-widest text-white">
-                Top Goleadores
-              </h2>
+          <section className={`${format === 'PLAYOFFS' ? 'xl:col-span-5' : 'xl:col-span-2'} relative rounded-2xl overflow-hidden border border-[#00f0ff]/15`} style={{ background: "rgba(0,17,51,0.6)", backdropFilter: "blur(16px)" }}>
+            <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-brand-gold/50 to-transparent" />
+            <div className="flex items-center gap-3 px-6 py-4 border-b border-[#00f0ff]/10">
+              <div className="p-1.5 rounded-lg border border-brand-gold/20" style={{ background: "rgba(255,184,0,0.1)" }}>
+                <Trophy size={14} className="text-brand-gold" />
+              </div>
+              <h2 className="text-xs font-black uppercase tracking-[0.2em] text-white">Top Goleadores</h2>
             </div>
             <div className="p-6">
-              <TournamentTopScorers scorers={topScorers || []} />
+              <TournamentTopScorers scorers={topScorers || []} tournamentId={id} />
             </div>
           </section>
         </div>

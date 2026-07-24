@@ -1,0 +1,1 @@
+﻿src/components/ui/calendar.tsx(90,9): error TS2353: Object literal may only specify known properties, and 'table' does not exist in type 'Partial<ClassNames>'.

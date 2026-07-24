@@ -42,18 +42,21 @@ export const TournamentHero = ({ tournament }: TournamentHeroProps) => {
 
   const scrollTo = (id: string) => {
     const el = document.getElementById(id);
-    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+    if (el) {
+      const y = el.getBoundingClientRect().top + window.scrollY - 80;
+      window.scrollTo({ top: y, behavior: "smooth" });
+    }
   };
 
   return (
-    <section className="relative w-full flex flex-col overflow-hidden bg-[#04080f] pt-16 pb-8">
+    <section className="relative w-full flex flex-col overflow-hidden bg-background pt-16 pb-8">
       {/* Base gradient */}
-      <div className="absolute inset-0" style={{ background: "linear-gradient(160deg, #020408 0%, #04080f 55%, #060c18 100%)" }} />
+      <div className="absolute inset-0" style={{ background: "linear-gradient(160deg, #001133 0%, #002266 55%, #000a1a 100%)" }} />
 
       {/* Atmosphere glow */}
       <div
-        className="absolute inset-0 pointer-events-none"
-        style={{ background: "radial-gradient(ellipse 60% 70% at 50% 60%, rgba(0,55,160,0.2) 0%, transparent 70%)" }}
+        className="absolute inset-0 pointer-events-none mix-blend-screen"
+        style={{ background: "radial-gradient(ellipse 80% 80% at 50% 50%, rgba(0,136,255,0.2) 0%, rgba(0,240,255,0.15) 40%, transparent 80%)" }}
       />
 
       {/* Cyberpunk grid floor */}
@@ -61,7 +64,7 @@ export const TournamentHero = ({ tournament }: TournamentHeroProps) => {
         <div
           className="absolute inset-0"
           style={{
-            backgroundImage: "linear-gradient(to top, rgba(0,136,255,0.08) 1px, transparent 1px), linear-gradient(to right, rgba(0,136,255,0.08) 1px, transparent 1px)",
+            backgroundImage: "linear-gradient(to top, rgba(0,240,255,0.08) 1px, transparent 1px), linear-gradient(to right, rgba(0,240,255,0.08) 1px, transparent 1px)",
             backgroundSize: "40px 40px",
             transform: "perspective(400px) rotateX(55deg) scale(2)",
             transformOrigin: "top center",
@@ -71,12 +74,12 @@ export const TournamentHero = ({ tournament }: TournamentHeroProps) => {
         />
       </div>
 
-      <div className="relative z-10 flex flex-col items-center text-center px-5 gap-5">
+      <div className="relative z-10 flex flex-col items-center text-center px-4 md:px-5 gap-5">
 
         {/* Status badge */}
         <motion.div
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
+          initial={{ y: -10 }}
+          animate={{ y: 0 }}
           transition={{ duration: 0.5 }}
           className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full border text-xs font-bold tracking-[0.3em] uppercase ${status.color} ${status.borderColor} ${status.bg}`}
         >
@@ -88,14 +91,14 @@ export const TournamentHero = ({ tournament }: TournamentHeroProps) => {
 
         {/* Tournament name */}
         <motion.h1
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
+          initial={{ y: 30 }}
+          animate={{ y: 0 }}
           transition={{ duration: 0.7, delay: 0.15, ease: "easeOut" }}
-          className="hero-title text-[3.5rem] md:text-[7rem] lg:text-[110px] leading-[0.88]"
+          className="hero-title text-[11vw] sm:text-[10vw] md:text-[7rem] lg:text-[120px] leading-[0.85] md:leading-[0.85] w-full max-w-[100vw] break-words"
         >
           {tournament.name.split(" ")[0]}
           {tournament.name.split(" ").slice(1).join(" ") && (
-            <><br /><span className="text-brand-sand">{tournament.name.split(" ").slice(1).join(" ")}</span></>
+            <><br /><span className="text-[#cad5d6]">{tournament.name.split(" ").slice(1).join(" ")}</span></>
           )}
         </motion.h1>
 
@@ -125,10 +128,10 @@ export const TournamentHero = ({ tournament }: TournamentHeroProps) => {
 
         {/* CTA buttons — thumb-friendly */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
+          initial={{ y: 20 }}
+          animate={{ y: 0 }}
           transition={{ duration: 0.6, delay: 0.5 }}
-          className="flex gap-3 w-full max-w-sm mt-1"
+          className="flex gap-3 w-full max-w-sm mt-1 relative z-50"
         >
           <button
             onClick={() => scrollTo("posiciones")}

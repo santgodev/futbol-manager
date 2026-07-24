@@ -92,7 +92,7 @@ export function TeamDetailsClient({ id }: { id: string }) {
   if (!team) return null;
 
   return (
-    <div className="p-8 md:p-12 max-w-5xl mx-auto">
+    <div className="p-4 md:p-8 max-w-5xl mx-auto">
       <Link href="/admin/teams" className="text-[10px] text-brand-aqua/60 uppercase tracking-widest hover:text-brand-teal transition-colors mb-8 inline-block">
         ← Volver a Equipos
       </Link>

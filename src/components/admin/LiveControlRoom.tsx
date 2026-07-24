@@ -11,6 +11,7 @@ import { DeleteEventModal } from "@/components/admin/DeleteEventModal";
 import { EditMinuteModal } from "@/components/admin/EditMinuteModal";
 import { ChangePlayerModal } from "@/components/admin/ChangePlayerModal";
 import { PenaltyShootoutModal } from "@/components/admin/PenaltyShootoutModal";
+import { FinalizeMatchModal } from "@/components/admin/FinalizeMatchModal";
 import { toggleMatchClock } from "@/app/admin/actions";
 export function LiveControlRoom({ match, homePlayers, awayPlayers, onUpdate }: { match: any, homePlayers: any[], awayPlayers: any[], onUpdate?: () => void }) {
   const router = useRouter();
@@ -50,6 +51,9 @@ export function LiveControlRoom({ match, homePlayers, awayPlayers, onUpdate }: {
 
   // ── Penalty Shootout Modal State ──
   const [showPenaltyModal, setShowPenaltyModal] = useState(false);
+
+  // ── Finalize Match Modal State ──
+  const [showFinalizeModal, setShowFinalizeModal] = useState(false);
 
   // ── Context Menu Callbacks ──
   const eventMenuCallbacks: EventContextMenuCallbacks = {
@@ -144,7 +148,6 @@ export function LiveControlRoom({ match, homePlayers, awayPlayers, onUpdate }: {
   const currentMinute = Math.floor(seconds / 60) + 1;
 
   const handleFinalizeMatch = async () => {
-    if (!confirm("¿Estás seguro de finalizar el partido? Esto calculará los puntos en la tabla de posiciones y no se puede deshacer fácilmente.")) return;
     setIsSubmitting(true);
     setErrorMsg("");
     try {
@@ -257,25 +260,39 @@ export function LiveControlRoom({ match, homePlayers, awayPlayers, onUpdate }: {
                 <div 
                   key={p.id}
                   onClick={() => handlePlayerClick(p, teamId)}
-                  className={`flex items-center p-3 rounded-lg cursor-pointer transition-all border ${
+                  className={`flex items-center p-3 rounded-xl cursor-pointer transition-all border ${
                     isSelected 
-                      ? 'bg-[#00f0ff]/20 border-[#00f0ff] shadow-[0_0_15px_rgba(0,240,255,0.3)]' 
+                      ? 'bg-[#00f0ff]/20 border-[#00f0ff] shadow-[0_0_20px_rgba(0,240,255,0.4)]' 
                       : isOut 
-                        ? 'bg-red-500/20 border-red-500 shadow-[0_0_15px_rgba(255,0,0,0.3)]'
-                        : 'bg-[#001122]/50 border-transparent hover:border-[#0055cc]/50 hover:bg-[#002244]/50'
+                        ? 'bg-red-500/20 border-red-500 shadow-[0_0_20px_rgba(255,0,0,0.4)]'
+                        : 'bg-[#001122]/40 border-white/5 hover:border-[#0055cc]/50 hover:bg-[#002244]/60'
                   } ${align === 'right' ? 'flex-row-reverse text-right' : ''}`}
                 >
-                  <div className="w-8 h-8 rounded-full bg-black/50 border border-white/10 flex items-center justify-center shrink-0 overflow-hidden">
-                    {p.photo_url ? (
-                      <Image src={p.photo_url} alt={p.name} width={32} height={32} className="object-cover w-full h-full" unoptimized />
-                    ) : (
-                      <span className="text-[10px] text-white/50">{p.number || '-'}</span>
-                    )}
+                  {/* Numero Prominente */}
+                  <div className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 shadow-lg ${
+                    isSelected ? 'bg-[#00f0ff] text-black' : 
+                    isOut ? 'bg-red-500 text-black' : 
+                    'bg-[#02060d] border border-white/10 text-white shadow-[inset_0_0_10px_rgba(255,255,255,0.05)]'
+                  }`}>
+                    <span className="text-lg font-black font-mono leading-none tracking-tighter">
+                      {p.number || '-'}
+                    </span>
                   </div>
                   
-                  <div className={`flex flex-col ${align === 'right' ? 'mr-3' : 'ml-3'}`}>
-                    <span className="text-xs font-bold text-white uppercase tracking-wider">{p.name}</span>
-                    <span className="text-[9px] text-[#00f0ff]/70 font-mono">DORSAL: {p.number || 'N/A'}</span>
+                  <div className={`flex flex-col flex-1 min-w-0 justify-center ${align === 'right' ? 'mr-3' : 'ml-3'}`}>
+                    <span className={`text-[10px] sm:text-xs font-black uppercase tracking-wider leading-tight ${
+                      isSelected || isOut ? 'text-white' : 'text-white/90'
+                    }`}>
+                      {p.name}
+                    </span>
+                    {p.photo_url && (
+                      <span className="text-[8px] text-[#00f0ff]/50 font-mono flex items-center gap-1 mt-1">
+                        <div className="w-2.5 h-2.5 rounded-full overflow-hidden inline-block relative opacity-80">
+                           <Image src={p.photo_url} alt="foto" fill className="object-cover" unoptimized />
+                        </div>
+                        FOTO
+                      </span>
+                    )}
                   </div>
                 </div>
               );
@@ -388,7 +405,7 @@ export function LiveControlRoom({ match, homePlayers, awayPlayers, onUpdate }: {
               </button>
               
               <button 
-                onClick={handleFinalizeMatch}
+                onClick={() => setShowFinalizeModal(true)}
                 disabled={isSubmitting}
                 className="ml-4 h-12 px-6 rounded-full bg-red-500/20 border border-red-500/50 hover:bg-red-500 hover:text-black text-red-400 font-black uppercase tracking-widest text-xs flex items-center gap-2 transition-all hover:shadow-[0_0_20px_rgba(255,0,0,0.5)] disabled:opacity-50"
                 title="Terminar partido oficialmente"
@@ -409,52 +426,57 @@ export function LiveControlRoom({ match, homePlayers, awayPlayers, onUpdate }: {
           </div>
 
           {/* Marcador Central */}
-          <div className="flex items-center w-full justify-between max-w-4xl mx-auto gap-8">
+          <div className="flex items-center w-full justify-between max-w-4xl mx-auto gap-2 sm:gap-4 md:gap-8 px-2 sm:px-0">
             {/* Local */}
-            <div className="flex-1 flex flex-col items-center gap-4 text-center">
-              <div className="w-24 h-24 md:w-32 md:h-32 bg-[#001122] rounded-2xl border border-[#0055cc]/30 p-4 shadow-inner flex items-center justify-center overflow-hidden">
+            <div className="flex-1 flex flex-col items-center gap-2 md:gap-4 text-center min-w-[30%]">
+              <div className="w-16 h-16 sm:w-24 sm:h-24 md:w-32 md:h-32 bg-[#001122] rounded-2xl border border-[#0055cc]/30 p-2 sm:p-4 shadow-inner flex items-center justify-center overflow-hidden">
                 {match.home_team?.logo_url ? (
-                  <Image src={match.home_team.logo_url} alt="Local" width={90} height={90} className="object-contain" unoptimized />
-                ) : <Shield size={48} className="text-[#0055cc]/40" />}
+                  <Image src={match.home_team.logo_url} alt="Local" width={90} height={90} className="object-contain w-full h-full" unoptimized />
+                ) : <Shield className="w-8 h-8 sm:w-12 sm:h-12 text-[#0055cc]/40" />}
               </div>
-              <h2 className="text-xl md:text-3xl font-black uppercase tracking-tighter line-clamp-2">
+              <h2 className="text-sm sm:text-xl md:text-3xl font-black uppercase tracking-tighter line-clamp-2 leading-tight">
                 {match.home_team?.name || 'Local'}
               </h2>
             </div>
             
             {/* Puntos y Penales */}
-            <div className="flex items-center justify-center gap-6 md:gap-10 shrink-0">
-              <div className="flex items-baseline gap-2">
-                <span className="text-6xl md:text-9xl font-black text-white drop-shadow-[0_0_30px_rgba(255,255,255,0.2)] tabular-nums">
-                  {match.home_score || 0}
-                </span>
-                {match.home_penalty_score !== null && (
-                  <span className="text-2xl md:text-4xl font-bold text-[#00f0ff] opacity-80">
-                    ({match.home_penalty_score})
+            <div className="flex flex-col items-center justify-center shrink-0">
+              <div className="flex items-center justify-center gap-3 sm:gap-6 md:gap-10 shrink-0">
+                <div className="flex items-baseline gap-1 md:gap-2">
+                  <span className="text-5xl sm:text-6xl md:text-9xl font-black text-white drop-shadow-[0_0_30px_rgba(255,255,255,0.2)] tabular-nums">
+                    {match.home_score || 0}
                   </span>
-                )}
-              </div>
-              <span className="text-4xl md:text-6xl font-black text-[#00f0ff]/30 pb-4">-</span>
-              <div className="flex items-baseline gap-2">
-                {match.away_penalty_score !== null && (
-                  <span className="text-2xl md:text-4xl font-bold text-[#00f0ff] opacity-80">
-                    ({match.away_penalty_score})
+                </div>
+                <span className="text-3xl sm:text-4xl md:text-6xl font-black text-[#00f0ff]/30">-</span>
+                <div className="flex items-baseline gap-1 md:gap-2">
+                  <span className="text-5xl sm:text-6xl md:text-9xl font-black text-white drop-shadow-[0_0_30px_rgba(255,255,255,0.2)] tabular-nums">
+                    {match.away_score || 0}
                   </span>
-                )}
-                <span className="text-6xl md:text-9xl font-black text-white drop-shadow-[0_0_30px_rgba(255,255,255,0.2)] tabular-nums">
-                  {match.away_score || 0}
-                </span>
+                </div>
               </div>
+              
+              {/* Penales (si hay) */}
+              {(match.home_penalty_score !== null || match.away_penalty_score !== null) && (
+                <div className="flex items-center justify-center gap-8 mt-2">
+                  <span className="text-lg sm:text-2xl md:text-4xl font-bold text-[#00f0ff] opacity-80">
+                    ({match.home_penalty_score ?? 0})
+                  </span>
+                  <span className="text-xs uppercase tracking-widest text-[#00f0ff]/50 font-bold">Penales</span>
+                  <span className="text-lg sm:text-2xl md:text-4xl font-bold text-[#00f0ff] opacity-80">
+                    ({match.away_penalty_score ?? 0})
+                  </span>
+                </div>
+              )}
             </div>
 
             {/* Visitante */}
-            <div className="flex-1 flex flex-col items-center gap-4 text-center">
-              <div className="w-24 h-24 md:w-32 md:h-32 bg-[#001122] rounded-2xl border border-[#0055cc]/30 p-4 shadow-inner flex items-center justify-center overflow-hidden">
+            <div className="flex-1 flex flex-col items-center gap-2 md:gap-4 text-center min-w-[30%]">
+              <div className="w-16 h-16 sm:w-24 sm:h-24 md:w-32 md:h-32 bg-[#001122] rounded-2xl border border-[#0055cc]/30 p-2 sm:p-4 shadow-inner flex items-center justify-center overflow-hidden">
                 {match.away_team?.logo_url ? (
-                  <Image src={match.away_team.logo_url} alt="Visitante" width={90} height={90} className="object-contain" unoptimized />
-                ) : <Shield size={48} className="text-[#0055cc]/40" />}
+                  <Image src={match.away_team.logo_url} alt="Visitante" width={90} height={90} className="object-contain w-full h-full" unoptimized />
+                ) : <Shield className="w-8 h-8 sm:w-12 sm:h-12 text-[#0055cc]/40" />}
               </div>
-              <h2 className="text-xl md:text-3xl font-black uppercase tracking-tighter line-clamp-2">
+              <h2 className="text-sm sm:text-xl md:text-3xl font-black uppercase tracking-tighter line-clamp-2 leading-tight">
                 {match.away_team?.name || 'Visitante'}
               </h2>
             </div>
@@ -462,13 +484,10 @@ export function LiveControlRoom({ match, homePlayers, awayPlayers, onUpdate }: {
         </div>
 
         {/* CONTROLES INFERIORES */}
-        <div className="flex-1 flex gap-6 min-h-0">
+        <div className="flex flex-col lg:flex-row gap-6 min-h-0 pb-10 lg:pb-0">
           
-          {/* Roster Local */}
-          {renderRoster(homePlayers, match.home_team_id, 'left', match.home_team?.primary_color)}
-
-          {/* Panel de Eventos */}
-          <div className="w-80 md:w-96 shrink-0 flex flex-col gap-4">
+          {/* Panel de Eventos (Top on mobile, Middle on desktop) */}
+          <div className="w-full lg:w-96 shrink-0 flex flex-col gap-4 order-1 lg:order-2">
             
             {/* Controles Dinámicos */}
             <div className="bg-[#02060d]/90 backdrop-blur-md border border-[#00f0ff]/40 rounded-2xl p-6 shadow-[0_0_20px_rgba(0,240,255,0.1)]">
@@ -485,7 +504,7 @@ export function LiveControlRoom({ match, homePlayers, awayPlayers, onUpdate }: {
                     <Activity size={14} className="text-[#00f0ff]" /> MODO: CAMBIOS (SUBSTITUCIÓN)
                   </button>
 
-                  <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#00f0ff]/50 mb-4 text-center">
+                  <h3 className="text-[10px] uppercase tracking-[0.2em] text-[#00f0ff]/60 font-black text-center mb-4">
                     Panel de Eventos Rápidos
                   </h3>
                   
@@ -505,7 +524,6 @@ export function LiveControlRoom({ match, homePlayers, awayPlayers, onUpdate }: {
                           <Goal size={24} className="group-hover:scale-110 transition-transform" />
                           <span className="text-[9px] font-bold uppercase tracking-widest">Anotar Gol</span>
                         </button>
-                        
                         <button 
                           onClick={() => handleEvent('OWN_GOAL')}
                           disabled={isSubmitting}
@@ -629,9 +647,14 @@ export function LiveControlRoom({ match, homePlayers, awayPlayers, onUpdate }: {
               </div>
             )}
           </div>
+          {/* Rosters (Side-by-side en móvil, independientes en desktop gracias a lg:contents) */}
+          <div className="flex flex-row gap-2 w-full order-2 lg:contents">
+            {/* Roster Local */}
+            {renderRoster(homePlayers, match.home_team_id, 'left', match.home_team?.primary_color, 'flex-1 flex order-1')}
 
-          {/* Roster Visitante */}
-          {renderRoster(awayPlayers, match.away_team_id, 'right', match.away_team?.primary_color)}
+            {/* Roster Visitante */}
+            {renderRoster(awayPlayers, match.away_team_id, 'right', match.away_team?.primary_color, 'flex-1 flex order-3')}
+          </div>
 
         </div>
       </div>
@@ -675,6 +698,28 @@ export function LiveControlRoom({ match, homePlayers, awayPlayers, onUpdate }: {
           currentAwayPenalties={match.away_penalty_score}
           currentVersion={match.version || 1}
           onClose={() => setShowPenaltyModal(false)}
+        />
+      )}
+
+      {/* Finalize Match Modal */}
+      {showFinalizeModal && (
+        <FinalizeMatchModal
+          isKnockout={!!match.is_knockout}
+          isTied={(match.home_score || 0) === (match.away_score || 0)}
+          homeTeamName={match.home_team?.name || 'Local'}
+          awayTeamName={match.away_team?.name || 'Visitante'}
+          homeScore={match.home_score || 0}
+          awayScore={match.away_score || 0}
+          onConfirm={() => {
+            setShowFinalizeModal(false);
+            handleFinalizeMatch();
+          }}
+          onExtraTime={() => setShowFinalizeModal(false)}
+          onPenalties={() => {
+            setShowFinalizeModal(false);
+            setShowPenaltyModal(true);
+          }}
+          onClose={() => setShowFinalizeModal(false)}
         />
       )}
 

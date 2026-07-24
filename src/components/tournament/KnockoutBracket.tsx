@@ -58,10 +58,19 @@ export function KnockoutBracket({ matches, totalTeams = 0 }: KnockoutBracketProp
           </span>
         </div>
 
-        <div className="w-full glass-panel p-12 flex flex-col items-center justify-center border-dashed">
-          <Shield className="w-12 h-16 text-brand-cyan/20 mb-4" />
-          <h3 className="text-white font-bold uppercase tracking-widest text-sm">Fase Final No Definida</h3>
-          <p className="text-brand-text-muted text-[10px] font-mono uppercase tracking-widest mt-2 text-center max-w-sm">
+        <div className="w-full relative rounded-3xl p-12 flex flex-col items-center justify-center bg-gradient-to-br from-[#0a1526]/80 to-[#050810]/95 backdrop-blur-xl border border-[#00f0ff]/20 shadow-[0_10px_40px_rgba(0,0,0,0.6)] overflow-hidden group">
+          {/* Neon Top Line */}
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1/3 h-[2px] bg-gradient-to-r from-transparent via-[#00f0ff] to-transparent shadow-[0_0_15px_#00f0ff] opacity-80 group-hover:w-1/2 transition-all duration-700" />
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[60%] h-[120px] bg-[#00f0ff]/10 blur-[50px] pointer-events-none" />
+
+          {/* Glowing Shield */}
+          <div className="w-20 h-24 mb-6 relative flex items-center justify-center">
+            <div className="absolute inset-0 bg-[#00f0ff]/20 blur-[20px] rounded-full animate-pulse" />
+            <Shield className="w-16 h-20 text-[#00f0ff] drop-shadow-[0_0_10px_rgba(0,240,255,0.6)] relative z-10" />
+          </div>
+
+          <h3 className="text-white font-black uppercase tracking-widest text-lg drop-shadow-[0_0_8px_rgba(255,255,255,0.3)]">Fase Final No Definida</h3>
+          <p className="text-[#00f0ff]/60 text-[11px] font-mono uppercase tracking-[0.2em] mt-3 text-center max-w-md font-bold">
             Los cruces eliminatorios se revelarán una vez que concluya la fase de grupos.
           </p>
         </div>

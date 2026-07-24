@@ -1,8 +1,17 @@
 "use client";
+import { useState } from "react";
 import Image from "next/image";
 import { Medal, Goal } from "lucide-react";
+import { PlayerProfileModal } from "@/components/home/PlayerProfileModal";
 
-export function TournamentTopScorers({ scorers }: { scorers: any[] }) {
+export function TournamentTopScorers({ scorers, tournamentId }: { scorers: any[], tournamentId?: string }) {
+  const [selectedPlayer, setSelectedPlayer] = useState<any | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const openPlayerProfile = (player: any) => {
+    setSelectedPlayer(player);
+    setIsModalOpen(true);
+  };
   if (!scorers || scorers.length === 0) {
     return (
       <div className="py-12 text-center flex flex-col items-center gap-3">
@@ -24,9 +33,10 @@ export function TournamentTopScorers({ scorers }: { scorers: any[] }) {
         return (
           <div 
             key={scorer.player_id}
-            className={`flex items-center gap-4 p-4 rounded-2xl border transition-all ${
+            onClick={() => openPlayerProfile(scorer)}
+            className={`flex items-center gap-4 p-4 rounded-2xl border transition-all cursor-pointer ${
               isTop 
-                ? 'bg-gradient-to-r from-[#0055cc]/20 to-transparent border-[#00f0ff]/30 shadow-[0_0_20px_rgba(0,240,255,0.1)]' 
+                ? 'bg-gradient-to-r from-[#0055cc]/20 to-transparent border-[#00f0ff]/30 shadow-[0_0_20px_rgba(0,240,255,0.1)] hover:bg-[#0055cc]/30' 
                 : 'bg-[#001122]/40 border-[#0055cc]/10 hover:border-[#0055cc]/30 hover:bg-[#001122]/80'
             }`}
           >
@@ -69,6 +79,13 @@ export function TournamentTopScorers({ scorers }: { scorers: any[] }) {
           </div>
         );
       })}
+
+      <PlayerProfileModal 
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        player={selectedPlayer}
+        tournamentId={tournamentId}
+      />
     </div>
   );
 }

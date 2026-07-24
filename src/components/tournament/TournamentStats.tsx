@@ -49,7 +49,7 @@ export const TournamentStats = ({ standings, teamsCount }: { standings: any[], t
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               {stats.map((stat, i) => (
                 <motion.div 
-                  initial={{ opacity: 0, y: 20 }}
+                  initial={{ y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true, margin: "-100px" }}
                   transition={{ duration: 0.5, delay: i * 0.1 }}
@@ -81,7 +81,7 @@ export const TournamentStats = ({ standings, teamsCount }: { standings: any[], t
             <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-2 xl:grid-cols-4 gap-4">
               {standings.map((standing, i) => (
                 <motion.div 
-                  initial={{ opacity: 0, scale: 0.9 }}
+                  initial={{ scale: 0.9 }}
                   whileInView={{ opacity: 1, scale: 1 }}
                   viewport={{ once: true }}
                   transition={{ duration: 0.4, delay: i * 0.05 }}

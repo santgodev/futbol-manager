@@ -20,16 +20,16 @@ export const TournamentStandings = ({ standings, scorers }: TournamentStandingsP
             <table className="w-full text-left border-collapse min-w-[600px]">
               <thead>
                 <tr className="border-b-2 border-brand-navy/50 text-[10px] text-brand-aqua/60 uppercase tracking-widest">
-                  <th className="pb-4 pl-4 w-12 text-center">Pos</th>
-                  <th className="pb-4">Equipo</th>
-                  <th className="pb-4 text-center w-12" title="Partidos Jugados">PJ</th>
-                  <th className="pb-4 text-center w-12" title="Victorias">G</th>
-                  <th className="pb-4 text-center w-12" title="Empates">E</th>
-                  <th className="pb-4 text-center w-12" title="Derrotas">P</th>
-                  <th className="pb-4 text-center w-12" title="Goles a Favor">GF</th>
-                  <th className="pb-4 text-center w-12" title="Goles en Contra">GC</th>
-                  <th className="pb-4 text-center w-12" title="Diferencia de Goles">DG</th>
-                  <th className="pb-4 text-center w-16 text-brand-teal">Pts</th>
+                  <th className="pb-4 pl-4 w-12 text-center">🏆 Pos</th>
+                  <th className="pb-4">🛡️ Equipo</th>
+                  <th className="pb-4 text-center w-12" title="Partidos Jugados">⚽ PJ</th>
+                  <th className="pb-4 text-center w-12" title="Partidos Ganados">✅ PG</th>
+                  <th className="pb-4 text-center w-12" title="Partidos Empatados">➖ PE</th>
+                  <th className="pb-4 text-center w-12" title="Partidos Perdidos">❌ PP</th>
+                  <th className="pb-4 text-center w-12" title="Goles a Favor">🔥 GF</th>
+                  <th className="pb-4 text-center w-12" title="Goles en Contra">🧤 GC</th>
+                  <th className="pb-4 text-center w-12" title="Diferencia de Goles">⚖️ DG</th>
+                  <th className="pb-4 text-center w-16 text-brand-teal">⭐ Pts</th>
                 </tr>
               </thead>
               <tbody>
@@ -38,7 +38,7 @@ export const TournamentStandings = ({ standings, scorers }: TournamentStandingsP
                   const gd = (team.goals_for || 0) - (team.goals_against || 0);
                   return (
                     <motion.tr 
-                      initial={{ opacity: 0, x: -20 }}
+                      initial={{ x: -20 }}
                       whileInView={{ opacity: 1, x: 0 }}
                       viewport={{ once: true }}
                       transition={{ duration: 0.3, delay: i * 0.05 }}
@@ -58,10 +58,10 @@ export const TournamentStandings = ({ standings, scorers }: TournamentStandingsP
                         )}
                         {team.team?.name}
                       </td>
-                      <td className="py-5 text-center text-xs text-brand-aqua/80">{team.matches_played}</td>
-                      <td className="py-5 text-center text-xs text-brand-aqua/80">{team.wins}</td>
-                      <td className="py-5 text-center text-xs text-brand-aqua/80">{team.draws}</td>
-                      <td className="py-5 text-center text-xs text-brand-aqua/80">{team.losses}</td>
+                      <td className="py-5 text-center text-xs text-brand-aqua/80">{team.played ?? team.matches_played ?? 0}</td>
+                      <td className="py-5 text-center text-xs text-brand-aqua/80">{team.won ?? team.wins ?? 0}</td>
+                      <td className="py-5 text-center text-xs text-brand-aqua/80">{team.drawn ?? team.draws ?? 0}</td>
+                      <td className="py-5 text-center text-xs text-brand-aqua/80">{team.lost ?? team.losses ?? 0}</td>
                       <td className="py-5 text-center text-xs text-brand-aqua/80">{team.goals_for}</td>
                       <td className="py-5 text-center text-xs text-brand-aqua/80">{team.goals_against}</td>
                       <td className="py-5 text-center text-xs text-brand-aqua/80">{gd > 0 ? `+${gd}` : gd}</td>
@@ -84,7 +84,7 @@ export const TournamentStandings = ({ standings, scorers }: TournamentStandingsP
               const isTop = i === 0;
               return (
                 <motion.div 
-                  initial={{ opacity: 0, y: 20 }}
+                  initial={{ y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ duration: 0.4, delay: i * 0.1 }}

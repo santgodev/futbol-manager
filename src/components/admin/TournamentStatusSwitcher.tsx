@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 
 const selectClass = "bg-[#040c1a]/80 border border-[#0055cc]/50 focus:border-[#00f0ff] px-3 py-2 text-white text-xs rounded-lg outline-none transition-all appearance-none cursor-pointer pr-8";
 
-export function TournamentStatusSwitcher({ tournament, isDisabled = false }: { tournament: any, isDisabled?: boolean }) {
+export function TournamentStatusSwitcher({ tournament, isDisabled = false, onUpdate }: { tournament: any, isDisabled?: boolean, onUpdate?: () => void }) {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
@@ -15,6 +15,7 @@ export function TournamentStatusSwitcher({ tournament, isDisabled = false }: { t
     setLoading(true);
     try {
       await updateTournament(tournament.id, { [field]: value });
+      if (onUpdate) onUpdate();
       router.refresh();
     } finally {
       setLoading(false);

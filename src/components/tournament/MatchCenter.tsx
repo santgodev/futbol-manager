@@ -94,81 +94,102 @@ export const MatchCenter = ({ matches }: { matches: any[] }) => {
   return (
     <section id="matches" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 scroll-mt-20">
       {/* Section header */}
-      <div className="flex items-center justify-between mb-6 pb-3 border-b border-white/5">
+      <div className="flex items-center justify-between mb-8 pb-4 border-b border-white/5 relative">
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1/2 h-[1px] bg-gradient-to-r from-transparent via-[#00f0ff] to-transparent opacity-30" />
         <div className="flex items-center gap-3">
-          <span className="w-2 h-2 rounded-full bg-brand-cyan shadow-[0_0_8px_#00f0ff]" />
-          <h2 className="text-sm font-bold uppercase tracking-[0.2em] text-white">
+          <span className="w-2 h-2 rounded-full bg-[#00f0ff] shadow-[0_0_8px_#00f0ff] animate-pulse" />
+          <h2 className="text-sm font-black uppercase tracking-[0.2em] text-white hero-title !not-italic">
             Centro de Partidos
           </h2>
         </div>
-        <span className={`text-[10px] font-mono uppercase tracking-widest ${isLive ? "text-red-400" : "text-brand-cyan/60"}`}>
-          {isLive ? "🔴 EN VIVO" : "Partidos en Vivo & Recientes"}
+        <span className={`text-[9px] font-mono uppercase tracking-widest ${isLive ? "text-[#00f0ff] font-bold drop-shadow-[0_0_5px_rgba(0,240,255,0.5)]" : "text-[#cad5d6]/50"}`}>
+          {isLive ? "PARTIDOS EN VIVO" : "Partidos en Vivo & Recientes"}
         </span>
       </div>
 
-      {/* Featured match hero card */}
+      {/* Featured match hero card - PREMIUM REDESIGN */}
       <motion.div
-        initial={{ opacity: 0, y: 30 }}
+        initial={{ y: 30, opacity: 0 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ duration: 0.6, ease: "easeOut" }}
-        className={`w-full glass-panel p-6 md:p-10 mb-4 relative overflow-hidden transition-all duration-300
-          ${isLive ? "border-red-500/30 shadow-[0_0_40px_rgba(239,68,68,0.08)]" : "shadow-[0_0_40px_rgba(0,102,255,0.07)] hover:border-brand-cyan/40"}`}
+        className={`w-full rounded-[2rem] p-6 md:p-12 mb-8 relative overflow-hidden transition-all duration-500
+          bg-gradient-to-br from-[#0a1526]/90 via-[#050810]/95 to-[#020408]/95 backdrop-blur-xl border
+          ${isLive ? "border-[#00f0ff]/30 shadow-[0_20px_50px_rgba(0,240,255,0.1),inset_0_0_20px_rgba(0,240,255,0.05)]" : "border-[#0a1122] shadow-[0_15px_50px_rgba(0,0,0,0.6)]"}`}
       >
-        {/* Background glow */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-brand-blue/5 rounded-full blur-[80px] pointer-events-none" />
+        {/* Background ambient lighting */}
+        <div className={`absolute top-0 left-1/2 -translate-x-1/2 w-[80%] h-[2px] bg-gradient-to-r from-transparent ${isLive ? "via-[#00f0ff]" : "via-[#0055cc]"} to-transparent opacity-50`} />
+        <div className={`absolute top-0 left-1/2 -translate-x-1/2 w-[50%] h-[150px] ${isLive ? "bg-[#00f0ff]/10" : "bg-[#0055cc]/10"} blur-[60px] pointer-events-none`} />
 
         <div className="w-full flex flex-col items-center relative z-10">
-          {/* Status badge */}
-          <span className={`font-mono font-bold text-xs mb-6 tracking-[0.3em] uppercase px-4 py-1.5 rounded-full flex items-center gap-2 ${
-            isLive
-              ? "bg-red-500/15 border border-red-500/30 text-red-400"
-              : isScheduled
-              ? "bg-brand-cyan/10 border border-brand-cyan/20 text-brand-cyan"
-              : "bg-emerald-500/10 border border-emerald-500/30 text-emerald-400"
-          }`}>
-            {isLive && <span className="w-2 h-2 rounded-full bg-red-500 live-pulse" />}
-            {isLive ? "EN VIVO" : isScheduled ? "Programado" : "✓ Final"}
-          </span>
+          
+          {/* Top Status & Stage Badge */}
+          <div className="flex flex-col items-center gap-2 mb-8 md:mb-12">
+            <span className={`font-mono font-black text-[10px] tracking-[0.4em] uppercase px-5 py-1.5 rounded-full flex items-center gap-2 border ${
+              isLive
+                ? "bg-[#00f0ff]/10 border-[#00f0ff]/30 text-[#00f0ff] shadow-[0_0_15px_rgba(0,240,255,0.2)]"
+                : isScheduled
+                ? "bg-[#0055cc]/10 border-[#0055cc]/30 text-[#00f0ff]"
+                : "bg-emerald-500/10 border-emerald-500/30 text-emerald-400"
+            }`}>
+              {isLive && <span className="w-2 h-2 rounded-full bg-[#00f0ff] shadow-[0_0_8px_#00f0ff] animate-pulse" />}
+              {isLive ? "EN VIVO" : isScheduled ? "POR DEFINIR" : "FINAL"}
+            </span>
+            <span className="text-[10px] font-bold text-[#e5e1dd]/50 uppercase tracking-[0.2em]">
+              {stageLabel(featuredMatch.stage, featuredMatch.round_number)}
+            </span>
+          </div>
 
           {/* Teams + Score */}
-          <div className="flex flex-col md:flex-row items-center justify-between w-full max-w-4xl gap-6 md:gap-4">
+          <div className="flex flex-col md:flex-row items-center justify-center w-full max-w-5xl gap-8 md:gap-16">
+            
             {/* Home */}
-            <div className={`flex items-center gap-4 flex-1 justify-center md:justify-end w-full ${homeWon ? "opacity-100" : isFinished ? "opacity-60" : ""}`}>
-              <span className={`text-lg md:text-3xl font-black italic uppercase tracking-tight text-center md:text-right ${homeWon ? "text-white" : "text-brand-text-muted"}`}>
+            <div className={`flex flex-col md:flex-row items-center gap-6 md:gap-8 flex-1 justify-center md:justify-end w-full ${homeWon ? "opacity-100" : isFinished ? "opacity-60" : ""}`}>
+              <span className={`text-xl md:text-3xl font-black uppercase tracking-widest text-center md:text-right order-2 md:order-1 ${homeWon ? "text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.3)]" : "text-[#e5e1dd]"}`}>
                 {featuredMatch.home_team?.name || "TBD"}
               </span>
-              <TeamLogo logoUrl={featuredMatch.home_team?.logo_url} name={featuredMatch.home_team?.name} />
+              <div className="order-1 md:order-2 w-24 h-32 md:w-32 md:h-40 bg-[#02060d] border border-[#0a1122] rounded-2xl flex items-center justify-center p-4 shrink-0 shadow-[0_10px_30px_rgba(0,0,0,0.8),inset_0_0_15px_rgba(0,240,255,0.05)]">
+                {featuredMatch.home_team?.logo_url
+                  ? <img src={featuredMatch.home_team.logo_url} className="w-full h-full object-contain drop-shadow-[0_4px_12px_rgba(0,0,0,0.6)]" alt={featuredMatch.home_team.name ?? ""} />
+                  : <Shield className="w-16 h-20 text-[#00f0ff]/20" />
+                }
+              </div>
             </div>
 
             {/* Score */}
             <div className="flex flex-col items-center shrink-0 px-4">
               {homeScore !== null && awayScore !== null ? (
-                <div className="text-5xl md:text-7xl font-black tracking-tighter tabular-nums flex items-center gap-3 text-white font-display">
-                  <span className={homeWon ? "text-brand-cyan drop-shadow-[0_0_15px_rgba(0,240,255,0.4)]" : ""}>{homeScore}</span>
-                  <span className="text-brand-cyan/30 font-light text-3xl md:text-5xl">-</span>
-                  <span className={awayWon ? "text-brand-cyan drop-shadow-[0_0_15px_rgba(0,240,255,0.4)]" : ""}>{awayScore}</span>
+                <div className="text-6xl md:text-[6rem] font-black tracking-tighter tabular-nums flex items-center gap-6 md:gap-8 text-white font-display leading-none">
+                  <span className={homeWon ? "text-white drop-shadow-[0_0_20px_rgba(255,255,255,0.4)]" : "text-[#e5e1dd]"}>{homeScore}</span>
+                  <span className="text-[#00f0ff]/40 font-light text-5xl md:text-6xl pb-4">-</span>
+                  <span className={awayWon ? "text-white drop-shadow-[0_0_20px_rgba(255,255,255,0.4)]" : "text-[#e5e1dd]"}>{awayScore}</span>
                 </div>
               ) : (
-                <span className="text-3xl md:text-5xl text-brand-cyan/50 font-mono tracking-[0.2em] font-bold">VS</span>
+                <span className="text-4xl md:text-6xl text-[#00f0ff]/30 font-mono tracking-[0.2em] font-black drop-shadow-[0_0_10px_rgba(0,240,255,0.1)]">VS</span>
               )}
-              <span className="text-[9px] font-mono text-brand-text-muted uppercase tracking-widest mt-2">
-                {stageLabel(featuredMatch.stage, featuredMatch.round_number)}
-              </span>
+              
               {(featuredMatch.match_date || featuredMatch.match_time) && (
-                <span className="text-[9px] font-mono text-brand-text-muted/60 uppercase tracking-widest">
-                  {featuredMatch.match_date}{featuredMatch.match_time ? " • " + featuredMatch.match_time.substring(0, 5) : ""}
-                </span>
+                <div className="mt-6 flex flex-col items-center">
+                  <span className="text-[10px] font-mono text-[#00f0ff]/50 uppercase tracking-widest bg-[#0a1122]/80 px-4 py-1.5 rounded-full border border-[#00f0ff]/20">
+                    {featuredMatch.match_date}{featuredMatch.match_time ? " • " + featuredMatch.match_time.substring(0, 5) : ""}
+                  </span>
+                </div>
               )}
             </div>
 
             {/* Away */}
-            <div className={`flex items-center gap-4 flex-1 justify-center md:justify-start w-full ${awayWon ? "opacity-100" : isFinished ? "opacity-60" : ""}`}>
-              <TeamLogo logoUrl={featuredMatch.away_team?.logo_url} name={featuredMatch.away_team?.name} />
-              <span className={`text-lg md:text-3xl font-black italic uppercase tracking-tight text-center md:text-left ${awayWon ? "text-white" : "text-brand-text-muted"}`}>
+            <div className={`flex flex-col md:flex-row items-center gap-6 md:gap-8 flex-1 justify-center md:justify-start w-full ${awayWon ? "opacity-100" : isFinished ? "opacity-60" : ""}`}>
+              <div className="w-24 h-32 md:w-32 md:h-40 bg-[#02060d] border border-[#0a1122] rounded-2xl flex items-center justify-center p-4 shrink-0 shadow-[0_10px_30px_rgba(0,0,0,0.8),inset_0_0_15px_rgba(0,240,255,0.05)]">
+                {featuredMatch.away_team?.logo_url
+                  ? <img src={featuredMatch.away_team.logo_url} className="w-full h-full object-contain drop-shadow-[0_4px_12px_rgba(0,0,0,0.6)]" alt={featuredMatch.away_team.name ?? ""} />
+                  : <Shield className="w-16 h-20 text-[#00f0ff]/20" />
+                }
+              </div>
+              <span className={`text-xl md:text-3xl font-black uppercase tracking-widest text-center md:text-left ${awayWon ? "text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.3)]" : "text-[#e5e1dd]"}`}>
                 {featuredMatch.away_team?.name || "TBD"}
               </span>
             </div>
+            
           </div>
         </div>
       </motion.div>
@@ -176,7 +197,7 @@ export const MatchCenter = ({ matches }: { matches: any[] }) => {
       {/* Momentum message */}
       {momentum && (
         <motion.div
-          initial={{ opacity: 0, x: -10 }}
+          initial={{ x: -10 }}
           whileInView={{ opacity: 1, x: 0 }}
           viewport={{ once: true }}
           className="flex items-center gap-2 mb-6 px-4 py-2.5 rounded-xl bg-yellow-500/5 border border-yellow-500/20 w-fit"
@@ -209,7 +230,7 @@ export const MatchCenter = ({ matches }: { matches: any[] }) => {
               return (
                 <motion.div
                   key={match.id}
-                  initial={{ opacity: 0, scale: 0.97 }}
+                  initial={{ scale: 0.97 }}
                   whileInView={{ opacity: 1, scale: 1 }}
                   viewport={{ once: true }}
                   transition={{ duration: 0.35, delay: i * 0.04 }}

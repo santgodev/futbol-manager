@@ -166,17 +166,125 @@ export async function createTournament(tournamentData: any) {
   return { success: true, tournament: data };
 }
 
-export async function addTeamToTournament(tournamentId: string, teamId: string) {
+export async function addTeamToTournament(tournamentId: string, teamId: string, groupName?: string) {
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error("No autorizado");
 
   const { error } = await supabase
     .from("tournament_teams")
-    .insert({ tournament_id: tournamentId, team_id: teamId });
+    .insert({ tournament_id: tournamentId, team_id: teamId, group_name: groupName || null });
 
   if (error) throw new Error(error.message);
   
+  return { success: true };
+}
+
+export async function removeTeamFromTournament(tournamentId: string, teamId: string) {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error("No autorizado");
+
+  const { error } = await supabase
+    .from("tournament_teams")
+    .delete()
+    .eq("tournament_id", tournamentId)
+    .eq("team_id", teamId);
+
+  if (error) throw new Error(error.message);
+  
+  return { success: true };
+}
+
+export async function removeTeamFromGroup(tournamentId: string, teamId: string) {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error("No autorizado");
+
+  const { error } = await supabase
+    .from("tournament_teams")
+    .update({ group_name: null })
+    .eq("tournament_id", tournamentId)
+    .eq("team_id", teamId);
+
+  if (error) throw new Error(error.message);
+  
+  return { success: true };
+}
+
+export async function assignTeamToGroup(tournamentId: string, teamId: string, groupName: string) {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error("No autorizado");
+
+  const { error } = await supabase
+    .from("tournament_teams")
+    .update({ group_name: groupName })
+    .eq("tournament_id", tournamentId)
+    .eq("team_id", teamId);
+
+  if (error) throw new Error(error.message);
+  
+  return { success: true };
+}
+
+export async function generateRandomGroups(tournamentId: string, groupSize: number) {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error("No autorizado");
+
+  const { data: teams, error: teamsError } = await supabase
+    .from("tournament_teams")
+    .select("team_id")
+    .eq("tournament_id", tournamentId);
+
+  if (teamsError) throw new Error(teamsError.message);
+  if (!teams || teams.length === 0) throw new Error("No hay equipos inscritos para generar grupos.");
+
+  // Fisher-Yates shuffle
+  const shuffled = [...teams];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  
+  // Calcular cuántos grupos enteros se pueden formar
+  const numGroups = Math.max(1, Math.floor(shuffled.length / groupSize));
+  
+  const groups = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+  const updates = [];
+  
+  // Primero distribuimos los equipos para cumplir el tamaño base de cada grupo
+  for (let i = 0; i < numGroups * groupSize; i++) {
+    const groupIndex = Math.floor(i / groupSize);
+    const groupName = groups[groupIndex] || "Z"; 
+    
+    updates.push({
+      tournament_id: tournamentId,
+      team_id: shuffled[i].team_id,
+      group_name: groupName
+    });
+  }
+
+  // Si sobran equipos (el remanente), los repartimos 1 a 1 entre los grupos existentes
+  // para evitar que quede un grupo con 1 solo equipo.
+  let remainderIndex = 0;
+  for (let i = numGroups * groupSize; i < shuffled.length; i++) {
+    const groupName = groups[remainderIndex % numGroups] || "Z";
+    updates.push({
+      tournament_id: tournamentId,
+      team_id: shuffled[i].team_id,
+      group_name: groupName
+    });
+    remainderIndex++;
+  }
+
+  const { error: upsertError } = await supabase
+    .from("tournament_teams")
+    .upsert(updates, { onConflict: "tournament_id,team_id" });
+
+  if (upsertError) throw new Error(upsertError.message);
+
   return { success: true };
 }
 
@@ -295,6 +403,31 @@ export async function createMatchEvent(eventData: {
     .single();
 
   if (error) throw new Error(error.message);
+
+  // Regla: 2 Amarillas = Roja automática
+  if (eventData.type === "YELLOW_CARD" && eventData.player_id) {
+    const { count } = await supabase
+      .from("match_events")
+      .select("*", { count: 'exact', head: true })
+      .eq("match_id", eventData.match_id)
+      .eq("player_id", eventData.player_id)
+      .eq("type", "YELLOW_CARD");
+
+    if (count && count >= 2) {
+      await supabase
+        .from("match_events")
+        .insert({
+          match_id: eventData.match_id,
+          tournament_id: eventData.tournament_id,
+          team_id: eventData.team_id,
+          player_id: eventData.player_id,
+          type: "RED_CARD",
+          minute: eventData.minute,
+          description: "Doble Amarilla",
+          created_by: user.id
+        });
+    }
+  }
 
   // Si es un gol o autogol, actualizar el marcador automáticamente
   if (eventData.type === "GOAL" || eventData.type === "OWN_GOAL") {
@@ -626,19 +759,43 @@ export async function generateKnockoutBracket(tournamentId: string, teamsCount: 
     
     topTeams = ttTeams.map((t: any) => t.team_id);
   } else {
-    // Obtener los mejores equipos de la fase de grupos usando la vista
+    // Obtener todas las posiciones de todos los grupos
     const { data: standings, error: standingsErr } = await supabase
       .from('tournament_standings_view')
-      .select('team_id')
+      .select('team_id, group_name')
       .eq('tournament_id', tournamentId)
       .order('points', { ascending: false })
-      .order('goals_for', { ascending: false })
-      .limit(teamsCount);
+      .order('goal_difference', { ascending: false })
+      .order('goals_for', { ascending: false });
 
     if (standingsErr) throw new Error("Error obteniendo tabla de posiciones");
-    if (standings.length < teamsCount) throw new Error(`No hay suficientes equipos. Se requieren ${teamsCount}.`);
 
-    topTeams = standings.map((s: any) => s.team_id);
+    // Agrupar los standings por grupo
+    const grouped: Record<string, any[]> = {};
+    for (const st of standings) {
+      const g = st.group_name || 'UNASSIGNED';
+      if (!grouped[g]) grouped[g] = [];
+      grouped[g].push(st.team_id);
+    }
+
+    // Extraer en orden: Todos los 1ros, luego todos los 2dos, luego los 3ros...
+    const interleavedTeams = [];
+    let maxRank = Math.max(...Object.values(grouped).map(g => g.length));
+    
+    // Para que los cruces (1A vs 2B) sean más naturales, ordenamos los grupos alfabéticamente
+    const groupKeys = Object.keys(grouped).sort();
+
+    for (let rank = 0; rank < maxRank; rank++) {
+      for (const gk of groupKeys) {
+        if (grouped[gk][rank]) {
+          interleavedTeams.push(grouped[gk][rank]);
+        }
+      }
+    }
+
+    if (interleavedTeams.length < teamsCount) throw new Error(`No hay suficientes equipos. Se requieren ${teamsCount}.`);
+
+    topTeams = interleavedTeams.slice(0, teamsCount);
   }
 
   // 3. Generar Árbol
@@ -903,51 +1060,66 @@ export async function generateRoundRobinFixture(tournamentId: string) {
 
   const { data: tournamentTeams, error: teamsError } = await supabase
     .from("tournament_teams")
-    .select("team_id")
+    .select("team_id, group_name")
     .eq("tournament_id", tournamentId);
 
   if (teamsError || !tournamentTeams) throw new Error("Error obteniendo los equipos del torneo.");
   if (tournamentTeams.length < 3) throw new Error("Se requieren al menos 3 equipos inscritos para generar un fixture automático.");
 
-  let teams = tournamentTeams.map((t: any) => t.team_id);
-  const hasGhost = teams.length % 2 !== 0;
-  if (hasGhost) {
-    teams.push("GHOST"); 
-  }
+  // Agrupar equipos por grupo
+  const teamsByGroup = tournamentTeams.reduce((acc: any, curr: any) => {
+    const groupName = curr.group_name || 'UNASSIGNED';
+    if (!acc[groupName]) acc[groupName] = [];
+    acc[groupName].push(curr.team_id);
+    return acc;
+  }, {});
 
-  const numTeams = teams.length;
-  const numRounds = numTeams - 1;
   const matchesToInsert: any[] = [];
+  let maxRoundsGenerated = 0;
 
-  for (let round = 0; round < numRounds; round++) {
-    for (let i = 0; i < numTeams / 2; i++) {
-      const home = teams[i];
-      const away = teams[numTeams - 1 - i];
+  for (const groupName in teamsByGroup) {
+    let teams = teamsByGroup[groupName];
+    if (teams.length < 2) continue; // No se puede hacer fixture para un grupo de 1
 
-      if (home !== "GHOST" && away !== "GHOST") {
-        let finalHome = home;
-        let finalAway = away;
-        
-        if (i === 0 && round % 2 !== 0) {
-           finalHome = away;
-           finalAway = home;
-        }
-
-        matchesToInsert.push({
-          tournament_id: tournamentId,
-          home_team_id: finalHome,
-          away_team_id: finalAway,
-          stage: "GROUP",
-          is_knockout: false,
-          round_number: round + 1,
-        });
-      }
+    const hasGhost = teams.length % 2 !== 0;
+    if (hasGhost) {
+      teams.push("GHOST"); 
     }
 
-    const pivot = teams[0];
-    const last = teams.pop()!;
-    teams = [pivot, last, ...teams.slice(1)];
-  }
+    const numTeams = teams.length;
+    const numRounds = numTeams - 1;
+    if (numRounds > maxRoundsGenerated) maxRoundsGenerated = numRounds;
+
+    for (let round = 0; round < numRounds; round++) {
+      for (let i = 0; i < numTeams / 2; i++) {
+        const home = teams[i];
+        const away = teams[numTeams - 1 - i];
+
+        if (home !== "GHOST" && away !== "GHOST") {
+          let finalHome = home;
+          let finalAway = away;
+          
+          if (i === 0 && round % 2 !== 0) {
+             finalHome = away;
+             finalAway = home;
+          }
+
+          matchesToInsert.push({
+            tournament_id: tournamentId,
+            home_team_id: finalHome,
+            away_team_id: finalAway,
+            stage: "GROUP",
+            is_knockout: false,
+            round_number: round + 1,
+          });
+        }
+      }
+
+      const pivot = teams[0];
+      const last = teams.pop()!;
+      teams = [pivot, last, ...teams.slice(1)];
+    }
+  } // fin del loop de grupos
 
   if (isDoubleRound) {
     const leg1Length = matchesToInsert.length;
@@ -959,7 +1131,7 @@ export async function generateRoundRobinFixture(tournamentId: string) {
         away_team_id: m.home_team_id,
         stage: "GROUP",
         is_knockout: false,
-        round_number: m.round_number + numRounds,
+        round_number: m.round_number + maxRoundsGenerated,
       });
     }
   }
@@ -973,6 +1145,6 @@ export async function generateRoundRobinFixture(tournamentId: string) {
   return { 
     success: true, 
     matchesGenerated: matchesToInsert.length, 
-    rounds: isDoubleRound ? numRounds * 2 : numRounds 
+    rounds: isDoubleRound ? maxRoundsGenerated * 2 : maxRoundsGenerated 
   };
 }

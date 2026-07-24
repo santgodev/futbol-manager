@@ -38,49 +38,61 @@ export const MobileBottomNav = () => {
   const handleTap = (id: string) => {
     setActiveId(id);
     const el = document.getElementById(id);
-    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+    if (el) {
+      const y = el.getBoundingClientRect().top + window.scrollY - 80;
+      window.scrollTo({ top: y, behavior: "smooth" });
+    }
   };
 
   return (
     <nav className="fixed bottom-0 left-0 w-full z-50 md:hidden" style={{ paddingBottom: "env(safe-area-inset-bottom)" }}>
+      {/* Ambient background glow below the nav */}
+      <div className="absolute bottom-0 left-0 w-full h-full bg-gradient-to-t from-[#020408] to-transparent pointer-events-none" />
+      
       {/* Frosted glass bar */}
-      <div className="bg-[#04080f]/95 backdrop-blur-xl border-t border-brand-navy/60">
-        <div className="flex items-stretch h-[62px]">
+      <div className="bg-[#020408]/85 backdrop-blur-2xl border-t border-[#00f0ff]/20 shadow-[0_-10px_30px_rgba(0,0,0,0.8)] relative">
+        <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-[#00f0ff]/30 to-transparent" />
+        <div className="flex items-stretch h-[68px] px-2 relative z-10">
           {TABS.map(({ id, label, Icon }) => {
             const isActive = activeId === id;
             return (
               <button
                 key={id}
                 onClick={() => handleTap(id)}
-                className={`sport-tab ${isActive ? "active" : ""}`}
+                className={`sport-tab relative flex flex-col items-center justify-center flex-1 transition-all duration-300 ${isActive ? "active" : ""}`}
                 aria-label={label}
               >
                 {/* Active indicator bar at top */}
                 <span
-                  className={`absolute top-0 w-6 h-[2px] rounded-full transition-all duration-300 ${
+                  className={`absolute top-0 w-8 h-[3px] rounded-b-full transition-all duration-300 ${
                     isActive
-                      ? "bg-[#00f0ff] shadow-[0_0_8px_rgba(0,240,255,0.8)] opacity-100"
-                      : "opacity-0"
+                      ? "bg-[#00f0ff] shadow-[0_0_12px_rgba(0,240,255,0.9)] opacity-100"
+                      : "bg-transparent opacity-0"
                   }`}
                 />
+                
+                {/* Active glow behind icon */}
+                {isActive && (
+                  <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-10 h-10 bg-[#00f0ff]/10 blur-md rounded-full pointer-events-none" />
+                )}
 
-                <span className="sport-tab-icon relative">
+                <span className="sport-tab-icon relative mt-1">
                   <Icon
-                    size={22}
+                    size={24}
                     strokeWidth={isActive ? 2.5 : 1.8}
-                    className={`transition-all duration-200 ${
-                      isActive ? "text-[#00f0ff]" : "text-brand-aqua/45"
+                    className={`transition-all duration-300 ${
+                      isActive ? "text-[#00f0ff] drop-shadow-[0_0_8px_rgba(0,240,255,0.6)]" : "text-[#cad5d6]/40"
                     }`}
                   />
                   {/* Live dot for "Partidos" when active */}
                   {id === "partidos" && (
-                    <span className="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 rounded-full bg-red-500 live-pulse" />
+                    <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-red-500 shadow-[0_0_8px_#ef4444] live-pulse" />
                   )}
                 </span>
 
                 <span
-                  className={`text-[9px] font-bold uppercase tracking-wider transition-all duration-200 ${
-                    isActive ? "text-[#00f0ff]" : "text-brand-aqua/40"
+                  className={`text-[9px] font-black uppercase tracking-widest transition-all duration-300 mt-1.5 ${
+                    isActive ? "text-[#00f0ff] drop-shadow-[0_0_5px_rgba(0,240,255,0.3)]" : "text-[#cad5d6]/40 font-bold"
                   }`}
                 >
                   {label}

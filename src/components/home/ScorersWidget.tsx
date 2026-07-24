@@ -1,9 +1,26 @@
-import { Medal, Goal } from "lucide-react";
-import Image from "next/image";
+"use client";
 
-export const ScorersWidget = ({ scorers = [] }: { scorers?: any[] }) => {
+import { useState } from "react";
+import { Medal, Goal, Search } from "lucide-react";
+import Image from "next/image";
+import { PlayerProfileModal } from "./PlayerProfileModal";
+
+export const ScorersWidget = ({ scorers = [], tournamentId }: { scorers?: any[], tournamentId?: string }) => {
+  const [selectedPlayer, setSelectedPlayer] = useState<any | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isSearching, setIsSearching] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const filteredScorers = scorers.filter(scorer => 
+    scorer.player_name?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const openPlayerProfile = (player: any) => {
+    setSelectedPlayer(player);
+    setIsModalOpen(true);
+  };
   return (
-    <div className="panel-premium w-full p-6 flex flex-col h-full min-h-[410px] relative overflow-hidden">
+    <div className={`panel-premium w-full p-6 flex flex-col ${scorers.length > 0 ? "h-full min-h-[410px]" : "h-auto"} relative overflow-hidden`}>
       {/* Top ambient glow */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-[2px] bg-gradient-to-r from-transparent via-brand-yellow to-transparent opacity-30" />
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1/2 h-[30px] bg-brand-yellow/10 blur-[30px] pointer-events-none" />
@@ -18,23 +35,57 @@ export const ScorersWidget = ({ scorers = [] }: { scorers?: any[] }) => {
             Goleadores
           </h3>
         </div>
+        <div className="flex items-center gap-2">
+          <span className="text-[9px] font-mono text-brand-aqua/40 uppercase tracking-widest hidden md:block mr-2">
+            toca un jugador para ver perfil
+          </span>
+          <button 
+            onClick={() => {
+              setIsSearching(!isSearching);
+              if (isSearching) setSearchTerm("");
+            }}
+            className={`w-8 h-8 rounded-full border flex items-center justify-center transition-colors ${
+              isSearching 
+                ? "bg-brand-yellow/20 border-brand-yellow text-white" 
+                : "bg-brand-navy/30 border-brand-yellow/30 text-brand-yellow hover:bg-brand-yellow/20 hover:border-brand-yellow"
+            }`}
+          >
+            <Search size={14} />
+          </button>
+        </div>
       </div>
+
+      {/* Search Input */}
+      {isSearching && (
+        <div className="relative z-10 mb-4 animate-in fade-in slide-in-from-top-2">
+          <input
+            type="text"
+            placeholder="Buscar jugador..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full bg-black/40 border border-brand-yellow/40 rounded-xl px-4 py-2 text-xs text-white outline-none focus:border-brand-yellow transition-colors"
+            autoFocus
+          />
+        </div>
+      )}
 
       {/* Content */}
       <div className="flex flex-col gap-3 flex-1 relative z-10">
-        {scorers.length === 0 ? (
-          <div className="flex-1 flex items-center justify-center text-[10px] uppercase tracking-widest text-brand-aqua/50 font-bold border border-dashed border-brand-navy/50 rounded-xl">
+        {filteredScorers.length === 0 ? (
+          <div className="py-8 flex items-center justify-center text-[10px] uppercase tracking-widest text-brand-aqua/50 font-bold border border-dashed border-brand-navy/50 rounded-xl">
             Aún no hay goleadores
           </div>
         ) : (
-          scorers.map((scorer, idx) => {
-            const isFirst = idx === 0;
+          filteredScorers.map((scorer, idx) => {
+            const rank = scorers.findIndex(s => s.player_id === scorer.player_id) + 1;
+            const isFirst = rank === 1;
             return (
               <div
                 key={scorer.player_id}
-                className={`group relative flex items-center gap-3 p-3 rounded-xl transition-all ${
+                onClick={() => openPlayerProfile(scorer)}
+                className={`group relative flex items-center gap-3 p-3 rounded-xl transition-all cursor-pointer ${
                   isFirst
-                    ? "bg-gradient-to-r from-brand-yellow/10 to-transparent border-l-[3px] border-brand-yellow shadow-[inset_15px_0_20px_-15px_rgba(255,215,0,0.2)]"
+                    ? "bg-gradient-to-r from-brand-yellow/10 to-transparent border-l-[3px] border-brand-yellow shadow-[inset_15px_0_20px_-15px_rgba(255,215,0,0.2)] hover:bg-brand-yellow/20"
                     : "bg-[#02060d]/80 border border-brand-navy/50 hover:bg-brand-teal/[0.05] hover:border-brand-teal/30 hover:shadow-[inset_3px_0_0_0_#00f0ff]"
                 }`}
               >
@@ -45,7 +96,7 @@ export const ScorersWidget = ({ scorers = [] }: { scorers?: any[] }) => {
                       isFirst ? "text-brand-yellow drop-shadow-[0_0_5px_rgba(255,215,0,0.5)]" : "text-brand-aqua/50 group-hover:text-brand-teal transition-colors"
                     }`}
                   >
-                    {idx + 1}
+                    {rank}
                   </span>
                 </div>
 
@@ -90,6 +141,13 @@ export const ScorersWidget = ({ scorers = [] }: { scorers?: any[] }) => {
           })
         )}
       </div>
+
+      <PlayerProfileModal 
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        player={selectedPlayer}
+        tournamentId={tournamentId}
+      />
     </div>
   );
 };

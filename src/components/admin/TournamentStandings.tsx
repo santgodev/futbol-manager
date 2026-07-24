@@ -1,8 +1,17 @@
 "use client";
+import { useState } from "react";
 import Image from "next/image";
 import { Shield } from "lucide-react";
+import { TeamProfileModal } from "@/components/home/TeamProfileModal";
 
-export function TournamentStandings({ standings }: { standings: any[] }) {
+export function TournamentStandings({ standings, tournamentId }: { standings: any[], tournamentId?: string }) {
+  const [selectedTeam, setSelectedTeam] = useState<any | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const openTeamProfile = (team: any) => {
+    setSelectedTeam(team);
+    setIsModalOpen(true);
+  };
   if (!standings || standings.length === 0) {
     return (
       <div className="py-12 text-center text-white/40 text-xs uppercase tracking-widest font-bold">
@@ -21,17 +30,12 @@ export function TournamentStandings({ standings }: { standings: any[] }) {
 
   return (
     <div className="overflow-x-auto custom-scrollbar">
-      <table className="w-full min-w-[600px] text-left border-collapse">
+      <table className="w-full text-left border-collapse">
         <thead>
           <tr className="border-b border-[#0055cc]/20">
             <th className="py-4 px-4 text-[10px] text-[#00f0ff]/50 font-black uppercase tracking-[0.2em] w-12 text-center">Pos</th>
-            <th className="py-4 px-4 text-[10px] text-[#00f0ff]/50 font-black uppercase tracking-[0.2em]">Equipo</th>
+            <th className="py-4 px-4 text-[10px] text-[#00f0ff]/50 font-black uppercase tracking-[0.2em] w-full">Equipo</th>
             <th className="py-4 px-3 text-[10px] text-white/50 font-bold uppercase tracking-widest text-center">PJ</th>
-            <th className="py-4 px-3 text-[10px] text-white/50 font-bold uppercase tracking-widest text-center">G</th>
-            <th className="py-4 px-3 text-[10px] text-white/50 font-bold uppercase tracking-widest text-center">E</th>
-            <th className="py-4 px-3 text-[10px] text-white/50 font-bold uppercase tracking-widest text-center">P</th>
-            <th className="py-4 px-3 text-[10px] text-white/50 font-bold uppercase tracking-widest text-center">GF</th>
-            <th className="py-4 px-3 text-[10px] text-white/50 font-bold uppercase tracking-widest text-center">GC</th>
             <th className="py-4 px-3 text-[10px] text-white/50 font-bold uppercase tracking-widest text-center">DG</th>
             <th className="py-4 px-4 text-[12px] text-[#00f0ff] font-black uppercase tracking-widest text-center">PTS</th>
           </tr>
@@ -42,7 +46,8 @@ export function TournamentStandings({ standings }: { standings: any[] }) {
             return (
               <tr 
                 key={team.team_id}
-                className={`border-b border-brand-teal/10 hover:bg-[#002244]/60 transition-colors ${isTop ? 'bg-brand-teal/10' : 'bg-transparent'}`}
+                onClick={() => openTeamProfile(team)}
+                className={`border-b border-brand-teal/10 hover:bg-[#002244]/60 transition-colors cursor-pointer ${isTop ? 'bg-brand-teal/10' : 'bg-transparent'}`}
               >
                 <td className="py-4 px-4 text-center">
                   <span className={`inline-flex items-center justify-center w-6 h-6 rounded-sm text-xs font-bold ${
@@ -64,11 +69,6 @@ export function TournamentStandings({ standings }: { standings: any[] }) {
                   </span>
                 </td>
                 <td className="py-4 px-3 text-center text-xs font-mono text-white/70">{team.played}</td>
-                <td className="py-4 px-3 text-center text-xs font-mono text-emerald-400/80">{team.won}</td>
-                <td className="py-4 px-3 text-center text-xs font-mono text-white/50">{team.drawn}</td>
-                <td className="py-4 px-3 text-center text-xs font-mono text-red-400/80">{team.lost}</td>
-                <td className="py-4 px-3 text-center text-xs font-mono text-white/70">{team.goals_for}</td>
-                <td className="py-4 px-3 text-center text-xs font-mono text-white/70">{team.goals_against}</td>
                 <td className="py-4 px-3 text-center text-xs font-mono text-white/70">
                   {team.goal_difference > 0 ? `+${team.goal_difference}` : team.goal_difference}
                 </td>
@@ -80,6 +80,13 @@ export function TournamentStandings({ standings }: { standings: any[] }) {
           })}
         </tbody>
       </table>
+
+      <TeamProfileModal 
+        isOpen={isModalOpen} 
+        onClose={() => setIsModalOpen(false)} 
+        team={selectedTeam} 
+        tournamentId={tournamentId} 
+      />
     </div>
   );
 }
