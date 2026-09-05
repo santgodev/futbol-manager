@@ -69,21 +69,21 @@ export function RankingTab({ standings }: RankingTabProps) {
   if (standings.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-20 gap-4">
-        <Trophy size={36} className="text-[#00f0ff]/20" />
-        <p className="text-white/30 text-sm">No hay datos de clasificación disponibles.</p>
+        <Trophy size={36} className="text-[#018ABE]/50" />
+        <p className="text-[#97CADB]/60 text-sm">No hay datos de clasificación disponibles.</p>
       </div>
     );
   }
 
   return (
     <div
-      className="rounded-2xl border border-[#00f0ff]/10 overflow-hidden"
-      style={{ background: "rgba(5,8,17,0.85)", backdropFilter: "blur(16px)" }}
+      className="rounded-[2rem] border border-[#018ABE]/30 overflow-hidden shadow-[0_10px_30px_rgba(0,0,0,0.2)]"
+      style={{ background: "rgba(2,69,122,0.4)", backdropFilter: "blur(16px)" }}
     >
       {/* Header */}
-      <div className="flex items-center gap-2 px-5 py-3.5 border-b border-[#00f0ff]/10 bg-[#0a1526]/70">
-        <Trophy size={14} className="text-[#00f0ff]" />
-        <span className="text-[11px] font-black uppercase tracking-[0.2em] text-[#00f0ff]">
+      <div className="flex items-center gap-2 px-5 py-4 border-b border-[#018ABE]/30 bg-[#001B48]/70">
+        <Trophy size={14} className="text-[#018ABE]" />
+        <span className="text-[11px] font-black uppercase tracking-[0.2em] text-[#97CADB]">
           Ranking General Clasificatorio
         </span>
       </div>
@@ -91,41 +91,41 @@ export function RankingTab({ standings }: RankingTabProps) {
       <div className="overflow-x-auto">
         <table className="w-full border-collapse">
           <thead>
-            <tr className="border-b border-[#0055cc]/20">
-              <th className="py-3 px-3 text-[9px] text-[#00f0ff]/50 font-black uppercase tracking-widest text-center w-10">
+            <tr className="border-b border-[#018ABE]/30">
+              <th className="py-3 px-3 text-[9px] text-[#97CADB] font-black uppercase tracking-widest text-center w-10">
                 POS
               </th>
-              <th className="py-3 px-3 text-[9px] text-[#00f0ff]/50 font-black uppercase tracking-widest text-left">
+              <th className="py-3 px-3 text-[9px] text-[#97CADB] font-black uppercase tracking-widest text-left">
                 Equipo
               </th>
-              <th className="py-3 px-2 text-[9px] text-white/40 font-bold uppercase tracking-widest text-center" title="Grupo de origen">
+              <th className="py-3 px-2 text-[9px] text-[#97CADB] font-bold uppercase tracking-widest text-center" title="Grupo de origen">
                 Origen
               </th>
-              <th className="py-3 px-2 text-[9px] text-white/40 font-bold uppercase tracking-widest text-center" title="Partidos Jugados">
+              <th className="py-3 px-2 text-[9px] text-[#97CADB] font-bold uppercase tracking-widest text-center" title="Partidos Jugados">
                 PJ
               </th>
-              <th className="py-3 px-2 text-[9px] text-white/40 font-bold uppercase tracking-widest text-center" title="Ganados">
+              <th className="py-3 px-2 text-[9px] text-[#97CADB] font-bold uppercase tracking-widest text-center" title="Ganados">
                 PG
               </th>
-              <th className="py-3 px-2 text-[9px] text-white/40 font-bold uppercase tracking-widest text-center" title="Perdidos">
+              <th className="py-3 px-2 text-[9px] text-[#97CADB] font-bold uppercase tracking-widest text-center" title="Perdidos">
                 PP
               </th>
-              <th className="py-3 px-2 text-[9px] text-white/40 font-bold uppercase tracking-widest text-center" title="Sets Favor:Contra">
+              <th className="py-3 px-2 text-[9px] text-[#97CADB] font-bold uppercase tracking-widest text-center" title="Sets Favor:Contra">
                 Sets (F:A)
               </th>
-              <th className="py-3 px-2 text-[9px] text-white/40 font-bold uppercase tracking-widest text-center" title="Ratio de Sets">
+              <th className="py-3 px-2 text-[9px] text-[#97CADB] font-bold uppercase tracking-widest text-center" title="Ratio de Sets">
                 Ratio S
               </th>
-              <th className="py-3 px-2 text-[9px] text-white/40 font-bold uppercase tracking-widest text-center" title="Puntos Favor:Contra">
+              <th className="py-3 px-2 text-[9px] text-[#97CADB] font-bold uppercase tracking-widest text-center" title="Puntos Favor:Contra">
                 Puntos (F:A)
               </th>
-              <th className="py-3 px-2 text-[9px] text-white/40 font-bold uppercase tracking-widest text-center" title="Ratio de Puntos">
+              <th className="py-3 px-2 text-[9px] text-[#97CADB] font-bold uppercase tracking-widest text-center" title="Ratio de Puntos">
                 Ratio P
               </th>
-              <th className="py-3 px-2 text-[9px] text-white/40 font-bold uppercase tracking-widest text-center" title="Posición en su grupo">
+              <th className="py-3 px-2 text-[9px] text-[#97CADB] font-bold uppercase tracking-widest text-center" title="Posición en su grupo">
                 Pos. Origen
               </th>
-              <th className="py-3 px-3 text-[10px] text-[#f59e0b] font-black uppercase tracking-widest text-center">
+              <th className="py-3 px-3 text-[10px] text-[#018ABE] font-black uppercase tracking-widest text-center">
                 Puntos
               </th>
             </tr>
@@ -143,14 +143,14 @@ export function RankingTab({ standings }: RankingTabProps) {
               return (
                 <tr
                   key={team.team_id}
-                  className={`border-b border-white/5 last:border-0 transition-colors ${
+                  className={`border-b border-[#018ABE]/10 last:border-0 transition-colors ${
                     pos === 1
-                      ? "bg-[#00f0ff]/5"
+                      ? "bg-[#018ABE]/10"
                       : pos === 2
-                      ? "bg-[#0055cc]/5"
+                      ? "bg-[#018ABE]/5"
                       : pos === 3
-                      ? "bg-white/[0.025]"
-                      : "hover:bg-white/[0.02]"
+                      ? "bg-[#001B48]/50"
+                      : "hover:bg-[#001B48]/50"
                   }`}
                 >
                   {/* POS */}
@@ -158,12 +158,12 @@ export function RankingTab({ standings }: RankingTabProps) {
                     <span
                       className={`inline-flex items-center justify-center w-6 h-6 rounded text-[10px] font-bold ${
                         pos === 1
-                          ? "bg-[#00f0ff] text-black shadow-[0_0_8px_rgba(0,240,255,0.4)]"
+                          ? "bg-[#018ABE] text-white shadow-[0_0_8px_rgba(1,138,190,0.4)]"
                           : pos === 2
-                          ? "bg-[#0055cc]/60 text-[#00f0ff]"
+                          ? "bg-[#018ABE]/40 text-[#D6E8EE]"
                           : pos === 3
-                          ? "bg-white/10 text-white/60"
-                          : "bg-white/5 text-white/30"
+                          ? "bg-[#018ABE]/20 text-[#D6E8EE]"
+                          : "bg-[#001B48] text-[#97CADB]"
                       }`}
                     >
                       #{pos}
@@ -173,7 +173,7 @@ export function RankingTab({ standings }: RankingTabProps) {
                   {/* Equipo */}
                   <td className="py-3 px-3">
                     <div className="flex items-center gap-2">
-                      <div className="w-7 h-7 rounded-lg bg-black/50 border border-white/5 flex items-center justify-center overflow-hidden shrink-0">
+                      <div className="w-7 h-7 rounded-lg bg-[#001B48] border border-[#018ABE]/30 flex items-center justify-center overflow-hidden shrink-0">
                         {team.logo_url ? (
                           <Image
                             src={team.logo_url}
@@ -184,12 +184,12 @@ export function RankingTab({ standings }: RankingTabProps) {
                             unoptimized
                           />
                         ) : (
-                          <Shield className="w-4 h-4 text-white/20" />
+                          <Shield className="w-4 h-4 text-[#018ABE]/50" />
                         )}
                       </div>
                       <span
                         className={`text-[11px] font-bold uppercase tracking-wider truncate max-w-[140px] sm:max-w-none ${
-                          isTop3 ? "text-white" : "text-white/75"
+                          isTop3 ? "text-white" : "text-[#D6E8EE]"
                         }`}
                       >
                         {team.team_name}
@@ -199,49 +199,49 @@ export function RankingTab({ standings }: RankingTabProps) {
 
                   {/* Origen */}
                   <td className="py-3 px-2 text-center">
-                    <span className="text-[10px] font-mono text-[#00f0ff]/60">
+                    <span className="text-[10px] font-mono text-[#018ABE]">
                       {groupLabel}
                     </span>
                   </td>
 
                   {/* PJ */}
-                  <td className="py-3 px-2 text-center text-[11px] font-mono text-white/60">
+                  <td className="py-3 px-2 text-center text-[11px] font-mono text-[#D6E8EE]">
                     {team.played}
                   </td>
 
                   {/* PG */}
-                  <td className="py-3 px-2 text-center text-[11px] font-mono font-bold text-emerald-400">
+                  <td className="py-3 px-2 text-center text-[11px] font-mono font-bold text-[#97CADB]">
                     {team.won}
                   </td>
 
                   {/* PP */}
-                  <td className="py-3 px-2 text-center text-[11px] font-mono font-bold text-red-400">
+                  <td className="py-3 px-2 text-center text-[11px] font-mono font-bold text-[#97CADB]">
                     {team.lost}
                   </td>
 
                   {/* Sets F:A */}
-                  <td className="py-3 px-2 text-center text-[11px] font-mono text-white/60">
+                  <td className="py-3 px-2 text-center text-[11px] font-mono text-[#D6E8EE]">
                     {team.won}:{team.lost}
                   </td>
 
                   {/* Ratio S */}
-                  <td className="py-3 px-2 text-center text-[11px] font-mono text-white/60">
+                  <td className="py-3 px-2 text-center text-[11px] font-mono text-[#D6E8EE]">
                     {setRatio}
                   </td>
 
                   {/* Puntos F:A */}
-                  <td className="py-3 px-2 text-center text-[11px] font-mono text-white/60">
+                  <td className="py-3 px-2 text-center text-[11px] font-mono text-[#D6E8EE]">
                     {team.goals_for}:{team.goals_against}
                   </td>
 
                   {/* Ratio P */}
-                  <td className="py-3 px-2 text-center text-[11px] font-mono text-white/60">
+                  <td className="py-3 px-2 text-center text-[11px] font-mono text-[#D6E8EE]">
                     {goalRatio}
                   </td>
 
                   {/* Pos. Origen */}
                   <td className="py-3 px-2 text-center">
-                    <span className="text-[10px] font-mono text-white/40">
+                    <span className="text-[10px] font-mono text-[#97CADB]">
                       #{originPos}
                     </span>
                   </td>
@@ -251,9 +251,9 @@ export function RankingTab({ standings }: RankingTabProps) {
                     <span
                       className={`text-sm font-black font-mono ${
                         pos === 1
-                          ? "text-[#f59e0b] drop-shadow-[0_0_6px_rgba(245,158,11,0.5)]"
+                          ? "text-[#018ABE] drop-shadow-[0_0_6px_rgba(1,138,190,0.5)]"
                           : pos <= 3
-                          ? "text-[#f59e0b]"
+                          ? "text-[#018ABE]"
                           : "text-white"
                       }`}
                     >
