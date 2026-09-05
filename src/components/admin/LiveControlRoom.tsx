@@ -12,6 +12,7 @@ import { EditMinuteModal } from "@/components/admin/EditMinuteModal";
 import { ChangePlayerModal } from "@/components/admin/ChangePlayerModal";
 import { PenaltyShootoutModal } from "@/components/admin/PenaltyShootoutModal";
 import { FinalizeMatchModal } from "@/components/admin/FinalizeMatchModal";
+import { FastEventModal } from "@/components/admin/FastEventModal";
 import { toggleMatchClock, createPlayer } from "@/app/admin/actions";
 export function LiveControlRoom({ match, homePlayers, awayPlayers, onUpdate }: { match: any, homePlayers: any[], awayPlayers: any[], onUpdate?: () => void }) {
   const router = useRouter();
@@ -44,6 +45,9 @@ export function LiveControlRoom({ match, homePlayers, awayPlayers, onUpdate }: {
   const [searchHome, setSearchHome] = useState("");
   const [searchAway, setSearchAway] = useState("");
   const [isCreatingPlayer, setIsCreatingPlayer] = useState(false);
+
+  // ── Fast Event Modal State ──
+  const [fastEvent, setFastEvent] = useState<{isOpen: boolean, teamId: string, teamName: string, eventType: "GOAL" | "OWN_GOAL" | "YELLOW_CARD" | "RED_CARD"} | null>(null);
 
   // ── Delete Event Modal State ──
   const [eventToDelete, setEventToDelete] = useState<MatchEvent | null>(null);
@@ -197,6 +201,34 @@ export function LiveControlRoom({ match, homePlayers, awayPlayers, onUpdate }: {
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const handleFastEventSubmit = async (playerName: string | null) => {
+    if (!fastEvent) return;
+    let playerId = null;
+    
+    // 1. If player name is provided, create the player on the fly
+    if (playerName) {
+       const res = await createPlayer({
+         team_id: fastEvent.teamId,
+         name: playerName,
+       });
+       playerId = res.player.id;
+    }
+
+    // 2. Register the event
+    await createMatchEvent({
+       match_id: match.id,
+       tournament_id: match.tournament_id,
+       team_id: fastEvent.teamId,
+       player_id: playerId,
+       type: fastEvent.eventType,
+       minute: currentMinute,
+       description: null
+     });
+
+     if (onUpdate) onUpdate();
+     router.refresh();
   };
 
   const handleSubstitution = async (playerIn: any) => {
@@ -496,14 +528,21 @@ export function LiveControlRoom({ match, homePlayers, awayPlayers, onUpdate }: {
           <div className="flex items-center w-full justify-between max-w-4xl mx-auto gap-2 sm:gap-4 md:gap-8 px-2 sm:px-0">
             {/* Local */}
             <div className="flex-1 flex flex-col items-center gap-2 md:gap-4 text-center min-w-[30%]">
-              <div className="w-16 h-16 sm:w-24 sm:h-24 md:w-32 md:h-32 bg-[#001122] rounded-2xl border border-[#0055cc]/30 p-2 sm:p-4 shadow-inner flex items-center justify-center overflow-hidden">
+              <div className="w-16 h-16 sm:w-24 sm:h-24 md:w-32 md:h-32 bg-[#001122] rounded-2xl border border-[#0055cc]/30 p-2 sm:p-4 shadow-inner flex items-center justify-center overflow-hidden mb-2">
                 {match.home_team?.logo_url ? (
                   <Image src={match.home_team.logo_url} alt="Local" width={90} height={90} className="object-contain w-full h-full" unoptimized />
                 ) : <Shield className="w-8 h-8 sm:w-12 sm:h-12 text-[#0055cc]/40" />}
               </div>
-              <h2 className="text-sm sm:text-xl md:text-3xl font-black uppercase tracking-tighter line-clamp-2 leading-tight">
+              <h2 className="text-sm sm:text-xl md:text-3xl font-black uppercase tracking-tighter line-clamp-2 leading-tight mb-2">
                 {match.home_team?.name || 'Local'}
               </h2>
+              <button 
+                onClick={() => setFastEvent({ isOpen: true, teamId: match.home_team_id, teamName: match.home_team?.name || 'Local', eventType: 'GOAL' })}
+                disabled={isSubmitting || !isPlaying}
+                className="w-full max-w-[140px] h-10 rounded-xl bg-emerald-500/20 border border-emerald-500/50 hover:bg-emerald-500 hover:text-black text-emerald-400 font-black uppercase tracking-widest text-[10px] flex items-center justify-center gap-1 transition-all hover:shadow-[0_0_15px_rgba(16,185,129,0.4)] disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <Goal size={14} /> + GOL
+              </button>
             </div>
             
             {/* Puntos y Penales */}
@@ -538,14 +577,21 @@ export function LiveControlRoom({ match, homePlayers, awayPlayers, onUpdate }: {
 
             {/* Visitante */}
             <div className="flex-1 flex flex-col items-center gap-2 md:gap-4 text-center min-w-[30%]">
-              <div className="w-16 h-16 sm:w-24 sm:h-24 md:w-32 md:h-32 bg-[#001122] rounded-2xl border border-[#0055cc]/30 p-2 sm:p-4 shadow-inner flex items-center justify-center overflow-hidden">
+              <div className="w-16 h-16 sm:w-24 sm:h-24 md:w-32 md:h-32 bg-[#001122] rounded-2xl border border-[#0055cc]/30 p-2 sm:p-4 shadow-inner flex items-center justify-center overflow-hidden mb-2">
                 {match.away_team?.logo_url ? (
                   <Image src={match.away_team.logo_url} alt="Visitante" width={90} height={90} className="object-contain w-full h-full" unoptimized />
                 ) : <Shield className="w-8 h-8 sm:w-12 sm:h-12 text-[#0055cc]/40" />}
               </div>
-              <h2 className="text-sm sm:text-xl md:text-3xl font-black uppercase tracking-tighter line-clamp-2 leading-tight">
+              <h2 className="text-sm sm:text-xl md:text-3xl font-black uppercase tracking-tighter line-clamp-2 leading-tight mb-2">
                 {match.away_team?.name || 'Visitante'}
               </h2>
+              <button 
+                onClick={() => setFastEvent({ isOpen: true, teamId: match.away_team_id, teamName: match.away_team?.name || 'Visitante', eventType: 'GOAL' })}
+                disabled={isSubmitting || !isPlaying}
+                className="w-full max-w-[140px] h-10 rounded-xl bg-emerald-500/20 border border-emerald-500/50 hover:bg-emerald-500 hover:text-black text-emerald-400 font-black uppercase tracking-widest text-[10px] flex items-center justify-center gap-1 transition-all hover:shadow-[0_0_15px_rgba(16,185,129,0.4)] disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <Goal size={14} /> + GOL
+              </button>
             </div>
           </div>
         </div>
@@ -789,6 +835,15 @@ export function LiveControlRoom({ match, homePlayers, awayPlayers, onUpdate }: {
           onClose={() => setShowFinalizeModal(false)}
         />
       )}
+
+      {/* ── Fast Event Modal ── */}
+      <FastEventModal
+        isOpen={!!fastEvent?.isOpen}
+        onClose={() => setFastEvent(null)}
+        onSubmit={handleFastEventSubmit}
+        teamName={fastEvent?.teamName || ""}
+        eventType={fastEvent?.eventType || "GOAL"}
+      />
 
     </div>
   );
