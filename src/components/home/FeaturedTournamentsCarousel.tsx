@@ -25,9 +25,9 @@ export function FeaturedTournamentsCarousel({
 
   if (!tournaments || tournaments.length === 0) {
     return (
-      <div className="w-full flex flex-col items-center justify-center min-h-[280px] rounded-2xl border border-[#202830] bg-[#0a0f14]">
-        <Trophy className="w-10 h-10 text-[#202830] mb-3" />
-        <p className="text-[#707b86] text-[14px] font-medium">No hay torneos disponibles</p>
+      <div className="w-full flex flex-col items-center justify-center min-h-[280px] rounded-[2rem] border border-[#3A3D55]/50 bg-[#24273A]/80 backdrop-blur-xl shadow-[0_20px_50px_rgba(0,0,0,0.2)]">
+        <Trophy className="w-10 h-10 text-[#44485F] mb-3" />
+        <p className="text-slate-400 text-[14px] font-bold tracking-wide">No hay torneos disponibles</p>
       </div>
     );
   }
@@ -35,25 +35,25 @@ export function FeaturedTournamentsCarousel({
   return (
     <div className="w-full relative select-none">
       {/* Header */}
-      <div className="flex items-center justify-between mb-5">
+      <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
-          <h2 className="text-[20px] font-bold text-white tracking-tight">{title}</h2>
-          <span className="px-2 py-0.5 rounded-full bg-[#0a84ff]/10 border border-[#0a84ff]/25 text-[11px] font-semibold text-[#0a84ff]">
+          <h2 className="text-xl font-bold text-white tracking-tight">{title}</h2>
+          <span className="px-3 py-1 rounded-full bg-[#a5b4fc]/20 border border-[#a5b4fc]/30 text-xs font-bold text-[#a5b4fc] shadow-sm">
             {tournaments.length}
           </span>
         </div>
         <div className="flex items-center gap-2">
           <button
             onClick={() => scroll("left")}
-            className="w-8 h-8 flex items-center justify-center rounded-lg border border-[#202830] text-[#707b86] hover:text-white hover:border-[#2c3540] transition-all"
+            className="w-10 h-10 flex items-center justify-center rounded-full border border-[#44485F] bg-[#2A2E43] text-slate-300 hover:text-white hover:bg-[#34384C] hover:border-[#a5b4fc]/50 transition-all shadow-sm"
           >
-            <ChevronLeft className="w-4 h-4" />
+            <ChevronLeft className="w-5 h-5" />
           </button>
           <button
             onClick={() => scroll("right")}
-            className="w-8 h-8 flex items-center justify-center rounded-lg border border-[#202830] text-[#707b86] hover:text-white hover:border-[#2c3540] transition-all"
+            className="w-10 h-10 flex items-center justify-center rounded-full border border-[#44485F] bg-[#2A2E43] text-slate-300 hover:text-white hover:bg-[#34384C] hover:border-[#a5b4fc]/50 transition-all shadow-sm"
           >
-            <ChevronRight className="w-4 h-4" />
+            <ChevronRight className="w-5 h-5" />
           </button>
         </div>
       </div>
@@ -68,10 +68,10 @@ export function FeaturedTournamentsCarousel({
           <Link
             key={tournament.id}
             href={`/t/${tournament.slug || tournament.id}`}
-            className="snap-start shrink-0 w-[300px] md:w-[340px] rounded-2xl border border-[#202830] bg-[#0a0f14] overflow-hidden group hover:border-[#0a84ff]/40 transition-all duration-200 flex flex-col"
+            className="snap-start shrink-0 w-[300px] md:w-[340px] rounded-[2rem] border border-[#3A3D55]/50 bg-[#24273A]/90 overflow-hidden group hover:border-[#a5b4fc]/50 transition-all duration-300 flex flex-col shadow-[0_20px_50px_rgba(0,0,0,0.2)] hover:shadow-[0_20px_50px_rgba(165,180,252,0.15)]"
           >
             {/* Image area */}
-            <div className="relative h-[160px] overflow-hidden bg-[#0f151c]">
+            <div className="relative h-[180px] overflow-hidden bg-[#1F2233]">
               {tournament.image_url ? (
                 <img
                   src={tournament.image_url}
@@ -84,42 +84,42 @@ export function FeaturedTournamentsCarousel({
                 </div>
               )}
               {/* Gradient */}
-              <div className="absolute inset-0 bg-gradient-to-t from-[#0a0f14] via-transparent to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#24273A] via-transparent to-transparent opacity-90" />
 
               {/* Status */}
               {tournament.status === "ACTIVE" && (
-                <div className="absolute top-3 left-3 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#22c55e]/15 border border-[#22c55e]/30 backdrop-blur-sm">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#22c55e] animate-pulse" />
-                  <span className="text-[10.5px] font-semibold text-[#22c55e]">En curso</span>
+                <div className="absolute top-4 left-4 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-500/20 border border-emerald-500/30 backdrop-blur-md shadow-sm">
+                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                  <span className="text-xs font-bold text-emerald-300 tracking-wide">En curso</span>
                 </div>
               )}
             </div>
 
             {/* Content */}
-            <div className="flex flex-col gap-3 p-4 flex-1">
+            <div className="flex flex-col gap-4 p-5 flex-1 relative z-10">
               <div className="flex items-start justify-between gap-2">
-                <h3 className="font-bold text-white text-[15px] leading-snug group-hover:text-[#0a84ff] transition-colors line-clamp-2">
+                <h3 className="font-bold text-white text-lg leading-snug group-hover:text-[#a5b4fc] transition-colors line-clamp-2">
                   {tournament.name}
                 </h3>
-                <ArrowUpRight className="w-4 h-4 text-[#707b86] shrink-0 group-hover:text-[#0a84ff] transition-colors mt-0.5" />
+                <ArrowUpRight className="w-5 h-5 text-slate-400 shrink-0 group-hover:text-[#a5b4fc] transition-colors mt-0.5" />
               </div>
 
-              <div className="flex items-center gap-4 text-[#707b86] text-[12.5px]">
+              <div className="flex items-center gap-4 text-slate-400 text-xs font-semibold">
                 {tournament.location && (
-                  <span className="flex items-center gap-1.5">
-                    <MapPin className="w-3.5 h-3.5" />
+                  <span className="flex items-center gap-1.5 px-2.5 py-1 bg-[#2A2E43] rounded-full border border-[#3A3D55]/50">
+                    <MapPin className="w-3.5 h-3.5 text-[#a5b4fc]" />
                     {tournament.location}
                   </span>
                 )}
-                <span className="flex items-center gap-1.5">
-                  <Trophy className="w-3.5 h-3.5" />
-                  Fútbol
+                <span className="flex items-center gap-1.5 px-2.5 py-1 bg-[#2A2E43] rounded-full border border-[#3A3D55]/50">
+                  <Trophy className="w-3.5 h-3.5 text-[#a5b4fc]" />
+                  {tournament.sport === "VOLEIBOL" ? "Voleibol" : "Fútbol"}
                 </span>
               </div>
 
-              <div className="mt-auto pt-3 border-t border-[#202830] flex items-center justify-between">
-                <span className="text-[11.5px] text-[#707b86]">Ver torneo</span>
-                <div className="flex items-center gap-1 text-[#0a84ff] text-[11.5px] font-semibold">
+              <div className="mt-auto pt-4 border-t border-[#3A3D55]/50 flex items-center justify-between">
+                <span className="text-xs font-bold text-slate-400 tracking-wide uppercase">Ver torneo</span>
+                <div className="flex items-center gap-1.5 text-[#a5b4fc] text-xs font-bold px-3 py-1.5 bg-[#a5b4fc]/10 rounded-full group-hover:bg-[#a5b4fc] group-hover:text-white transition-all">
                   Entrar
                   <ArrowUpRight className="w-3.5 h-3.5" />
                 </div>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, Fragment } from "react";
-import { BarChart3, Shield, Search } from "lucide-react";
+import { BarChart3, Shield, Search, Trophy } from "lucide-react";
 import Image from "next/image";
 import { TeamProfileModal } from "./TeamProfileModal";
 
@@ -34,16 +34,16 @@ export const StandingsWidget = ({ standings = [], tournamentId }: { standings?: 
 
   return (
     <>
-      <div className="w-full p-6 flex flex-col h-full min-h-[410px] relative overflow-hidden rounded-xl bg-[#1A1D24] border border-[#2D3342] border-l-[4px] border-l-[#0088ff] shadow-xl">
-
+      <div className="w-full p-6 flex flex-col h-full relative overflow-hidden rounded-[2rem] bg-[#24273A]/80 backdrop-blur-xl border border-[#3A3D55]/50 shadow-[0_20px_50px_rgba(0,0,0,0.2)]">
+      
       {/* Header */}
-      <div className="flex items-center justify-between mb-5 relative z-10">
+      <div className="flex items-center justify-between mb-6 relative z-10">
         <div className="flex items-center gap-3">
-          <div className="p-2 rounded-lg bg-[#222732] border border-[#2D3342]">
-            <BarChart3 className="text-[#0088ff]" size={16} />
+          <div className="p-2 rounded-2xl bg-[#34384C] border border-[#44485F]">
+            <Trophy className="text-[#a5b4fc]" size={16} />
           </div>
-          <h3 className="text-xs font-bold uppercase tracking-widest text-slate-200">
-            Posiciones
+          <h3 className="text-xs font-bold uppercase tracking-widest text-white">
+            Clasificación
           </h3>
         </div>
         <div className="flex items-center gap-2">
@@ -55,10 +55,10 @@ export const StandingsWidget = ({ standings = [], tournamentId }: { standings?: 
               setIsSearching(!isSearching);
               if (isSearching) setSearchTerm("");
             }}
-            className={`w-8 h-8 rounded-lg border flex items-center justify-center transition-colors ${
+            className={`w-9 h-9 rounded-full border flex items-center justify-center transition-colors shadow-sm ${
               isSearching 
-                ? "bg-[#0088ff]/10 border-[#0088ff] text-[#0088ff]" 
-                : "bg-[#222732] border-[#2D3342] text-slate-400 hover:bg-[#2A303D] hover:text-slate-200"
+                ? "bg-[#a5b4fc]/20 border-[#a5b4fc] text-[#a5b4fc]" 
+                : "bg-[#34384C] border-[#44485F] text-slate-300 hover:bg-[#3E4259] hover:text-white"
             }`}
           >
             <Search size={14} />
@@ -74,79 +74,70 @@ export const StandingsWidget = ({ standings = [], tournamentId }: { standings?: 
             placeholder="Buscar equipo..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full bg-[#151921] border border-[#2D3342] rounded-lg px-4 py-2 text-xs text-slate-200 outline-none focus:border-[#0088ff] transition-colors"
+            className="w-full bg-[#1F2233] border border-[#44485F] rounded-full px-5 py-2.5 text-xs text-white outline-none focus:border-[#a5b4fc] transition-colors shadow-inner"
             autoFocus
           />
         </div>
       )}
 
-      {/* Table */}
-      <div className="flex-1 relative z-10">
+      {/* List Header */}
+      <div className="flex items-center px-4 py-2 text-[9px] font-bold uppercase tracking-widest text-slate-400">
+        <div className="w-6 text-center">#</div>
+        <div className="flex-1 ml-2">Equipo</div>
+        <div className="w-8 text-center" title="Partidos Jugados">PJ</div>
+        <div className="w-8 text-center text-[#a5b4fc]" title="Puntos">PTS</div>
+      </div>
+
+      <div className="flex flex-col gap-2">
         {filteredStandings.length === 0 ? (
-          <div className="flex items-center justify-center h-full text-[10px] uppercase tracking-widest text-slate-500 font-bold border border-dashed border-[#2D3342] rounded-xl">
-            Aún no hay puntos
+          <div className="py-8 flex items-center justify-center text-[10px] uppercase tracking-widest text-slate-500 font-bold border border-dashed border-[#44485F] rounded-2xl">
+            No hay equipos
           </div>
         ) : (
-          <table className="w-full text-left">
-            <thead>
-              <tr className="border-b border-[#2D3342]">
-                <th className="text-[10px] font-bold text-slate-400 uppercase tracking-widest pb-3 w-8 text-center" title="Posición">#</th>
-                <th className="text-[10px] font-bold text-slate-400 uppercase tracking-widest pb-3 pl-2">Equipo</th>
-                {/* PJ and DG hidden on mobile */}
-                <th className="text-[10px] font-bold text-slate-400 uppercase tracking-widest pb-3 text-center hidden md:table-cell" title="Partidos Jugados">PJ</th>
-                <th className="text-[10px] font-bold text-slate-400 uppercase tracking-widest pb-3 text-center hidden md:table-cell" title="Diferencia de Goles">DG</th>
-                <th className="text-[10px] font-black text-slate-200 uppercase tracking-widest pb-3 text-center" title="Puntos">PTS</th>
-                {/* Expand toggle only on mobile */}
-                <th className="w-6 md:hidden" />
-              </tr>
-            </thead>
-            <tbody>
-              {filteredStandings.map((team, index) => {
-                const rank = standings.findIndex(t => t.team_id === team.team_id) + 1;
-                return (
-                  <Fragment key={team.team_id}>
-                    <tr
-                      onClick={() => openTeamProfile(team)}
-                      className={`border-b border-[#2D3342]/50 transition-all group cursor-pointer
-                        ${rankBg(rank)}
-                        hover:bg-[#222732]`}
-                    >
-                      <td className={`py-3 text-xs font-bold text-center ${rankColor(rank)}`}>
-                        {rank}
-                      </td>
-                      <td className="py-3 pl-2">
-                        <div className="flex items-center gap-2.5">
-                          <div className="w-6 h-6 rounded-md bg-[#151921] border border-[#2D3342] flex items-center justify-center shrink-0 overflow-hidden group-hover:border-[#0088ff]/50 transition-colors">
-                            {team.logo_url ? (
-                              <Image src={team.logo_url} alt={team.team_name} width={24} height={24} className="object-cover" unoptimized />
-                            ) : (
-                              <Shield size={12} className="text-slate-600" />
-                            )}
-                          </div>
-                          <span className="text-xs font-semibold text-slate-300 uppercase tracking-wide truncate max-w-[90px] group-hover:text-white transition-colors">
-                            {team.team_name}
-                          </span>
-                        </div>
-                      </td>
-                      {/* PJ and DG — hidden on mobile */}
-                      <td className="py-3 text-center text-xs text-slate-400 font-medium hidden md:table-cell">{team.played}</td>
-                      <td className="py-3 text-center text-xs text-slate-400 font-medium hidden md:table-cell">
-                        {team.goal_difference > 0 ? `+${team.goal_difference}` : team.goal_difference}
-                      </td>
-                      <td className="py-3 text-center text-xs font-black text-slate-200 group-hover:text-[#0088ff] transition-colors">
-                        {team.points}
-                      </td>
-                      {/* Search Icon — mobile only */}
-                      <td className="md:hidden text-slate-600 pr-1 text-right">
-                        <Search size={12} className="inline-block group-hover:text-[#0088ff] transition-colors" />
-                      </td>
-                    </tr>
-                  </Fragment>
-                );
-              })}
-            </tbody>
-          </table>
-        )}
+            filteredStandings.map((team, idx) => {
+              const rank = team.position || idx + 1;
+              const isFirst = rank === 1;
+              return (
+                <div
+                  key={team.team_id}
+                  onClick={() => openTeamProfile(team)}
+                  className={`group flex items-center px-4 py-2.5 rounded-full transition-all cursor-pointer shadow-sm ${
+                    isFirst
+                      ? "bg-[#3A4064] border border-[#a5b4fc]/30"
+                      : "bg-[#2A2E43] border border-[#3A3D55]/50 hover:bg-[#34384C]"
+                  }`}
+                >
+                  <div className="w-6 text-center">
+                    <span className={`text-xs font-bold ${isFirst ? "text-[#a5b4fc]" : "text-slate-400 group-hover:text-white transition-colors"}`}>
+                      {rank}
+                    </span>
+                  </div>
+
+                  <div className="flex-1 ml-2 flex items-center min-w-0">
+                    <div className="w-6 h-6 rounded-full bg-[#151921] border border-[#3A3D55] flex items-center justify-center shrink-0 overflow-hidden mr-2 group-hover:border-[#a5b4fc]/50 transition-colors">
+                      {team.logo_url ? (
+                        <Image src={team.logo_url} alt={team.team_name} width={24} height={24} className="object-cover" unoptimized />
+                      ) : (
+                        <Shield size={12} className="text-slate-600" />
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0 pr-2">
+                      <span className={`text-xs font-semibold truncate block ${isFirst ? "text-white" : "text-slate-300 group-hover:text-white transition-colors"}`}>
+                        {team.team_name}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="w-8 text-center text-xs font-mono text-slate-400">
+                    {team.played}
+                  </div>
+                  <div className={`w-8 text-center text-sm font-bold font-mono ${isFirst ? "text-[#a5b4fc]" : "text-white"}`}>
+                    {team.points}
+                  </div>
+                </div>
+              );
+            })
+          )}
       </div>
       </div>
 
