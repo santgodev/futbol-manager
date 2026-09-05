@@ -150,17 +150,17 @@ export function TournamentTabsView({ tournament, categories, matches, standings,
       {categories && categories.length > 0 && (
         <div className="mb-8">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="text-[10px] font-mono text-[#97CADB] uppercase tracking-widest mr-2 block w-full sm:w-auto mb-2 sm:mb-0">
+            <span className="text-[10px] font-mono text-white/40 uppercase tracking-widest mr-2 block w-full sm:w-auto mb-2 sm:mb-0">
               Categoría
             </span>
             {categories.map((cat) => (
               <button
                 key={cat.id}
                 onClick={() => setActiveCategoryId(cat.id)}
-                className={`px-4 py-2 rounded-full text-xs font-black uppercase tracking-widest transition-all shrink-0 shadow-sm ${
+                className={`px-4 py-2 rounded-full text-xs font-black uppercase tracking-widest transition-all shrink-0 ${
                   activeCategoryId === cat.id
-                    ? "bg-[#018ABE] text-white shadow-[0_5px_15px_rgba(1,138,190,0.4)] border border-[#018ABE]"
-                    : "bg-[#001B48] text-[#97CADB] border border-[#018ABE]/30 hover:bg-[#018ABE]/20 hover:text-white"
+                    ? "bg-[#00f0ff] text-[#001122] shadow-[0_0_20px_rgba(0,240,255,0.4)]"
+                    : "bg-white/5 text-white/50 border border-white/10 hover:bg-white/10 hover:text-white/80"
                 }`}
               >
                 {cat.name}
@@ -172,17 +172,17 @@ export function TournamentTabsView({ tournament, categories, matches, standings,
 
       {/* Phase Badge */}
       <div className="flex items-center gap-3 mb-6">
-        <span className="text-[10px] font-mono text-[#97CADB] uppercase tracking-widest">
+        <span className="text-[10px] font-mono text-white/40 uppercase tracking-widest">
           Fase Activa:
         </span>
-        <span className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#018ABE]/20 border border-[#018ABE]/40 text-[#D6E8EE] text-[10px] font-black uppercase tracking-[0.18em]">
-          <span className="w-1.5 h-1.5 rounded-full bg-[#D6E8EE] animate-pulse" />
+        <span className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#00f0ff]/10 border border-[#00f0ff]/30 text-[#00f0ff] text-[10px] font-black uppercase tracking-[0.18em]">
+          <span className="w-1.5 h-1.5 rounded-full bg-[#00f0ff] animate-pulse" />
           {activePhase}
         </span>
       </div>
 
       {/* Tab Navigation */}
-      <div className="flex overflow-x-auto gap-1 pb-1 mb-6 custom-scrollbar border-b border-[#018ABE]/30">
+      <div className="flex overflow-x-auto gap-1 pb-1 mb-6 custom-scrollbar border-b border-white/5">
         {TABS.map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
@@ -190,13 +190,13 @@ export function TournamentTabsView({ tournament, categories, matches, standings,
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-2 px-4 py-2.5 rounded-t-[1.5rem] whitespace-nowrap text-[12px] font-bold uppercase tracking-wider transition-all shrink-0 border-b-2 -mb-[1px] ${
+              className={`flex items-center gap-2 px-4 py-2.5 rounded-t-xl whitespace-nowrap text-[12px] font-bold uppercase tracking-wider transition-all shrink-0 border-b-2 -mb-[1px] ${
                 isActive
-                  ? "text-[#D6E8EE] border-[#018ABE] bg-[#02457A]/40"
-                  : "text-[#97CADB] border-transparent hover:text-white hover:bg-[#02457A]/20"
+                  ? "text-[#00f0ff] border-[#00f0ff] bg-[#00f0ff]/5"
+                  : "text-white/40 border-transparent hover:text-white/70 hover:bg-white/5"
               }`}
             >
-              <Icon size={14} className={isActive ? "text-[#018ABE]" : "text-current"} />
+              <Icon size={13} className={isActive ? "text-[#00f0ff]" : "text-current"} />
               <span className="hidden sm:inline">{tab.label}</span>
               <span className="sm:hidden">
                 {tab.id === "fixture" && "Fixture"}

@@ -25,9 +25,9 @@ export function FeaturedTournamentsCarousel({
 
   if (!tournaments || tournaments.length === 0) {
     return (
-      <div className="w-full flex flex-col items-center justify-center min-h-[280px] rounded-[2rem] border border-[#018ABE]/30 bg-[#02457A]/40 backdrop-blur-xl shadow-[0_20px_50px_rgba(0,0,0,0.3)]">
-        <Trophy className="w-10 h-10 text-[#018ABE] mb-3" />
-        <p className="text-[#97CADB] text-[14px] font-bold tracking-wide">No hay torneos disponibles</p>
+      <div className="w-full flex flex-col items-center justify-center min-h-[280px] rounded-2xl border border-[#202830] bg-[#0a0f14]">
+        <Trophy className="w-10 h-10 text-[#202830] mb-3" />
+        <p className="text-[#707b86] text-[14px] font-medium">No hay torneos disponibles</p>
       </div>
     );
   }
@@ -35,25 +35,25 @@ export function FeaturedTournamentsCarousel({
   return (
     <div className="w-full relative select-none">
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between mb-5">
         <div className="flex items-center gap-3">
-          <h2 className="text-xl font-bold text-white tracking-tight">{title}</h2>
-          <span className="px-3 py-1 rounded-full bg-[#018ABE]/20 border border-[#018ABE]/40 text-xs font-bold text-[#97CADB] shadow-sm">
+          <h2 className="text-[20px] font-bold text-white tracking-tight">{title}</h2>
+          <span className="px-2 py-0.5 rounded-full bg-[#0a84ff]/10 border border-[#0a84ff]/25 text-[11px] font-semibold text-[#0a84ff]">
             {tournaments.length}
           </span>
         </div>
         <div className="flex items-center gap-2">
           <button
             onClick={() => scroll("left")}
-            className="w-10 h-10 flex items-center justify-center rounded-full border border-[#018ABE]/30 bg-[#02457A] text-[#97CADB] hover:text-white hover:bg-[#018ABE]/50 transition-all shadow-sm"
+            className="w-8 h-8 flex items-center justify-center rounded-lg border border-[#202830] text-[#707b86] hover:text-white hover:border-[#2c3540] transition-all"
           >
-            <ChevronLeft className="w-5 h-5" />
+            <ChevronLeft className="w-4 h-4" />
           </button>
           <button
             onClick={() => scroll("right")}
-            className="w-10 h-10 flex items-center justify-center rounded-full border border-[#018ABE]/30 bg-[#02457A] text-[#97CADB] hover:text-white hover:bg-[#018ABE]/50 transition-all shadow-sm"
+            className="w-8 h-8 flex items-center justify-center rounded-lg border border-[#202830] text-[#707b86] hover:text-white hover:border-[#2c3540] transition-all"
           >
-            <ChevronRight className="w-5 h-5" />
+            <ChevronRight className="w-4 h-4" />
           </button>
         </div>
       </div>
@@ -68,10 +68,10 @@ export function FeaturedTournamentsCarousel({
           <Link
             key={tournament.id}
             href={`/t/${tournament.slug || tournament.id}`}
-            className="snap-start shrink-0 w-[300px] md:w-[340px] rounded-[2rem] border border-[#018ABE]/30 bg-[#02457A]/60 backdrop-blur-xl overflow-hidden group hover:border-[#97CADB]/60 transition-all duration-300 flex flex-col shadow-[0_20px_50px_rgba(0,0,0,0.3)] hover:shadow-[0_20px_50px_rgba(1,138,190,0.2)]"
+            className="snap-start shrink-0 w-[300px] md:w-[340px] rounded-2xl border border-[#202830] bg-[#0a0f14] overflow-hidden group hover:border-[#0a84ff]/40 transition-all duration-200 flex flex-col"
           >
             {/* Image area */}
-            <div className="relative h-[180px] overflow-hidden bg-[#001B48]">
+            <div className="relative h-[160px] overflow-hidden bg-[#0f151c]">
               {tournament.image_url ? (
                 <img
                   src={tournament.image_url}
@@ -84,42 +84,42 @@ export function FeaturedTournamentsCarousel({
                 </div>
               )}
               {/* Gradient */}
-              <div className="absolute inset-0 bg-gradient-to-t from-[#02457A] via-transparent to-transparent opacity-90" />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#0a0f14] via-transparent to-transparent" />
 
               {/* Status */}
               {tournament.status === "ACTIVE" && (
-                <div className="absolute top-4 left-4 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#97CADB]/20 border border-[#97CADB]/40 backdrop-blur-md shadow-sm">
-                  <span className="w-2 h-2 rounded-full bg-[#D6E8EE] animate-pulse" />
-                  <span className="text-xs font-bold text-[#D6E8EE] tracking-wide">En curso</span>
+                <div className="absolute top-3 left-3 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#22c55e]/15 border border-[#22c55e]/30 backdrop-blur-sm">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#22c55e] animate-pulse" />
+                  <span className="text-[10.5px] font-semibold text-[#22c55e]">En curso</span>
                 </div>
               )}
             </div>
 
             {/* Content */}
-            <div className="flex flex-col gap-4 p-5 flex-1 relative z-10">
+            <div className="flex flex-col gap-3 p-4 flex-1">
               <div className="flex items-start justify-between gap-2">
-                <h3 className="font-bold text-white text-lg leading-snug group-hover:text-[#97CADB] transition-colors line-clamp-2">
+                <h3 className="font-bold text-white text-[15px] leading-snug group-hover:text-[#0a84ff] transition-colors line-clamp-2">
                   {tournament.name}
                 </h3>
-                <ArrowUpRight className="w-5 h-5 text-[#97CADB]/60 shrink-0 group-hover:text-[#97CADB] transition-colors mt-0.5" />
+                <ArrowUpRight className="w-4 h-4 text-[#707b86] shrink-0 group-hover:text-[#0a84ff] transition-colors mt-0.5" />
               </div>
 
-              <div className="flex items-center gap-4 text-[#D6E8EE] text-xs font-semibold">
+              <div className="flex items-center gap-4 text-[#707b86] text-[12.5px]">
                 {tournament.location && (
-                  <span className="flex items-center gap-1.5 px-2.5 py-1 bg-[#001B48]/50 rounded-full border border-[#018ABE]/30">
-                    <MapPin className="w-3.5 h-3.5 text-[#018ABE]" />
+                  <span className="flex items-center gap-1.5">
+                    <MapPin className="w-3.5 h-3.5" />
                     {tournament.location}
                   </span>
                 )}
-                <span className="flex items-center gap-1.5 px-2.5 py-1 bg-[#001B48]/50 rounded-full border border-[#018ABE]/30">
-                  <Trophy className="w-3.5 h-3.5 text-[#018ABE]" />
-                  {tournament.sport === "VOLEIBOL" ? "Voleibol" : "Fútbol"}
+                <span className="flex items-center gap-1.5">
+                  <Trophy className="w-3.5 h-3.5" />
+                  Fútbol
                 </span>
               </div>
 
-              <div className="mt-auto pt-4 border-t border-[#018ABE]/30 flex items-center justify-between">
-                <span className="text-xs font-bold text-[#97CADB] tracking-wide uppercase">Ver torneo</span>
-                <div className="flex items-center gap-1.5 text-[#D6E8EE] text-xs font-bold px-3 py-1.5 bg-[#018ABE]/40 rounded-full group-hover:bg-[#018ABE] group-hover:text-white transition-all">
+              <div className="mt-auto pt-3 border-t border-[#202830] flex items-center justify-between">
+                <span className="text-[11.5px] text-[#707b86]">Ver torneo</span>
+                <div className="flex items-center gap-1 text-[#0a84ff] text-[11.5px] font-semibold">
                   Entrar
                   <ArrowUpRight className="w-3.5 h-3.5" />
                 </div>

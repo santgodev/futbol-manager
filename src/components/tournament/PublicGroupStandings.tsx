@@ -57,16 +57,16 @@ export function PublicGroupStandings({ standings }: PublicGroupStandingsProps) {
           return (
             <div
               key={groupKey}
-              className="rounded-[2rem] border border-[#018ABE]/30 overflow-hidden shadow-[0_10px_30px_rgba(0,0,0,0.2)]"
-              style={{ background: "rgba(2,69,122,0.4)", backdropFilter: "blur(16px)" }}
+              className="rounded-2xl border border-[#00f0ff]/10 overflow-hidden"
+              style={{ background: "rgba(5,8,17,0.85)", backdropFilter: "blur(16px)" }}
             >
               {/* Group header */}
               {hasMultipleGroups && (
-                <div className="flex items-center gap-2 px-4 py-3.5 border-b border-[#018ABE]/30 bg-[#001B48]/70">
-                  <div className="p-1 rounded bg-[#018ABE]/20 border border-[#018ABE]/30">
-                    <Users size={12} className="text-[#018ABE]" />
+                <div className="flex items-center gap-2 px-4 py-3.5 border-b border-[#00f0ff]/10 bg-[#0a1526]/70">
+                  <div className="p-1 rounded bg-[#00f0ff]/10 border border-[#00f0ff]/20">
+                    <Users size={12} className="text-[#00f0ff]" />
                   </div>
-                  <span className="text-[11px] font-black uppercase tracking-[0.2em] text-[#97CADB]">
+                  <span className="text-[11px] font-black uppercase tracking-[0.2em] text-[#00f0ff]">
                     Grupo {groupKey}
                   </span>
                 </div>
@@ -76,35 +76,35 @@ export function PublicGroupStandings({ standings }: PublicGroupStandingsProps) {
               <div className="overflow-x-auto">
                 <table className="w-full text-left border-collapse">
                   <thead>
-                    <tr className="border-b border-[#018ABE]/30">
-                      <th className="py-3 px-3 text-[9px] text-[#97CADB] font-black uppercase tracking-widest text-center w-8">
+                    <tr className="border-b border-[#0055cc]/20">
+                      <th className="py-3 px-3 text-[9px] text-[#00f0ff]/50 font-black uppercase tracking-widest text-center w-8">
                         #
                       </th>
-                      <th className="py-3 px-3 text-[9px] text-[#97CADB] font-black uppercase tracking-widest">
+                      <th className="py-3 px-3 text-[9px] text-[#00f0ff]/50 font-black uppercase tracking-widest">
                         Equipo
                       </th>
-                      <th className="py-3 px-2 text-[9px] text-[#97CADB] font-bold uppercase tracking-widest text-center" title="Partidos Jugados">
+                      <th className="py-3 px-2 text-[9px] text-white/40 font-bold uppercase tracking-widest text-center" title="Partidos Jugados">
                         PJ
                       </th>
-                      <th className="py-3 px-2 text-[9px] text-[#97CADB] font-bold uppercase tracking-widest text-center" title="Partidos Ganados">
+                      <th className="py-3 px-2 text-[9px] text-white/40 font-bold uppercase tracking-widest text-center" title="Partidos Ganados">
                         PG
                       </th>
-                      <th className="py-3 px-2 text-[9px] text-[#97CADB] font-bold uppercase tracking-widest text-center" title="Partidos Perdidos">
+                      <th className="py-3 px-2 text-[9px] text-white/40 font-bold uppercase tracking-widest text-center" title="Partidos Perdidos">
                         PP
                       </th>
-                      <th className="py-3 px-2 text-[9px] text-[#97CADB] font-bold uppercase tracking-widest text-center" title="Sets Favor:Contra">
+                      <th className="py-3 px-2 text-[9px] text-white/40 font-bold uppercase tracking-widest text-center" title="Sets Favor:Contra">
                         Sets (F:A)
                       </th>
-                      <th className="py-3 px-2 text-[9px] text-[#97CADB] font-bold uppercase tracking-widest text-center" title="Ratio de Sets">
+                      <th className="py-3 px-2 text-[9px] text-white/40 font-bold uppercase tracking-widest text-center" title="Ratio de Sets">
                         Ratio S
                       </th>
-                      <th className="py-3 px-2 text-[9px] text-[#97CADB] font-bold uppercase tracking-widest text-center" title="Puntos Favor:Contra">
+                      <th className="py-3 px-2 text-[9px] text-white/40 font-bold uppercase tracking-widest text-center" title="Puntos Favor:Contra">
                         Puntos (F:A)
                       </th>
-                      <th className="py-3 px-2 text-[9px] text-[#97CADB] font-bold uppercase tracking-widest text-center" title="Ratio de Puntos">
+                      <th className="py-3 px-2 text-[9px] text-white/40 font-bold uppercase tracking-widest text-center" title="Ratio de Puntos">
                         Ratio P
                       </th>
-                      <th className="py-3 px-3 text-[10px] text-[#018ABE] font-black uppercase tracking-widest text-center">
+                      <th className="py-3 px-3 text-[10px] text-[#00f0ff] font-black uppercase tracking-widest text-center">
                         Puntos
                       </th>
                     </tr>
@@ -120,18 +120,18 @@ export function PublicGroupStandings({ standings }: PublicGroupStandingsProps) {
                       return (
                         <tr
                           key={team.team_id}
-                          className={`border-b border-[#018ABE]/10 last:border-0 transition-colors
-                            ${isFirst ? "bg-[#018ABE]/10" : isSecond ? "bg-[#018ABE]/5" : "hover:bg-[#001B48]/50"}`}
+                          className={`border-b border-white/5 last:border-0 transition-colors
+                            ${isFirst ? "bg-[#00f0ff]/5" : isSecond ? "bg-[#0055cc]/5" : "hover:bg-white/[0.02]"}`}
                         >
                           {/* # */}
                           <td className="py-3 px-3 text-center">
                             <span
                               className={`inline-flex items-center justify-center w-5 h-5 rounded text-[10px] font-bold
                                 ${isFirst
-                                  ? "bg-[#018ABE] text-white shadow-[0_0_8px_rgba(1,138,190,0.4)]"
+                                  ? "bg-[#00f0ff] text-black shadow-[0_0_8px_rgba(0,240,255,0.4)]"
                                   : isSecond
-                                  ? "bg-[#018ABE]/40 text-[#D6E8EE]"
-                                  : "bg-[#001B48] text-[#97CADB]"
+                                  ? "bg-[#0055cc]/60 text-[#00f0ff]"
+                                  : "bg-white/5 text-white/40"
                                 }`}
                             >
                               {index + 1}
@@ -141,7 +141,7 @@ export function PublicGroupStandings({ standings }: PublicGroupStandingsProps) {
                           {/* Equipo */}
                           <td className="py-3 px-3">
                             <div className="flex items-center gap-2">
-                              <div className="w-7 h-7 rounded-lg bg-[#001B48] border border-[#018ABE]/30 flex items-center justify-center overflow-hidden shrink-0">
+                              <div className="w-7 h-7 rounded-lg bg-black/50 border border-white/5 flex items-center justify-center overflow-hidden shrink-0">
                                 {team.logo_url ? (
                                   <Image
                                     src={team.logo_url}
@@ -152,12 +152,12 @@ export function PublicGroupStandings({ standings }: PublicGroupStandingsProps) {
                                     unoptimized
                                   />
                                 ) : (
-                                  <Shield className="w-4 h-4 text-[#018ABE]/50" />
+                                  <Shield className="w-4 h-4 text-white/20" />
                                 )}
                               </div>
                               <span
                                 className={`text-xs font-bold uppercase tracking-wider truncate max-w-[90px] sm:max-w-[140px] xl:max-w-none ${
-                                  isFirst ? "text-white" : "text-[#D6E8EE]"
+                                  isFirst ? "text-white" : "text-white/80"
                                 }`}
                               >
                                 {team.team_name}
@@ -166,37 +166,37 @@ export function PublicGroupStandings({ standings }: PublicGroupStandingsProps) {
                           </td>
 
                           {/* PJ */}
-                          <td className="py-3 px-2 text-center text-[11px] font-mono text-[#D6E8EE]">
+                          <td className="py-3 px-2 text-center text-[11px] font-mono text-white/60">
                             {team.played}
                           </td>
 
                           {/* PG */}
-                          <td className="py-3 px-2 text-center text-[11px] font-mono font-bold text-[#97CADB]">
+                          <td className="py-3 px-2 text-center text-[11px] font-mono font-bold text-emerald-400">
                             {team.won}
                           </td>
 
                           {/* PP */}
-                          <td className="py-3 px-2 text-center text-[11px] font-mono font-bold text-[#97CADB]">
+                          <td className="py-3 px-2 text-center text-[11px] font-mono font-bold text-red-400">
                             {team.lost}
                           </td>
 
                           {/* Sets F:A */}
-                          <td className="py-3 px-2 text-center text-[11px] font-mono text-[#D6E8EE]">
+                          <td className="py-3 px-2 text-center text-[11px] font-mono text-white/60">
                             {team.won}:{team.lost}
                           </td>
 
                           {/* Ratio S */}
-                          <td className="py-3 px-2 text-center text-[11px] font-mono text-[#D6E8EE]">
+                          <td className="py-3 px-2 text-center text-[11px] font-mono text-white/60">
                             {setRatio}
                           </td>
 
                           {/* Puntos F:A */}
-                          <td className="py-3 px-2 text-center text-[11px] font-mono text-[#D6E8EE]">
+                          <td className="py-3 px-2 text-center text-[11px] font-mono text-white/60">
                             {team.goals_for}:{team.goals_against}
                           </td>
 
                           {/* Ratio P */}
-                          <td className="py-3 px-2 text-center text-[11px] font-mono text-[#D6E8EE]">
+                          <td className="py-3 px-2 text-center text-[11px] font-mono text-white/60">
                             {goalRatio}
                           </td>
 
@@ -205,7 +205,7 @@ export function PublicGroupStandings({ standings }: PublicGroupStandingsProps) {
                             <span
                               className={`text-sm font-black font-mono ${
                                 isFirst
-                                  ? "text-[#018ABE] drop-shadow-[0_0_6px_rgba(1,138,190,0.5)]"
+                                  ? "text-[#00f0ff] drop-shadow-[0_0_6px_rgba(0,240,255,0.5)]"
                                   : "text-white"
                               }`}
                             >

@@ -31,15 +31,15 @@ const STAGE_LABELS: Record<string, string> = {
 function statusBadge(status: string | null) {
   const s = (status || "").toUpperCase();
   if (s === "FINISHED" || s === "FINALIZADO")
-    return <span className="text-[8px] font-bold text-[#97CADB] uppercase tracking-widest">FINAL</span>;
+    return <span className="text-[8px] font-bold text-emerald-400 uppercase tracking-widest">FINAL</span>;
   if (s === "LIVE" || s === "IN_PLAY")
     return (
-      <span className="flex items-center gap-1 text-[8px] font-bold text-[#D6E8EE] uppercase tracking-widest">
-        <span className="w-1.5 h-1.5 rounded-full bg-[#D6E8EE] animate-pulse" />
+      <span className="flex items-center gap-1 text-[8px] font-bold text-[#00f0ff] uppercase tracking-widest">
+        <span className="w-1.5 h-1.5 rounded-full bg-[#00f0ff] animate-pulse" />
         VIVO
       </span>
     );
-  return <span className="text-[8px] font-bold text-[#97CADB]/50 uppercase tracking-widest">PROG.</span>;
+  return <span className="text-[8px] font-bold text-white/30 uppercase tracking-widest">PROG.</span>;
 }
 
 export function KnockoutBracket({ matches, totalTeams = 0 }: KnockoutBracketProps) {
@@ -54,19 +54,19 @@ export function KnockoutBracket({ matches, totalTeams = 0 }: KnockoutBracketProp
   const isStructurallyValid = true; // Relaxing this strict check for dynamic cups
 
   // No knockout matches at all
-    if (!hasKnockoutMatches) {
+  if (!hasKnockoutMatches) {
     return (
-      <div className="w-full relative rounded-[2rem] p-12 flex flex-col items-center justify-center bg-[#02457A]/40 backdrop-blur-xl border border-[#018ABE]/30 shadow-[0_20px_50px_rgba(0,0,0,0.3)] overflow-hidden group">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1/3 h-[2px] bg-gradient-to-r from-transparent via-[#018ABE] to-transparent shadow-[0_0_15px_#018ABE] opacity-80 group-hover:w-1/2 transition-all duration-700" />
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[60%] h-[120px] bg-[#018ABE]/10 blur-[50px] pointer-events-none" />
+      <div className="w-full relative rounded-3xl p-12 flex flex-col items-center justify-center bg-gradient-to-br from-[#0a1526]/80 to-[#050810]/95 backdrop-blur-xl border border-[#00f0ff]/20 shadow-[0_10px_40px_rgba(0,0,0,0.6)] overflow-hidden group">
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1/3 h-[2px] bg-gradient-to-r from-transparent via-[#00f0ff] to-transparent shadow-[0_0_15px_#00f0ff] opacity-80 group-hover:w-1/2 transition-all duration-700" />
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[60%] h-[120px] bg-[#00f0ff]/10 blur-[50px] pointer-events-none" />
         <div className="w-20 h-24 mb-6 relative flex items-center justify-center">
-          <div className="absolute inset-0 bg-[#018ABE]/20 blur-[20px] rounded-full animate-pulse" />
-          <Shield className="w-16 h-20 text-[#018ABE] drop-shadow-[0_0_10px_rgba(1,138,190,0.6)] relative z-10" />
+          <div className="absolute inset-0 bg-[#00f0ff]/20 blur-[20px] rounded-full animate-pulse" />
+          <Shield className="w-16 h-20 text-[#00f0ff] drop-shadow-[0_0_10px_rgba(0,240,255,0.6)] relative z-10" />
         </div>
         <h3 className="text-white font-black uppercase tracking-widest text-lg drop-shadow-[0_0_8px_rgba(255,255,255,0.3)]">
           Fase Final No Definida
         </h3>
-        <p className="text-[#97CADB] text-[11px] font-mono uppercase tracking-[0.2em] mt-3 text-center max-w-md font-bold">
+        <p className="text-[#00f0ff]/60 text-[11px] font-mono uppercase tracking-[0.2em] mt-3 text-center max-w-md font-bold">
           Los cruces eliminatorios se revelarán una vez que concluya la fase de grupos.
         </p>
       </div>
@@ -93,12 +93,12 @@ export function KnockoutBracket({ matches, totalTeams = 0 }: KnockoutBracketProp
   const MatchNode = ({ match, isFinal = false }: { match?: any; isFinal?: boolean }) => {
     if (!match) {
       return (
-        <div className="flex flex-col w-full bg-[#001B48]/50 border border-[#018ABE]/30 rounded-xl h-[90px] justify-center px-4 relative group opacity-60">
-          <div className="flex justify-between items-center text-[#97CADB]/50 uppercase tracking-widest text-[10px] mb-2 font-bold font-mono">
+        <div className="flex flex-col w-full glass-panel h-[90px] justify-center px-4 relative group opacity-60">
+          <div className="flex justify-between items-center text-white/30 uppercase tracking-widest text-[10px] mb-2 font-bold font-mono">
             <span>TBD</span>
             <span>—</span>
           </div>
-          <div className="flex justify-between items-center text-[#97CADB]/50 uppercase tracking-widest text-[10px] font-bold font-mono">
+          <div className="flex justify-between items-center text-white/30 uppercase tracking-widest text-[10px] font-bold font-mono">
             <span>TBD</span>
             <span>—</span>
           </div>
@@ -114,26 +114,26 @@ export function KnockoutBracket({ matches, totalTeams = 0 }: KnockoutBracketProp
 
     return (
       <div
-        className={`flex flex-col w-full bg-[#001B48]/50 border border-[#018ABE]/30 rounded-xl relative group overflow-hidden transition-all ${
+        className={`flex flex-col w-full glass-panel relative group overflow-hidden transition-all ${
           isFinal
-            ? "!border-[#018ABE] shadow-[0_0_20px_rgba(1,138,190,0.3)]"
-            : "hover:border-[#018ABE]/80"
+            ? "!border-brand-yellow shadow-[0_0_20px_rgba(255,215,0,0.15)]"
+            : "hover:border-brand-cyan/50"
         }`}
       >
         {isFinal && (
-          <div className="absolute top-0 left-0 w-full bg-[#018ABE] text-white text-[8px] font-black uppercase tracking-widest text-center py-0.5 shadow-[0_1px_5px_rgba(0,0,0,0.3)] select-none">
+          <div className="absolute top-0 left-0 w-full bg-brand-yellow text-brand-deep text-[8px] font-black uppercase tracking-widest text-center py-0.5 shadow-[0_1px_5px_rgba(0,0,0,0.3)] select-none">
             Gran Final
           </div>
         )}
 
-        <div className={`flex justify-between items-center p-3 border-b border-[#018ABE]/30 ${isFinal ? "mt-4" : ""}`}>
+        <div className={`flex justify-between items-center p-3 border-b border-white/5 ${isFinal ? "mt-4" : ""}`}>
           <div className="flex items-center gap-3 truncate pr-2">
             <Shield
-              className={`w-4 h-5 ${homeWon ? "text-[#018ABE]" : "text-[#018ABE]/30"}`}
+              className={`w-4 h-5 ${homeWon ? "text-brand-cyan drop-shadow-[0_0_5px_rgba(0,240,255,0.4)]" : "text-brand-cyan/20"}`}
             />
             <span
               className={`text-xs font-bold uppercase tracking-wider truncate ${
-                homeWon ? "text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.15)]" : "text-[#D6E8EE]"
+                homeWon ? "text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.15)]" : "text-brand-text-muted"
               }`}
             >
               {match.home_team?.name || "TBD"}
@@ -141,21 +141,21 @@ export function KnockoutBracket({ matches, totalTeams = 0 }: KnockoutBracketProp
           </div>
           <span
             className={`text-sm font-black font-mono ${
-              homeWon ? "text-[#D6E8EE] drop-shadow-[0_0_8px_rgba(1,138,190,0.3)]" : "text-[#97CADB]"
+              homeWon ? "text-brand-cyan drop-shadow-[0_0_8px_rgba(0,240,255,0.3)]" : "text-brand-text-muted"
             }`}
           >
             {homeScore !== null ? homeScore : "—"}
           </span>
         </div>
 
-        <div className="flex justify-between items-center p-3 bg-[#001B48]/50">
+        <div className="flex justify-between items-center p-3 bg-brand-deep/30">
           <div className="flex items-center gap-3 truncate pr-2">
             <Shield
-              className={`w-4 h-5 ${awayWon ? "text-[#018ABE]" : "text-[#018ABE]/30"}`}
+              className={`w-4 h-5 ${awayWon ? "text-brand-cyan drop-shadow-[0_0_5px_rgba(0,240,255,0.4)]" : "text-brand-cyan/20"}`}
             />
             <span
               className={`text-xs font-bold uppercase tracking-wider truncate ${
-                awayWon ? "text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.15)]" : "text-[#D6E8EE]"
+                awayWon ? "text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.15)]" : "text-brand-text-muted"
               }`}
             >
               {match.away_team?.name || "TBD"}
@@ -163,7 +163,7 @@ export function KnockoutBracket({ matches, totalTeams = 0 }: KnockoutBracketProp
           </div>
           <span
             className={`text-sm font-black font-mono ${
-              awayWon ? "text-[#D6E8EE] drop-shadow-[0_0_8px_rgba(1,138,190,0.3)]" : "text-[#97CADB]"
+              awayWon ? "text-brand-cyan drop-shadow-[0_0_8px_rgba(0,240,255,0.3)]" : "text-brand-text-muted"
             }`}
           >
             {awayScore !== null ? awayScore : "—"}
@@ -171,7 +171,7 @@ export function KnockoutBracket({ matches, totalTeams = 0 }: KnockoutBracketProp
         </div>
 
         {match.home_penalty_score !== null && match.away_penalty_score !== null && (
-          <div className="w-full text-[8px] text-center bg-[#018ABE]/10 text-[#018ABE] py-0.5 uppercase tracking-widest font-mono font-bold border-t border-[#018ABE]/30">
+          <div className="w-full text-[8px] text-center bg-brand-cyan/10 text-brand-cyan py-0.5 uppercase tracking-widest font-mono font-bold border-t border-white/5">
             PEN: {match.home_penalty_score} - {match.away_penalty_score}
           </div>
         )}
@@ -194,19 +194,19 @@ export function KnockoutBracket({ matches, totalTeams = 0 }: KnockoutBracketProp
           return (
             <div
               key={stage}
-              className="rounded-[2rem] border border-[#018ABE]/30 overflow-hidden shadow-[0_10px_30px_rgba(0,0,0,0.2)]"
-              style={{ background: "rgba(2,69,122,0.4)", backdropFilter: "blur(16px)" }}
+              className="rounded-2xl border border-[#00f0ff]/10 overflow-hidden"
+              style={{ background: "rgba(5,8,17,0.85)" }}
             >
-              <div className="flex items-center gap-2 px-5 py-4 border-b border-[#018ABE]/30 bg-[#001B48]/70">
+              <div className="flex items-center gap-2 px-5 py-3.5 border-b border-[#00f0ff]/10 bg-[#0a1526]/70">
                 <span
                   className={`text-[11px] font-black uppercase tracking-[0.18em] ${
-                    stage === "FINAL" ? "text-[#018ABE]" : "text-[#97CADB]"
+                    stage === "FINAL" ? "text-[#f59e0b]" : "text-[#00f0ff]"
                   }`}
                 >
                   {STAGE_LABELS[stage] || stage}
                 </span>
               </div>
-              <div className="divide-y divide-[#018ABE]/30">
+              <div className="divide-y divide-white/5">
                 {stageMatches.map((match) => {
                   const isScheduled = match.status === "SCHEDULED" || match.status === "PRÓXIMO";
                   const homeScore = isScheduled ? null : match.home_score;
@@ -215,30 +215,30 @@ export function KnockoutBracket({ matches, totalTeams = 0 }: KnockoutBracketProp
                   const awayWon = homeScore !== null && awayScore !== null && awayScore > homeScore;
 
                   return (
-                    <div key={match.id} className="flex items-center px-5 py-3.5 gap-4 hover:bg-[#001B48]/50 transition-colors">
+                    <div key={match.id} className="flex items-center px-5 py-3.5 gap-4 hover:bg-white/[0.02] transition-colors">
                       {/* Date/time */}
                       <div className="flex flex-col gap-0.5 w-24 shrink-0">
-                        <span className="text-[10px] font-mono text-[#97CADB]/60">{match.match_date ?? "—"}</span>
-                        <span className="text-[10px] font-mono text-[#97CADB]/60">
+                        <span className="text-[10px] font-mono text-white/50">{match.match_date ?? "—"}</span>
+                        <span className="text-[10px] font-mono text-white/30">
                           {match.match_time ? match.match_time.substring(0, 5) : ""}
                         </span>
                       </div>
 
                       {/* Teams + score */}
                       <div className="flex-1 flex items-center gap-3 min-w-0">
-                        <span className={`text-[11px] font-bold uppercase tracking-wider truncate flex-1 text-right ${homeWon ? "text-white" : "text-[#D6E8EE]"}`}>
+                        <span className={`text-[11px] font-bold uppercase tracking-wider truncate flex-1 text-right ${homeWon ? "text-white" : "text-white/60"}`}>
                           {match.home_team?.name || "TBD"}
                         </span>
                         <div className="flex items-center gap-1.5 shrink-0">
-                          <span className={`text-[13px] font-black font-mono w-5 text-center ${homeWon ? "text-white" : "text-[#97CADB]"}`}>
+                          <span className={`text-[13px] font-black font-mono w-5 text-center ${homeWon ? "text-[#00f0ff]" : "text-white/40"}`}>
                             {homeScore !== null ? homeScore : "—"}
                           </span>
-                          <span className="text-[#018ABE]/50 text-[10px]">:</span>
-                          <span className={`text-[13px] font-black font-mono w-5 text-center ${awayWon ? "text-white" : "text-[#97CADB]"}`}>
+                          <span className="text-white/20 text-[10px]">:</span>
+                          <span className={`text-[13px] font-black font-mono w-5 text-center ${awayWon ? "text-[#00f0ff]" : "text-white/40"}`}>
                             {awayScore !== null ? awayScore : "—"}
                           </span>
                         </div>
-                        <span className={`text-[11px] font-bold uppercase tracking-wider truncate flex-1 ${awayWon ? "text-white" : "text-[#D6E8EE]"}`}>
+                        <span className={`text-[11px] font-bold uppercase tracking-wider truncate flex-1 ${awayWon ? "text-white" : "text-white/60"}`}>
                           {match.away_team?.name || "TBD"}
                         </span>
                       </div>
@@ -256,15 +256,15 @@ export function KnockoutBracket({ matches, totalTeams = 0 }: KnockoutBracketProp
         {/* Third place */}
         {getMatchesByStage("THIRD_PLACE").length > 0 && (
           <div
-            className="rounded-[2rem] border border-[#018ABE]/30 overflow-hidden shadow-[0_10px_30px_rgba(0,0,0,0.2)] mt-8"
-            style={{ background: "rgba(2,69,122,0.4)", backdropFilter: "blur(16px)" }}
+            className="rounded-2xl border border-amber-500/20 overflow-hidden"
+            style={{ background: "rgba(5,8,17,0.85)" }}
           >
-            <div className="flex items-center gap-2 px-5 py-4 border-b border-[#018ABE]/30 bg-[#001B48]/70">
-              <span className="text-[11px] font-black uppercase tracking-[0.18em] text-[#97CADB]">
+            <div className="flex items-center gap-2 px-5 py-3.5 border-b border-amber-500/20 bg-amber-500/5">
+              <span className="text-[11px] font-black uppercase tracking-[0.18em] text-amber-400">
                 Tercer Puesto
               </span>
             </div>
-            <div className="divide-y divide-[#018ABE]/30">
+            <div className="divide-y divide-white/5">
               {getMatchesByStage("THIRD_PLACE").map((match) => {
                 const isScheduled = match.status === "SCHEDULED" || match.status === "PRÓXIMO";
                 const homeScore = isScheduled ? null : match.home_score;
@@ -272,27 +272,27 @@ export function KnockoutBracket({ matches, totalTeams = 0 }: KnockoutBracketProp
                 const homeWon = homeScore !== null && awayScore !== null && homeScore > awayScore;
                 const awayWon = homeScore !== null && awayScore !== null && awayScore > homeScore;
                 return (
-                  <div key={match.id} className="flex items-center px-5 py-3.5 gap-4 hover:bg-[#001B48]/50 transition-colors">
+                  <div key={match.id} className="flex items-center px-5 py-3.5 gap-4">
                     <div className="flex flex-col gap-0.5 w-24 shrink-0">
-                      <span className="text-[10px] font-mono text-[#97CADB]/60">{match.match_date ?? "—"}</span>
-                      <span className="text-[10px] font-mono text-[#97CADB]/60">
+                      <span className="text-[10px] font-mono text-white/50">{match.match_date ?? "—"}</span>
+                      <span className="text-[10px] font-mono text-white/30">
                         {match.match_time ? match.match_time.substring(0, 5) : ""}
                       </span>
                     </div>
                     <div className="flex-1 flex items-center gap-3 min-w-0">
-                      <span className={`text-[11px] font-bold uppercase tracking-wider truncate flex-1 text-right ${homeWon ? "text-white" : "text-[#D6E8EE]"}`}>
+                      <span className={`text-[11px] font-bold uppercase tracking-wider truncate flex-1 text-right ${homeWon ? "text-white" : "text-white/60"}`}>
                         {match.home_team?.name || "TBD"}
                       </span>
                       <div className="flex items-center gap-1.5 shrink-0">
-                        <span className={`text-[13px] font-black font-mono w-5 text-center ${homeWon ? "text-white" : "text-[#97CADB]"}`}>
+                        <span className={`text-[13px] font-black font-mono w-5 text-center ${homeWon ? "text-[#00f0ff]" : "text-white/40"}`}>
                           {homeScore !== null ? homeScore : "—"}
                         </span>
-                        <span className="text-[#018ABE]/50 text-[10px]">:</span>
-                        <span className={`text-[13px] font-black font-mono w-5 text-center ${awayWon ? "text-white" : "text-[#97CADB]"}`}>
+                        <span className="text-white/20 text-[10px]">:</span>
+                        <span className={`text-[13px] font-black font-mono w-5 text-center ${awayWon ? "text-[#00f0ff]" : "text-white/40"}`}>
                           {awayScore !== null ? awayScore : "—"}
                         </span>
                       </div>
-                      <span className={`text-[11px] font-bold uppercase tracking-wider truncate flex-1 ${awayWon ? "text-white" : "text-[#D6E8EE]"}`}>
+                      <span className={`text-[11px] font-bold uppercase tracking-wider truncate flex-1 ${awayWon ? "text-white" : "text-white/60"}`}>
                         {match.away_team?.name || "TBD"}
                       </span>
                     </div>
@@ -323,7 +323,7 @@ export function KnockoutBracket({ matches, totalTeams = 0 }: KnockoutBracketProp
           {quarterfinals.length > 0 && (
           <>
             <div className="flex-1 flex flex-col justify-around gap-4 md:gap-8 relative z-10">
-              <h4 className="text-[9px] text-[#018ABE]/50 uppercase tracking-widest font-mono font-bold text-center mb-2">
+              <h4 className="text-[9px] text-brand-cyan/50 uppercase tracking-widest font-mono font-bold text-center mb-2">
                 // CUARTOS
               </h4>
               <MatchNode match={quarterfinals[0]} />
@@ -332,8 +332,8 @@ export function KnockoutBracket({ matches, totalTeams = 0 }: KnockoutBracketProp
               <MatchNode match={quarterfinals[3]} />
             </div>
             <div className="hidden md:flex flex-col justify-around w-8 py-12">
-              <div className="h-1/4 border-r border-t border-b border-[#018ABE]/20 rounded-r-lg w-full mb-12" />
-              <div className="h-1/4 border-r border-t border-b border-[#018ABE]/20 rounded-r-lg w-full mt-12" />
+              <div className="h-1/4 border-r border-t border-b border-brand-cyan/10 rounded-r-lg w-full mb-12" />
+              <div className="h-1/4 border-r border-t border-b border-brand-cyan/10 rounded-r-lg w-full mt-12" />
             </div>
           </>
         )}
@@ -342,14 +342,14 @@ export function KnockoutBracket({ matches, totalTeams = 0 }: KnockoutBracketProp
         {semifinals.length > 0 && (
           <>
             <div className="flex-1 flex flex-col justify-around gap-16 md:gap-32 py-12 relative z-10">
-              <h4 className="text-[9px] text-[#018ABE]/50 uppercase tracking-widest font-mono font-bold text-center mb-2 absolute top-0 w-full left-0">
+              <h4 className="text-[9px] text-brand-cyan/50 uppercase tracking-widest font-mono font-bold text-center mb-2 absolute top-0 w-full left-0">
                 // SEMIFINALES
               </h4>
               <MatchNode match={semifinals[0]} />
               <MatchNode match={semifinals[1]} />
             </div>
             <div className="hidden md:flex flex-col justify-center w-8 py-32">
-              <div className="h-1/2 border-r border-t border-b border-[#018ABE]/40 rounded-r-lg w-full" />
+              <div className="h-1/2 border-r border-t border-b border-brand-cyan/30 rounded-r-lg w-full" />
             </div>
           </>
         )}
@@ -357,7 +357,7 @@ export function KnockoutBracket({ matches, totalTeams = 0 }: KnockoutBracketProp
         {/* FINAL */}
         {final.length > 0 && (
           <div className="flex-1 flex flex-col justify-center relative z-10">
-            <h4 className="text-[9px] text-[#018ABE] uppercase tracking-widest font-mono font-bold text-center mb-2 absolute top-0 w-full left-0">
+            <h4 className="text-[9px] text-brand-yellow uppercase tracking-widest font-mono font-bold text-center mb-2 absolute top-0 w-full left-0">
               // FINAL
             </h4>
             <MatchNode match={final[0]} isFinal />
@@ -369,7 +369,7 @@ export function KnockoutBracket({ matches, totalTeams = 0 }: KnockoutBracketProp
       {/* Third place below tree */}
       {thirdPlace.length > 0 && (
         <div className="max-w-[350px] mx-auto mt-8">
-          <h4 className="text-[9px] text-[#97CADB] uppercase tracking-widest font-mono font-bold text-center mb-3">
+          <h4 className="text-[9px] text-amber-400/70 uppercase tracking-widest font-mono font-bold text-center mb-3">
             Tercer Puesto
           </h4>
           <MatchNode match={thirdPlace[0]} />
@@ -387,8 +387,8 @@ export function KnockoutBracket({ matches, totalTeams = 0 }: KnockoutBracketProp
           onClick={() => setView("tree")}
           className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-[11px] font-bold uppercase tracking-wider transition-all border ${
             view === "tree"
-              ? "bg-[#018ABE]/20 border-[#018ABE] text-white"
-              : "bg-[#001B48] border-[#018ABE]/30 text-[#97CADB] hover:text-white hover:bg-[#018ABE]/10"
+              ? "bg-[#0055cc]/30 border-[#0055cc]/60 text-[#00f0ff]"
+              : "bg-white/5 border-white/10 text-white/40 hover:text-white/70"
           }`}
         >
           <GitMerge size={12} />
@@ -398,8 +398,8 @@ export function KnockoutBracket({ matches, totalTeams = 0 }: KnockoutBracketProp
           onClick={() => setView("rounds")}
           className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-[11px] font-bold uppercase tracking-wider transition-all border ${
             view === "rounds"
-              ? "bg-[#018ABE]/20 border-[#018ABE] text-white"
-              : "bg-[#001B48] border-[#018ABE]/30 text-[#97CADB] hover:text-white hover:bg-[#018ABE]/10"
+              ? "bg-[#0055cc]/30 border-[#0055cc]/60 text-[#00f0ff]"
+              : "bg-white/5 border-white/10 text-white/40 hover:text-white/70"
           }`}
         >
           <List size={12} />
@@ -414,12 +414,12 @@ export function KnockoutBracket({ matches, totalTeams = 0 }: KnockoutBracketProp
           return (
             <div key={idx} className="w-full relative">
               <div className="flex items-center justify-center gap-4 mb-8">
-                <div className="h-px w-16 bg-gradient-to-r from-transparent to-[#018ABE]/50" />
-                <h3 className="text-[#018ABE] font-black uppercase tracking-widest text-lg drop-shadow-[0_0_15px_rgba(1,138,190,0.4)] flex items-center gap-2">
+                <div className="h-px w-16 bg-gradient-to-r from-transparent to-[#00f0ff]/50" />
+                <h3 className="text-[#00f0ff] font-black uppercase tracking-widest text-lg drop-shadow-[0_0_15px_rgba(0,240,255,0.4)] flex items-center gap-2">
                   <Trophy size={20} />
                   {cupName}
                 </h3>
-                <div className="h-px w-16 bg-gradient-to-l from-transparent to-[#018ABE]/50" />
+                <div className="h-px w-16 bg-gradient-to-l from-transparent to-[#00f0ff]/50" />
               </div>
 
               {view === "tree" ? <TreeView cupMatches={cupMatches} /> : <RoundsView cupMatches={cupMatches} />}

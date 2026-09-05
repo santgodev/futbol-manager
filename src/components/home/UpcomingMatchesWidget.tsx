@@ -22,13 +22,13 @@ function getRelativeLabel(dateStr: string | null): { label: string; isToday: boo
 
 const TeamLogo = ({ logoUrl, name, size = 40 }: { logoUrl?: string | null; name?: string; size?: number }) => (
   <div
-    className="rounded-full bg-[#001B48] border border-[#018ABE]/30 flex items-center justify-center shrink-0 overflow-hidden shadow-sm"
+    className="rounded-full bg-[#151921] border border-[#2D3342] flex items-center justify-center shrink-0 overflow-hidden"
     style={{ width: size, height: size }}
   >
     {logoUrl ? (
       <Image src={logoUrl} alt={name ?? ""} width={size} height={size} className="object-cover" unoptimized />
     ) : (
-      <Shield size={size * 0.4} className="text-[#018ABE]/50" />
+      <Shield size={size * 0.4} className="text-slate-600" />
     )}
   </div>
 );
@@ -36,16 +36,16 @@ const TeamLogo = ({ logoUrl, name, size = 40 }: { logoUrl?: string | null; name?
 export const UpcomingMatchesWidget = ({ matches = [] }: { matches?: any[] }) => {
   if (matches.length === 0) {
     return (
-      <div className="w-full p-6 flex flex-col h-full relative overflow-hidden rounded-[2rem] bg-[#02457A]/40 backdrop-blur-xl border border-[#018ABE]/30 shadow-[0_20px_50px_rgba(0,0,0,0.3)]">
-        <div className="flex items-center gap-3 mb-6">
-          <div className="p-2 rounded-2xl bg-[#001B48] border border-[#018ABE]/30 shadow-sm">
-            <CalendarDays className="text-[#018ABE]" size={16} />
+      <div className="w-full p-5 flex flex-col h-full relative overflow-hidden rounded-xl bg-[#1A1D24] border border-[#2D3342] border-l-[4px] border-l-[#0088ff] shadow-xl">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="p-1.5 rounded-lg bg-[#222732] border border-[#2D3342]">
+            <CalendarDays className="text-[#0088ff]" size={14} />
           </div>
-          <h3 className="text-xs font-bold uppercase tracking-widest text-white">
+          <h3 className="text-xs font-bold uppercase tracking-widest text-slate-200">
             Próximos Partidos
           </h3>
         </div>
-        <div className="flex-1 flex items-center justify-center text-center text-[10px] uppercase tracking-widest text-[#97CADB]/60 font-bold border border-dashed border-[#018ABE]/30 rounded-[1.5rem] py-6">
+        <div className="flex-1 flex items-center justify-center text-center text-[10px] uppercase tracking-widest text-slate-500 font-bold border border-dashed border-[#2D3342] rounded-xl py-6">
           No hay partidos programados
         </div>
       </div>
@@ -53,14 +53,14 @@ export const UpcomingMatchesWidget = ({ matches = [] }: { matches?: any[] }) => 
   }
 
   return (
-    <div className="w-full p-6 flex flex-col h-full relative overflow-hidden rounded-[2rem] bg-[#02457A]/40 backdrop-blur-xl border border-[#018ABE]/30 shadow-[0_20px_50px_rgba(0,0,0,0.3)]">
+    <div className="w-full p-5 flex flex-col h-full relative overflow-hidden rounded-xl bg-[#1A1D24] border border-[#2D3342] border-l-[4px] border-l-[#0088ff] shadow-xl">
 
       {/* Header */}
-      <div className="flex items-center gap-3 mb-6 relative z-10">
-        <div className="p-2 rounded-2xl bg-[#001B48] border border-[#018ABE]/30 shadow-sm">
-          <CalendarDays className="text-[#018ABE]" size={16} />
+      <div className="flex items-center gap-3 mb-4 relative z-10">
+        <div className="p-1.5 rounded-lg bg-[#222732] border border-[#2D3342]">
+          <CalendarDays className="text-[#0088ff]" size={14} />
         </div>
-        <h3 className="text-xs font-bold uppercase tracking-widest text-white">
+        <h3 className="text-xs font-bold uppercase tracking-widest text-slate-200">
           Próximos Partidos
         </h3>
       </div>
@@ -72,31 +72,31 @@ export const UpcomingMatchesWidget = ({ matches = [] }: { matches?: any[] }) => 
           return (
             <div
               key={m.id}
-              className="group flex items-center justify-between py-2.5 px-4 rounded-full border border-[#018ABE]/20 bg-[#02457A]/80 hover:bg-[#001B48] hover:shadow-md transition-all cursor-pointer"
+              className="group flex items-center justify-between py-2 px-3 rounded-xl border border-[#2D3342] bg-[#151921] hover:bg-[#222732] transition-colors"
             >
-              <div className="flex items-center gap-3 flex-1 justify-end min-w-0">
-                <span className="text-xs font-bold text-[#D6E8EE] uppercase truncate text-right hidden sm:block max-w-[90px] group-hover:text-white transition-colors">
+              <div className="flex items-center gap-2 flex-1 justify-end min-w-0">
+                <span className="text-[10px] font-semibold text-slate-300 uppercase truncate text-right hidden sm:block max-w-[80px]">
                   {m.home_team?.name}
                 </span>
-                <span className="text-xs font-bold text-[#D6E8EE] uppercase truncate text-right sm:hidden max-w-[60px] group-hover:text-white transition-colors">
+                <span className="text-[10px] font-semibold text-slate-300 uppercase truncate text-right sm:hidden max-w-[60px]">
                   {m.home_team?.name?.substring(0, 3)}
                 </span>
-                <TeamLogo logoUrl={m.home_team?.logo_url} name={m.home_team?.name} size={32} />
+                <TeamLogo logoUrl={m.home_team?.logo_url} name={m.home_team?.name} size={28} />
               </div>
 
-              <div className="px-4 flex flex-col items-center shrink-0">
-                <span className="text-[9px] font-bold text-[#97CADB] uppercase tracking-widest">{label}</span>
-                <span className="text-xs font-black text-[#018ABE] font-mono mt-0.5 group-hover:text-white transition-colors">
+              <div className="px-2 flex flex-col items-center shrink-0">
+                <span className="text-[9px] font-medium text-slate-500">{label}</span>
+                <span className="text-[11px] font-bold text-[#0088ff] font-mono">
                   {m.match_time ? m.match_time.slice(0, 5) : "TBD"}
                 </span>
               </div>
 
-              <div className="flex items-center gap-3 flex-1 justify-start min-w-0">
-                <TeamLogo logoUrl={m.away_team?.logo_url} name={m.away_team?.name} size={32} />
-                <span className="text-xs font-bold text-[#D6E8EE] uppercase truncate text-left hidden sm:block max-w-[90px] group-hover:text-white transition-colors">
+              <div className="flex items-center gap-2 flex-1 justify-start min-w-0">
+                <TeamLogo logoUrl={m.away_team?.logo_url} name={m.away_team?.name} size={28} />
+                <span className="text-[10px] font-semibold text-slate-300 uppercase truncate text-left hidden sm:block max-w-[80px]">
                   {m.away_team?.name}
                 </span>
-                <span className="text-xs font-bold text-[#D6E8EE] uppercase truncate text-left sm:hidden max-w-[60px] group-hover:text-white transition-colors">
+                <span className="text-[10px] font-semibold text-slate-300 uppercase truncate text-left sm:hidden max-w-[60px]">
                   {m.away_team?.name?.substring(0, 3)}
                 </span>
               </div>

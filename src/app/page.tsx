@@ -5,7 +5,7 @@ import { HomeFooter } from "@/components/home/HomeFooter";
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen bg-[#001B48] text-[#D6E8EE] font-sans selection:bg-[#018ABE] selection:text-white relative">
+    <div className="min-h-screen bg-[#05080b] text-[#f7f9fb] font-sans selection:bg-[#0a84ff] selection:text-white relative">
       <Header />
       
       <HomeHero />

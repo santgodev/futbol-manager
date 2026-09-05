@@ -46,19 +46,19 @@ function statusBadge(status: string | null) {
   const s = (status || "").toUpperCase();
   if (s === "FINISHED" || s === "FINALIZADO" || s === "RESULTADO_OFICIAL")
     return (
-      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#97CADB]/10 border border-[#97CADB]/25 text-[#97CADB] text-[10px] font-bold uppercase tracking-wider whitespace-nowrap">
+      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/25 text-emerald-400 text-[10px] font-bold uppercase tracking-wider whitespace-nowrap">
         Resultado oficial
       </span>
     );
   if (s === "LIVE" || s === "IN_PLAY" || s === "EN_JUEGO")
     return (
-      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#D6E8EE]/20 border border-[#D6E8EE]/40 text-[#D6E8EE] text-[10px] font-bold uppercase tracking-wider whitespace-nowrap">
-        <span className="w-1.5 h-1.5 rounded-full bg-[#D6E8EE] animate-pulse" />
+      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-[#00f0ff]/10 border border-[#00f0ff]/30 text-[#00f0ff] text-[10px] font-bold uppercase tracking-wider whitespace-nowrap">
+        <span className="w-1.5 h-1.5 rounded-full bg-[#00f0ff] animate-pulse" />
         En juego
       </span>
     );
   return (
-    <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-[#97CADB]/50 text-[10px] font-bold uppercase tracking-wider whitespace-nowrap">
+    <span className="inline-flex items-center gap-1 px-3 py-1 rounded-lg bg-white/5 border border-white/10 text-white/40 text-[10px] font-bold uppercase tracking-wider whitespace-nowrap">
       Programado
     </span>
   );
@@ -132,14 +132,14 @@ export function FixtureTab({ matches }: FixtureTabProps) {
       <div className="relative">
         <Search
           size={14}
-          className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#018ABE] pointer-events-none"
+          className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#00f0ff]/40 pointer-events-none"
         />
         <input
           type="text"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Buscar equipo, sede o grupo... (mín. 3 letras)"
-          className="w-full bg-[#001B48] border border-[#018ABE]/30 rounded-full pl-9 pr-4 py-2.5 text-[12px] text-[#D6E8EE] placeholder:text-[#02457A] focus:outline-none focus:border-[#018ABE] transition-colors shadow-inner"
+          className="w-full bg-[#0a1122]/80 border border-[#00f0ff]/10 rounded-xl pl-9 pr-4 py-2.5 text-[12px] text-white/80 placeholder-white/25 focus:outline-none focus:border-[#00f0ff]/40 transition-colors"
         />
       </div>
 
@@ -160,27 +160,27 @@ export function FixtureTab({ matches }: FixtureTabProps) {
         return (
           <div
             key={roundKey}
-            className="rounded-[2rem] border border-[#018ABE]/30 overflow-hidden shadow-[0_10px_30px_rgba(0,0,0,0.2)]"
-            style={{ background: "rgba(2,69,122,0.4)", backdropFilter: "blur(16px)" }}
+            className="rounded-2xl border border-[#00f0ff]/10 overflow-hidden"
+            style={{ background: "rgba(5,8,17,0.85)", backdropFilter: "blur(16px)" }}
           >
             {/* Round header */}
             <button
               onClick={() => toggleRound(roundKey)}
-              className="w-full flex items-center justify-between px-6 py-4 bg-[#001B48]/70 border-b border-[#018ABE]/30 hover:bg-[#001B48] transition-colors"
+              className="w-full flex items-center justify-between px-5 py-4 bg-[#0a1526]/70 border-b border-[#00f0ff]/10 hover:bg-[#0a1526] transition-colors"
             >
               <div className="flex items-center gap-3">
-                <span className="w-2 h-2 rounded-full bg-[#018ABE] shadow-[0_0_8px_#018ABE]" />
+                <span className="w-2 h-2 rounded-full bg-[#00f0ff] shadow-[0_0_8px_#00f0ff]" />
                 <span className="text-[13px] font-black uppercase tracking-[0.15em] text-white">
                   {roundKey}
                 </span>
-                <span className="text-[10px] text-[#97CADB] font-mono ml-1">
+                <span className="text-[10px] text-white/30 font-mono ml-1">
                   ({roundMatches.length} partidos)
                 </span>
               </div>
               {isCollapsed ? (
-                <ChevronDown size={16} className="text-[#018ABE]" />
+                <ChevronDown size={16} className="text-[#00f0ff]/50" />
               ) : (
-                <ChevronUp size={16} className="text-[#018ABE]" />
+                <ChevronUp size={16} className="text-[#00f0ff]/50" />
               )}
             </button>
 
@@ -189,17 +189,17 @@ export function FixtureTab({ matches }: FixtureTabProps) {
               <div className="overflow-x-auto">
                 <table className="w-full border-collapse">
                   <thead>
-                    <tr className="border-b border-[#018ABE]/30">
-                      <th className="py-2.5 px-6 text-[9px] text-[#97CADB] font-black uppercase tracking-widest text-left min-w-[120px]">
+                    <tr className="border-b border-white/5">
+                      <th className="py-2.5 px-4 text-[9px] text-[#00f0ff]/50 font-black uppercase tracking-widest text-left min-w-[120px]">
                         Detalles
                       </th>
-                      <th className="py-2.5 px-3 text-[9px] text-[#97CADB] font-black uppercase tracking-widest text-left min-w-[80px]">
+                      <th className="py-2.5 px-3 text-[9px] text-[#00f0ff]/50 font-black uppercase tracking-widest text-left min-w-[80px]">
                         Grupo
                       </th>
-                      <th className="py-2.5 px-3 text-[9px] text-[#97CADB] font-black uppercase tracking-widest text-left">
+                      <th className="py-2.5 px-3 text-[9px] text-[#00f0ff]/50 font-black uppercase tracking-widest text-left">
                         Partido y Sets
                       </th>
-                      <th className="py-2.5 px-6 text-[9px] text-[#97CADB] font-black uppercase tracking-widest text-right min-w-[130px]">
+                      <th className="py-2.5 px-4 text-[9px] text-[#00f0ff]/50 font-black uppercase tracking-widest text-right min-w-[130px]">
                         Estado
                       </th>
                     </tr>
@@ -223,19 +223,19 @@ export function FixtureTab({ matches }: FixtureTabProps) {
                       return (
                         <tr
                           key={match.id}
-                          className="border-b border-[#018ABE]/10 last:border-0 hover:bg-[#001B48]/50 transition-colors"
+                          className="border-b border-white/5 last:border-0 hover:bg-white/[0.02] transition-colors"
                         >
                           {/* Detalles: fecha, hora, cancha */}
-                          <td className="py-3.5 px-6 align-top">
+                          <td className="py-3.5 px-4 align-top">
                             <div className="flex flex-col gap-0.5">
-                              <span className="text-[11px] font-mono text-[#D6E8EE] whitespace-nowrap">
+                              <span className="text-[11px] font-mono text-white/70 whitespace-nowrap">
                                 {formatDate(match.match_date)}{" "}
                                 {formatTime(match.match_time)
                                   ? formatTime(match.match_time)
                                   : ""}
                               </span>
                               {match.venue && (
-                                <span className="flex items-center gap-1 text-[10px] text-[#018ABE]">
+                                <span className="flex items-center gap-1 text-[10px] text-[#00f0ff]/60">
                                   <MapPin size={9} />
                                   {match.venue}
                                 </span>
@@ -246,11 +246,11 @@ export function FixtureTab({ matches }: FixtureTabProps) {
                           {/* Grupo */}
                           <td className="py-3.5 px-3 align-middle">
                             {match.group_name ? (
-                              <span className="text-[10px] font-black uppercase tracking-wider text-[#018ABE]">
+                              <span className="text-[10px] font-black uppercase tracking-wider text-[#00f0ff]/70">
                                 Grupo {match.group_name}
                               </span>
                             ) : (
-                              <span className="text-[10px] text-[#97CADB]/50">—</span>
+                              <span className="text-[10px] text-white/20">—</span>
                             )}
                           </td>
 
@@ -258,14 +258,14 @@ export function FixtureTab({ matches }: FixtureTabProps) {
                           <td className="py-3.5 px-3 align-middle">
                             <div className="flex flex-col gap-1.5 min-w-[260px]">
                               {/* Home row */}
-                              <div className="flex items-center gap-3 bg-[#001B48]/50 px-3 py-2 rounded-full border border-[#018ABE]/10">
+                              <div className="flex items-center gap-3">
                                 <span
                                   className={`text-[11px] font-black uppercase tracking-wider flex-1 ${
                                     homeWon
                                       ? "text-white"
                                       : isFinished
-                                      ? "text-[#97CADB]"
-                                      : "text-[#D6E8EE]"
+                                      ? "text-white/40"
+                                      : "text-white/80"
                                   }`}
                                 >
                                   {match.home_team?.name || "TBD"}
@@ -273,22 +273,22 @@ export function FixtureTab({ matches }: FixtureTabProps) {
                                 <span
                                   className={`text-[13px] font-black font-mono min-w-[18px] text-center ${
                                     homeWon
-                                      ? "text-[#D6E8EE]"
+                                      ? "text-white"
                                       : isFinished
-                                      ? "text-[#97CADB]"
-                                      : "text-[#97CADB]"
+                                      ? "text-white/30"
+                                      : "text-white/50"
                                   }`}
                                 >
                                   {homeScore !== null ? homeScore : "—"}
                                 </span>
-                                <span className="text-[#018ABE] text-[10px] font-bold">:</span>
+                                <span className="text-white/20 text-[10px] font-bold">:</span>
                                 <span
                                   className={`text-[13px] font-black font-mono min-w-[18px] text-center ${
                                     awayWon
-                                      ? "text-[#D6E8EE]"
+                                      ? "text-white"
                                       : isFinished
-                                      ? "text-[#97CADB]"
-                                      : "text-[#97CADB]"
+                                      ? "text-white/30"
+                                      : "text-white/50"
                                   }`}
                                 >
                                   {awayScore !== null ? awayScore : "—"}
@@ -298,8 +298,8 @@ export function FixtureTab({ matches }: FixtureTabProps) {
                                     awayWon
                                       ? "text-white"
                                       : isFinished
-                                      ? "text-[#97CADB]"
-                                      : "text-[#D6E8EE]"
+                                      ? "text-white/40"
+                                      : "text-white/80"
                                   }`}
                                 >
                                   {match.away_team?.name || "TBD"}
@@ -309,7 +309,7 @@ export function FixtureTab({ matches }: FixtureTabProps) {
                           </td>
 
                           {/* Estado */}
-                          <td className="py-3.5 px-6 align-middle text-right">
+                          <td className="py-3.5 px-4 align-middle text-right">
                             {statusBadge(match.status)}
                           </td>
                         </tr>
