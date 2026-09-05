@@ -138,7 +138,23 @@ export async function createTeam(teamData: {
 }
 
 
-export async function createTournament(tournamentData: any) {
+export async function createTournament(tournamentData: {
+  name: string;
+  location: string;
+  max_teams?: number;
+  description?: string;
+  format?: string;
+  sport?: string;
+  is_double_round?: boolean;
+  registration_status?: string;
+  categories?: {
+    name: string;
+    gender?: string;
+    min_age?: number;
+    max_age?: number | null;
+    display_order?: number;
+  }[];
+}) {
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error("No autorizado");
@@ -149,12 +165,14 @@ export async function createTournament(tournamentData: any) {
     .replace(/[^\w\s-]/g, '')
     .replace(/[\s_-]+/g, '-')
     .replace(/^-+|-+$/g, '');
+
+  const { categories, ...restData } = tournamentData;
   
   const { data, error } = await supabase
     .from("tournaments")
     .insert({
-      status: 'PRÓXIMAMENTE', // Default value
-      ...tournamentData,
+      status: 'PRÓXIMAMENTE',
+      ...restData,
       slug,
       created_by: user.id
     })
@@ -162,23 +180,166 @@ export async function createTournament(tournamentData: any) {
     .single();
 
   if (error) throw new Error(error.message);
+
+  // Insert categories if provided
+  if (categories && categories.length > 0) {
+    const categoryRows = categories.map((cat, idx) => ({
+      tournament_id: data.id,
+      name: cat.name,
+      gender: cat.gender || 'MIXED',
+      min_age: cat.min_age ?? 0,
+      max_age: cat.max_age ?? null,
+      display_order: cat.display_order ?? idx,
+    }));
+
+    const { error: catError } = await supabase
+      .from("tournament_categories")
+      .insert(categoryRows);
+
+    if (catError) throw new Error("Torneo creado, pero error guardando categorías: " + catError.message);
+  }
   
   return { success: true, tournament: data };
 }
 
-export async function addTeamToTournament(tournamentId: string, teamId: string, groupName?: string) {
+
+export async function addTeamToTournament(tournamentId: string, teamId: string, groupName?: string, categoryId?: string | null) {
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error("No autorizado");
 
   const { error } = await supabase
     .from("tournament_teams")
-    .insert({ tournament_id: tournamentId, team_id: teamId, group_name: groupName || null });
+    .insert({
+      tournament_id: tournamentId,
+      team_id: teamId,
+      group_name: groupName || null,
+      category_id: categoryId || null,
+    });
 
   if (error) throw new Error(error.message);
   
   return { success: true };
 }
+
+// ─── Category Management ─────────────────────────────────────────────────────
+
+export async function createCategory(tournamentId: string, data: {
+  name: string;
+  gender?: string;
+  min_age?: number;
+  max_age?: number | null;
+  display_order?: number;
+}) {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error("No autorizado");
+
+  const { data: cat, error } = await supabase
+    .from("tournament_categories")
+    .insert({
+      tournament_id: tournamentId,
+      name: data.name,
+      gender: data.gender || 'MIXED',
+      min_age: data.min_age ?? 0,
+      max_age: data.max_age ?? null,
+      display_order: data.display_order ?? 0,
+    })
+    .select()
+    .single();
+
+  if (error) throw new Error(error.message);
+  return { success: true, category: cat };
+}
+
+export async function updateCategoryData(categoryId: string, updates: {
+  name?: string;
+  gender?: string;
+  min_age?: number;
+  max_age?: number | null;
+}) {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error("No autorizado");
+
+  const { error } = await supabase
+    .from("tournament_categories")
+    .update(updates)
+    .eq("id", categoryId);
+
+  if (error) throw new Error(error.message);
+  return { success: true };
+}
+
+export async function deleteCategory(categoryId: string) {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error("No autorizado");
+
+  const { error } = await supabase
+    .from("tournament_categories")
+    .delete()
+    .eq("id", categoryId);
+
+  if (error) throw new Error(error.message);
+  return { success: true };
+}
+
+export async function addTeamToCategory(
+  tournamentId: string,
+  teamId: string,
+  categoryId: string,
+  groupName?: string
+) {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error("No autorizado");
+
+  // Check if already enrolled in this specific category
+  const { data: existing } = await supabase
+    .from("tournament_teams")
+    .select("id")
+    .eq("tournament_id", tournamentId)
+    .eq("team_id", teamId)
+    .eq("category_id", categoryId)
+    .maybeSingle();
+
+  if (existing) throw new Error("Este equipo ya está inscrito en esta categoría.");
+
+  const { error } = await supabase
+    .from("tournament_teams")
+    .insert({
+      tournament_id: tournamentId,
+      team_id: teamId,
+      category_id: categoryId,
+      group_name: groupName || null,
+    });
+
+  if (error) throw new Error(error.message);
+  return { success: true };
+}
+
+export async function removeTeamFromCategory(
+  tournamentId: string,
+  teamId: string,
+  categoryId: string
+) {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error("No autorizado");
+
+  const { error } = await supabase
+    .from("tournament_teams")
+    .delete()
+    .eq("tournament_id", tournamentId)
+    .eq("team_id", teamId)
+    .eq("category_id", categoryId);
+
+  if (error) throw new Error(error.message);
+  return { success: true };
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 
 export async function removeTeamFromTournament(tournamentId: string, teamId: string) {
   const supabase = createClient();
@@ -196,47 +357,71 @@ export async function removeTeamFromTournament(tournamentId: string, teamId: str
   return { success: true };
 }
 
-export async function removeTeamFromGroup(tournamentId: string, teamId: string) {
+export async function removeTeamFromGroup(tournamentId: string, teamId: string, categoryId?: string | null) {
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error("No autorizado");
 
-  const { error } = await supabase
+  let query = supabase
     .from("tournament_teams")
     .update({ group_name: null })
     .eq("tournament_id", tournamentId)
     .eq("team_id", teamId);
 
+  if (categoryId) {
+    query = query.eq("category_id", categoryId);
+  } else {
+    query = query.is("category_id", null);
+  }
+
+  const { error } = await query;
+
   if (error) throw new Error(error.message);
   
   return { success: true };
 }
 
-export async function assignTeamToGroup(tournamentId: string, teamId: string, groupName: string) {
+export async function assignTeamToGroup(tournamentId: string, teamId: string, groupName: string, categoryId?: string | null) {
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error("No autorizado");
 
-  const { error } = await supabase
+  let query = supabase
     .from("tournament_teams")
     .update({ group_name: groupName })
     .eq("tournament_id", tournamentId)
     .eq("team_id", teamId);
 
+  if (categoryId) {
+    query = query.eq("category_id", categoryId);
+  } else {
+    query = query.is("category_id", null);
+  }
+
+  const { error } = await query;
+
   if (error) throw new Error(error.message);
   
   return { success: true };
 }
 
-export async function generateRandomGroups(tournamentId: string, groupSize: number) {
+export async function generateRandomGroups(tournamentId: string, groupSize: number, categoryId?: string | null) {
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error("No autorizado");
 
-  const { data: teams, error: teamsError } = await supabase
+  let query = supabase
     .from("tournament_teams")
     .select("team_id")
     .eq("tournament_id", tournamentId);
+
+  if (categoryId) {
+    query = query.eq("category_id", categoryId);
+  } else {
+    query = query.is("category_id", null);
+  }
+
+  const { data: teams, error: teamsError } = await query;
 
   if (teamsError) throw new Error(teamsError.message);
   if (!teams || teams.length === 0) throw new Error("No hay equipos inscritos para generar grupos.");
@@ -262,6 +447,7 @@ export async function generateRandomGroups(tournamentId: string, groupSize: numb
     updates.push({
       tournament_id: tournamentId,
       team_id: shuffled[i].team_id,
+      category_id: categoryId || null,
       group_name: groupName
     });
   }
@@ -274,14 +460,18 @@ export async function generateRandomGroups(tournamentId: string, groupSize: numb
     updates.push({
       tournament_id: tournamentId,
       team_id: shuffled[i].team_id,
+      category_id: categoryId || null,
       group_name: groupName
     });
     remainderIndex++;
   }
 
+  // We must update existing rows instead of upserting because upsert might create new rows if the constraint is not perfectly matched by the updates objects (we'd need all non-null fields like created_at etc. to not be overwritten if it acts as insert).
+  // Actually, tournament_teams has a composite unique constraint: `tournament_teams_tournament_id_team_id_category_id_key`
+  // And `upsert` needs that exact constraint.
   const { error: upsertError } = await supabase
     .from("tournament_teams")
-    .upsert(updates, { onConflict: "tournament_id,team_id" });
+    .upsert(updates, { onConflict: "tournament_id,team_id,category_id", ignoreDuplicates: false });
 
   if (upsertError) throw new Error(upsertError.message);
 
@@ -658,7 +848,7 @@ export async function updateTeamLogo(teamId: string, logoUrl: string) {
   return { success: true };
 }
 
-export async function generateKnockoutBracket(tournamentId: string, teamsCount: 2 | 4 | 8) {
+export async function generateKnockoutBracket(tournamentId: string, categoryId: string | null | undefined, cupsConfig: { name: string, teamsCount: number }[]) {
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error("No autorizado");
@@ -684,10 +874,18 @@ export async function generateKnockoutBracket(tournamentId: string, teamsCount: 
 
   if (gmErr) throw new Error("Error consultando partidos de fase de grupos");
 
-  const { data: registeredTeams, error: rtErr } = await supabase
+  let rtQuery = supabase
     .from('tournament_teams')
     .select('team_id')
     .eq('tournament_id', tournamentId);
+    
+  if (categoryId) {
+    rtQuery = rtQuery.eq('category_id', categoryId);
+  } else {
+    rtQuery = rtQuery.is('category_id', null);
+  }
+
+  const { data: registeredTeams, error: rtErr } = await rtQuery;
 
   if (rtErr || !registeredTeams) throw new Error("Error consultando equipos inscritos");
 
@@ -721,12 +919,19 @@ export async function generateKnockoutBracket(tournamentId: string, teamsCount: 
     }
   }
 
-  // 2. Validar que no haya partidos eliminatorios ya finalizados
-  const { data: existingKnockouts, error: existingErr } = await supabase
+  let existingQuery = supabase
     .from('matches')
     .select('id, status')
     .eq('tournament_id', tournamentId)
     .eq('is_knockout', true);
+
+  if (categoryId) {
+    existingQuery = existingQuery.eq('category_id', categoryId);
+  } else {
+    existingQuery = existingQuery.is('category_id', null);
+  }
+
+  const { data: existingKnockouts, error: existingErr } = await existingQuery;
     
   if (existingErr) throw new Error("Error verificando bracket existente");
   
@@ -737,29 +942,44 @@ export async function generateKnockoutBracket(tournamentId: string, teamsCount: 
 
   // Borrar los existentes no finalizados
   if (existingKnockouts.length > 0) {
-    await supabase
+    let delQuery = supabase
       .from('matches')
       .delete()
       .eq('tournament_id', tournamentId)
       .eq('is_knockout', true);
+      
+    if (categoryId) {
+      delQuery = delQuery.eq('category_id', categoryId);
+    } else {
+      delQuery = delQuery.is('category_id', null);
+    }
+
+    await delQuery;
   }
 
   let topTeams: string[] = [];
 
+  const totalTeamsCount = cupsConfig.reduce((acc, c) => acc + c.teamsCount, 0);
+
   if (tournament.format === 'PLAYOFFS') {
-    // Para eliminación directa, tomamos los equipos inscritos directamente
-    const { data: ttTeams, error: ttErr } = await supabase
+    let ttQuery = supabase
       .from('tournament_teams')
       .select('team_id')
-      .eq('tournament_id', tournamentId)
-      .limit(teamsCount);
+      .eq('tournament_id', tournamentId);
+      
+    if (categoryId) {
+      ttQuery = ttQuery.eq('category_id', categoryId);
+    } else {
+      ttQuery = ttQuery.is('category_id', null);
+    }
+
+    const { data: ttTeams, error: ttErr } = await ttQuery.limit(totalTeamsCount);
 
     if (ttErr || !ttTeams) throw new Error("Error obteniendo los equipos inscritos");
-    if (ttTeams.length < teamsCount) throw new Error(`No hay suficientes equipos inscritos en el torneo. Se requieren ${teamsCount} pero solo hay ${ttTeams.length}.`);
+    if (ttTeams.length < totalTeamsCount) throw new Error(`No hay suficientes equipos inscritos en el torneo. Se requieren ${totalTeamsCount} pero solo hay ${ttTeams.length}.`);
     
     topTeams = ttTeams.map((t: any) => t.team_id);
   } else {
-    // Obtener todas las posiciones de todos los grupos
     const { data: standings, error: standingsErr } = await supabase
       .from('tournament_standings_view')
       .select('team_id, group_name')
@@ -769,20 +989,22 @@ export async function generateKnockoutBracket(tournamentId: string, teamsCount: 
       .order('goals_for', { ascending: false });
 
     if (standingsErr) throw new Error("Error obteniendo tabla de posiciones");
+    
+    // Filtramos los standings a solo los equipos de esta categoría si aplica
+    const validTeamIds = new Set(registeredTeams.map((rt: any) => rt.team_id));
+    const filteredStandings = standings.filter((st: any) => validTeamIds.has(st.team_id));
 
     // Agrupar los standings por grupo
     const grouped: Record<string, any[]> = {};
-    for (const st of standings) {
+    for (const st of filteredStandings) {
       const g = st.group_name || 'UNASSIGNED';
       if (!grouped[g]) grouped[g] = [];
       grouped[g].push(st.team_id);
     }
 
-    // Extraer en orden: Todos los 1ros, luego todos los 2dos, luego los 3ros...
     const interleavedTeams = [];
-    let maxRank = Math.max(...Object.values(grouped).map(g => g.length));
+    let maxRank = Math.max(0, ...Object.values(grouped).map(g => g.length));
     
-    // Para que los cruces (1A vs 2B) sean más naturales, ordenamos los grupos alfabéticamente
     const groupKeys = Object.keys(grouped).sort();
 
     for (let rank = 0; rank < maxRank; rank++) {
@@ -793,59 +1015,69 @@ export async function generateKnockoutBracket(tournamentId: string, teamsCount: 
       }
     }
 
-    if (interleavedTeams.length < teamsCount) throw new Error(`No hay suficientes equipos. Se requieren ${teamsCount}.`);
+    if (interleavedTeams.length < totalTeamsCount) throw new Error(`No hay suficientes equipos. Se requieren ${totalTeamsCount} pero hay ${interleavedTeams.length}.`);
 
-    topTeams = interleavedTeams.slice(0, teamsCount);
+    topTeams = interleavedTeams.slice(0, totalTeamsCount);
   }
 
-  // 3. Generar Árbol
+  // 3. Generar Árboles
   const matchesToInsert: any[] = [];
   
-  if (teamsCount === 2) {
-    matchesToInsert.push({
-      tournament_id: tournamentId,
-      stage: 'FINAL',
-      is_knockout: true,
-      home_team_id: topTeams[0],
-      away_team_id: topTeams[1],
-      bracket_order: 1,
-      status: 'SCHEDULED'
-    });
-    const { error: insertErr } = await supabase.from('matches').insert(matchesToInsert);
-    if (insertErr) throw new Error("Error insertando Final: " + insertErr.message);
-  } else if (teamsCount === 4) {
-    const { data: finalData, error: finalErr } = await supabase.from('matches').insert({
-      tournament_id: tournamentId, stage: 'FINAL', is_knockout: true, bracket_order: 1, status: 'SCHEDULED'
-    }).select().single();
-    if (finalErr) throw new Error("Error creando Final");
-    
-    matchesToInsert.push({ tournament_id: tournamentId, stage: 'SEMIFINAL', is_knockout: true, home_team_id: topTeams[0], away_team_id: topTeams[3], bracket_order: 1, status: 'SCHEDULED', next_match_id: finalData.id, next_match_home_side: true });
-    matchesToInsert.push({ tournament_id: tournamentId, stage: 'SEMIFINAL', is_knockout: true, home_team_id: topTeams[1], away_team_id: topTeams[2], bracket_order: 2, status: 'SCHEDULED', next_match_id: finalData.id, next_match_home_side: false });
-    
-    const { error: semiErr } = await supabase.from('matches').insert(matchesToInsert);
-    if (semiErr) throw new Error("Error creando Semifinales: " + semiErr.message);
-  } else if (teamsCount === 8) {
-    const { data: finalData, error: finalErr } = await supabase.from('matches').insert({
-      tournament_id: tournamentId, stage: 'FINAL', is_knockout: true, bracket_order: 1, status: 'SCHEDULED'
-    }).select().single();
-    if (finalErr) throw new Error("Error creando Final");
+  let sliceStartIndex = 0;
 
-    const { data: semiData, error: semiErr } = await supabase.from('matches').insert([
-      { tournament_id: tournamentId, stage: 'SEMIFINAL', is_knockout: true, bracket_order: 1, status: 'SCHEDULED', next_match_id: finalData.id, next_match_home_side: true },
-      { tournament_id: tournamentId, stage: 'SEMIFINAL', is_knockout: true, bracket_order: 2, status: 'SCHEDULED', next_match_id: finalData.id, next_match_home_side: false }
-    ]).select();
-    if (semiErr) throw new Error("Error creando Semis");
+  for (const cup of cupsConfig) {
+    const teamsCount = cup.teamsCount;
+    const cupTeams = topTeams.slice(sliceStartIndex, sliceStartIndex + teamsCount);
+    sliceStartIndex += teamsCount;
 
-    const semi1 = semiData?.find((s: any) => s.bracket_order === 1);
-    const semi2 = semiData?.find((s: any) => s.bracket_order === 2);
+    if (teamsCount === 2) {
+      matchesToInsert.push({
+        tournament_id: tournamentId,
+        category_id: categoryId || null,
+        cup_name: cup.name,
+        stage: 'FINAL',
+        is_knockout: true,
+        home_team_id: cupTeams[0],
+        away_team_id: cupTeams[1],
+        bracket_order: 1,
+        status: 'SCHEDULED'
+      });
+      const { error: insertErr } = await supabase.from('matches').insert(matchesToInsert.filter(m => m.cup_name === cup.name));
+      if (insertErr) throw new Error(`Error insertando Final de ${cup.name}: ${insertErr.message}`);
+    } else if (teamsCount === 4) {
+      const { data: finalData, error: finalErr } = await supabase.from('matches').insert({
+        tournament_id: tournamentId, category_id: categoryId || null, cup_name: cup.name, stage: 'FINAL', is_knockout: true, bracket_order: 1, status: 'SCHEDULED'
+      }).select().single();
+      if (finalErr) throw new Error(`Error creando Final de ${cup.name}`);
+      
+      matchesToInsert.push({ tournament_id: tournamentId, category_id: categoryId || null, cup_name: cup.name, stage: 'SEMIFINAL', is_knockout: true, home_team_id: cupTeams[0], away_team_id: cupTeams[3], bracket_order: 1, status: 'SCHEDULED', next_match_id: finalData.id, next_match_home_side: true });
+      matchesToInsert.push({ tournament_id: tournamentId, category_id: categoryId || null, cup_name: cup.name, stage: 'SEMIFINAL', is_knockout: true, home_team_id: cupTeams[1], away_team_id: cupTeams[2], bracket_order: 2, status: 'SCHEDULED', next_match_id: finalData.id, next_match_home_side: false });
+      
+      const { error: semiErr } = await supabase.from('matches').insert(matchesToInsert.filter(m => m.cup_name === cup.name && m.stage === 'SEMIFINAL'));
+      if (semiErr) throw new Error(`Error creando Semifinales de ${cup.name}: ${semiErr.message}`);
+    } else if (teamsCount === 8) {
+      const { data: finalData, error: finalErr } = await supabase.from('matches').insert({
+        tournament_id: tournamentId, category_id: categoryId || null, cup_name: cup.name, stage: 'FINAL', is_knockout: true, bracket_order: 1, status: 'SCHEDULED'
+      }).select().single();
+      if (finalErr) throw new Error(`Error creando Final de ${cup.name}`);
 
-    matchesToInsert.push({ tournament_id: tournamentId, stage: 'QUARTERFINAL', is_knockout: true, home_team_id: topTeams[0], away_team_id: topTeams[7], bracket_order: 1, status: 'SCHEDULED', next_match_id: semi1?.id, next_match_home_side: true });
-    matchesToInsert.push({ tournament_id: tournamentId, stage: 'QUARTERFINAL', is_knockout: true, home_team_id: topTeams[3], away_team_id: topTeams[4], bracket_order: 2, status: 'SCHEDULED', next_match_id: semi1?.id, next_match_home_side: false });
-    matchesToInsert.push({ tournament_id: tournamentId, stage: 'QUARTERFINAL', is_knockout: true, home_team_id: topTeams[1], away_team_id: topTeams[6], bracket_order: 3, status: 'SCHEDULED', next_match_id: semi2?.id, next_match_home_side: true });
-    matchesToInsert.push({ tournament_id: tournamentId, stage: 'QUARTERFINAL', is_knockout: true, home_team_id: topTeams[2], away_team_id: topTeams[5], bracket_order: 4, status: 'SCHEDULED', next_match_id: semi2?.id, next_match_home_side: false });
+      const { data: semiData, error: semiErr } = await supabase.from('matches').insert([
+        { tournament_id: tournamentId, category_id: categoryId || null, cup_name: cup.name, stage: 'SEMIFINAL', is_knockout: true, bracket_order: 1, status: 'SCHEDULED', next_match_id: finalData.id, next_match_home_side: true },
+        { tournament_id: tournamentId, category_id: categoryId || null, cup_name: cup.name, stage: 'SEMIFINAL', is_knockout: true, bracket_order: 2, status: 'SCHEDULED', next_match_id: finalData.id, next_match_home_side: false }
+      ]).select();
+      if (semiErr) throw new Error(`Error creando Semis de ${cup.name}`);
 
-    const { error: qfErr } = await supabase.from('matches').insert(matchesToInsert);
-    if (qfErr) throw new Error("Error creando Cuartos: " + qfErr.message);
+      const semi1 = semiData?.find((s: any) => s.bracket_order === 1);
+      const semi2 = semiData?.find((s: any) => s.bracket_order === 2);
+
+      matchesToInsert.push({ tournament_id: tournamentId, category_id: categoryId || null, cup_name: cup.name, stage: 'QUARTERFINAL', is_knockout: true, home_team_id: cupTeams[0], away_team_id: cupTeams[7], bracket_order: 1, status: 'SCHEDULED', next_match_id: semi1?.id, next_match_home_side: true });
+      matchesToInsert.push({ tournament_id: tournamentId, category_id: categoryId || null, cup_name: cup.name, stage: 'QUARTERFINAL', is_knockout: true, home_team_id: cupTeams[3], away_team_id: cupTeams[4], bracket_order: 2, status: 'SCHEDULED', next_match_id: semi1?.id, next_match_home_side: false });
+      matchesToInsert.push({ tournament_id: tournamentId, category_id: categoryId || null, cup_name: cup.name, stage: 'QUARTERFINAL', is_knockout: true, home_team_id: cupTeams[1], away_team_id: cupTeams[6], bracket_order: 3, status: 'SCHEDULED', next_match_id: semi2?.id, next_match_home_side: true });
+      matchesToInsert.push({ tournament_id: tournamentId, category_id: categoryId || null, cup_name: cup.name, stage: 'QUARTERFINAL', is_knockout: true, home_team_id: cupTeams[2], away_team_id: cupTeams[5], bracket_order: 4, status: 'SCHEDULED', next_match_id: semi2?.id, next_match_home_side: false });
+
+      const { error: qfErr } = await supabase.from('matches').insert(matchesToInsert.filter(m => m.cup_name === cup.name && m.stage === 'QUARTERFINAL'));
+      if (qfErr) throw new Error(`Error creando Cuartos de ${cup.name}: ${qfErr.message}`);
+    }
   }
 
   return { success: true };
@@ -1029,7 +1261,7 @@ export async function scheduleRound(
   return { success: true };
 }
 
-export async function generateRoundRobinFixture(tournamentId: string) {
+export async function generateRoundRobinFixture(tournamentId: string, categoryId?: string | null) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error("No autorizado");
@@ -1047,21 +1279,37 @@ export async function generateRoundRobinFixture(tournamentId: string) {
 
   const isDoubleRound = !!tournament.is_double_round;
 
-  const { count, error: countError } = await supabase
+  let matchesQuery = supabase
     .from("matches")
     .select("*", { count: 'exact', head: true })
     .eq("tournament_id", tournamentId)
     .eq("stage", "GROUP");
+
+  if (categoryId) {
+    matchesQuery = matchesQuery.eq("category_id", categoryId);
+  } else {
+    matchesQuery = matchesQuery.is("category_id", null);
+  }
+
+  const { count, error: countError } = await matchesQuery;
 
   if (countError) throw new Error("Error verificando partidos existentes.");
   if (count && count > 0) {
     throw new Error(`CONCURRENCIA/BLOQUEO: Ya existen ${count} partidos de Fase de Grupos. No se puede generar un fixture automático para evitar duplicados.`);
   }
 
-  const { data: tournamentTeams, error: teamsError } = await supabase
+  let teamsQuery = supabase
     .from("tournament_teams")
     .select("team_id, group_name")
     .eq("tournament_id", tournamentId);
+
+  if (categoryId) {
+    teamsQuery = teamsQuery.eq("category_id", categoryId);
+  } else {
+    teamsQuery = teamsQuery.is("category_id", null);
+  }
+
+  const { data: tournamentTeams, error: teamsError } = await teamsQuery;
 
   if (teamsError || !tournamentTeams) throw new Error("Error obteniendo los equipos del torneo.");
   if (tournamentTeams.length < 3) throw new Error("Se requieren al menos 3 equipos inscritos para generar un fixture automático.");
@@ -1111,6 +1359,7 @@ export async function generateRoundRobinFixture(tournamentId: string) {
             stage: "GROUP",
             is_knockout: false,
             round_number: round + 1,
+            category_id: categoryId || null,
           });
         }
       }
@@ -1132,6 +1381,7 @@ export async function generateRoundRobinFixture(tournamentId: string) {
         stage: "GROUP",
         is_knockout: false,
         round_number: m.round_number + maxRoundsGenerated,
+        category_id: categoryId || null,
       });
     }
   }

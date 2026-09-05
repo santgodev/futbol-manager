@@ -18,10 +18,13 @@ import { BracketGenerator } from "@/components/admin/BracketGenerator";
 import { FixtureGenerator } from "@/components/admin/FixtureGenerator";
 import { CompetitionEngine } from "@/utils/CompetitionEngine";
 import { CollapsibleEliminatoriaSection } from "@/components/admin/CollapsibleEliminatoriaSection";
+import { CategoryManager } from "@/components/admin/CategoryManager";
+import { Tag } from "lucide-react";
 
 export function TournamentDetailsClient({ id }: { id: string }) {
   const router = useRouter();
   const [tournament, setTournament] = useState<any>(null);
+  const [categories, setCategories] = useState<any[]>([]);
   const [availableTeams, setAvailableTeams] = useState<any[]>([]);
   const [matches, setMatches] = useState<any[]>([]);
   const [standings, setStandings] = useState<any[]>([]);
@@ -29,6 +32,7 @@ export function TournamentDetailsClient({ id }: { id: string }) {
   const [loading, setLoading] = useState(true);
   const [showFinishedMatches, setShowFinishedMatches] = useState(false);
   const [selectedRound, setSelectedRound] = useState<number | "ALL">("ALL");
+  const [activeCategoryId, setActiveCategoryId] = useState<string | null>(null);
 
   const fetchAllData = async () => {
     if (!id) return;
@@ -88,6 +92,20 @@ export function TournamentDetailsClient({ id }: { id: string }) {
       .order("goals", { ascending: false });
     if (scorersData) setTopScorers(scorersData);
 
+    // 6. Categories
+    const { data: categoriesData } = await supabase
+      .from("tournament_categories")
+      .select("*")
+      .eq("tournament_id", id)
+      .order("display_order", { ascending: true });
+    if (categoriesData) {
+      setCategories(categoriesData);
+      // Auto-select first category if none is selected
+      if (categoriesData.length > 0) {
+        setActiveCategoryId(prev => prev || categoriesData[0].id);
+      }
+    }
+
     setLoading(false);
   };
 
@@ -105,7 +123,26 @@ export function TournamentDetailsClient({ id }: { id: string }) {
 
   if (!tournament) return null;
 
-  const analysis = CompetitionEngine.analyzeTournament(tournament, matches);
+  // ── FILTER BY ACTIVE CATEGORY ──
+  const activeTeams = activeCategoryId
+    ? tournament.tournament_teams?.filter((tt: any) => tt.category_id === activeCategoryId) || []
+    : tournament.tournament_teams || [];
+
+  const activeMatches = activeCategoryId
+    ? matches.filter((m: any) => m.category_id === activeCategoryId)
+    : matches;
+
+  const activeStandings = activeCategoryId
+    ? standings.filter((s: any) => activeTeams.some((tt: any) => tt.team_id === s.team_id))
+    : standings;
+
+  const activeScorers = activeCategoryId
+    ? topScorers.filter((s: any) => activeTeams.some((tt: any) => tt.team_id === s.team_id))
+    : topScorers;
+
+  // Use the filtered activeTeams/activeMatches for Analysis
+  const categoryTournament = { ...tournament, tournament_teams: activeTeams };
+  const analysis = CompetitionEngine.analyzeTournament(categoryTournament, activeMatches);
   const {
     format,
     isDoubleRound,
@@ -134,14 +171,14 @@ export function TournamentDetailsClient({ id }: { id: string }) {
   } = integrity;
 
   // For visual filtering UI only
-  const groupMatches = matches?.filter((m: any) => !m.is_knockout) || [];
+  const groupMatches = activeMatches?.filter((m: any) => !m.is_knockout) || [];
   const uniqueRounds = Array.from(
     new Set(groupMatches.map((m: any) => m.round_number).filter(Boolean))
   ).sort((a: any, b: any) => a - b);
 
   const filteredMatches = (selectedRound === "ALL" || uniqueRounds.length === 0)
-    ? matches
-    : matches.filter((m: any) => m.is_knockout || m.round_number === selectedRound);
+    ? activeMatches
+    : activeMatches.filter((m: any) => m.is_knockout || m.round_number === selectedRound);
 
   const statusColor = (status: string) => {
     if (status?.includes("CURSO"))    return "bg-emerald-500/20 text-emerald-400 border-emerald-500/40";
@@ -231,6 +268,28 @@ export function TournamentDetailsClient({ id }: { id: string }) {
         </div>
       </header>
 
+      {/* ── SELECTOR DE CATEGORÍA ── */}
+      {categories.length > 0 && (
+        <div className="mb-8 overflow-x-auto custom-scrollbar pb-2">
+          <div className="flex items-center gap-2">
+            <span className="text-[9px] uppercase tracking-widest text-[#00f0ff]/50 font-bold mr-2 shrink-0">Filtrar por Categoría:</span>
+            {categories.map(cat => (
+              <button
+                key={cat.id}
+                onClick={() => setActiveCategoryId(cat.id)}
+                className={`px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-all shrink-0 ${
+                  activeCategoryId === cat.id
+                    ? "bg-[#00f0ff]/20 text-[#00f0ff] border border-[#00f0ff]/40 shadow-[0_0_15px_rgba(0,240,255,0.2)]"
+                    : "bg-white/5 text-white/50 border border-white/10 hover:bg-white/10 hover:text-white/80"
+                }`}
+              >
+                {cat.name}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* ── ESTADO DE INTEGRIDAD DEL TORNEO ── */}
       <div className={`mb-8 p-4 rounded-xl border flex flex-col md:flex-row md:items-center justify-between gap-4 backdrop-blur-md transition-all ${integrityColor}`}>
         <div className="flex items-center gap-3">
@@ -248,6 +307,30 @@ export function TournamentDetailsClient({ id }: { id: string }) {
       {/* ── TAB SECTIONS ── */}
       <div className="grid grid-cols-1 gap-8">
 
+        {/* ── SECCIÓN 0: Gestión de Categorías ── */}
+        <section className="relative rounded-2xl overflow-hidden border border-[#00f0ff]/10" style={{ background: "rgba(0,17,51,0.6)", backdropFilter: "blur(16px)" }}>
+          <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#00f0ff]/40 to-transparent" />
+          <div className="flex items-center gap-3 px-6 py-4 border-b border-[#00f0ff]/10">
+            <div className="p-1.5 rounded-lg border border-[#0055cc]/30" style={{ background: "rgba(0,34,102,0.5)" }}>
+              <Tag size={14} className="text-[#00f0ff]" />
+            </div>
+            <h2 className="text-xs font-black uppercase tracking-[0.2em] text-white">Categorías</h2>
+            <span className="ml-auto text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full border border-[#00f0ff]/20 bg-[#00f0ff]/10 text-[#00f0ff]">
+              {categories.length} {categories.length === 1 ? 'Categoría' : 'Categorías'}
+            </span>
+          </div>
+          <div className="p-6">
+            <CategoryManager
+              tournamentId={id}
+              categories={categories}
+              enrolledTeams={tournament.tournament_teams || []}
+              availableTeams={availableTeams}
+              onUpdate={fetchAllData}
+              isDisabled={integritySeverity === "CRITICAL"}
+            />
+          </div>
+        </section>
+
         {/* ── SECCIÓN 1: Inscripción de Equipos ── */}
         <section className="relative rounded-2xl overflow-hidden border border-[#00f0ff]/10" style={{ background: "rgba(0,17,51,0.6)", backdropFilter: "blur(16px)" }}>
           <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#00f0ff]/40 to-transparent" />
@@ -263,10 +346,11 @@ export function TournamentDetailsClient({ id }: { id: string }) {
           <div className="p-6">
             <TournamentEnrollmentManager
               tournamentId={id}
+              categoryId={activeCategoryId}
               availableTeams={availableTeams || []}
-              currentTeams={tournament.tournament_teams || []}
+              currentTeams={activeTeams}
               onUpdate={fetchAllData}
-              isDisabled={integritySeverity === "CRITICAL" || matches.length > 0}
+              isDisabled={integritySeverity === "CRITICAL" || activeMatches.length > 0}
             />
           </div>
         </section>
@@ -283,9 +367,10 @@ export function TournamentDetailsClient({ id }: { id: string }) {
           <div className="p-6">
             <TournamentGroupManager
               tournamentId={id}
-              currentTeams={tournament.tournament_teams || []}
+              categoryId={activeCategoryId}
+              currentTeams={activeTeams}
               onUpdate={fetchAllData}
-              isDisabled={integritySeverity === "CRITICAL" || matches.length > 0}
+              isDisabled={integritySeverity === "CRITICAL" || activeMatches.length > 0}
             />
           </div>
         </section>
@@ -313,14 +398,16 @@ export function TournamentDetailsClient({ id }: { id: string }) {
                 <>
                   <MatchCreator
                     tournamentId={id}
-                    teams={tournament.tournament_teams || []}
+                    categoryId={activeCategoryId}
+                    teams={activeTeams}
                     onUpdate={fetchAllData}
                   />
                   <div className="mt-8 pt-8 border-t border-[#0055cc]/20">
                     <FixtureGenerator 
                       tournamentId={id} 
+                      categoryId={activeCategoryId}
                       teamsCount={teamsCount}
-                      hasGroupMatches={matches?.some((m: any) => m.stage === "GROUP" || m.stage === "GRUPOS")}
+                      hasGroupMatches={activeMatches?.some((m: any) => m.stage === "GROUP" || m.stage === "GRUPOS")}
                       onUpdate={fetchAllData}
                     />
                   </div>
@@ -344,7 +431,7 @@ export function TournamentDetailsClient({ id }: { id: string }) {
             <div className="sm:ml-auto flex flex-wrap items-center gap-2 w-full sm:w-auto">
               <span className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-brand-teal bg-brand-teal/10 border border-brand-teal/20 px-3 py-1.5 rounded-full shrink-0">
                 <span className="w-1.5 h-1.5 rounded-full bg-brand-teal animate-pulse inline-block" />
-                {matches?.filter((m: any) => m.status !== "FINISHED").length ?? 0} pendientes
+                {activeMatches?.filter((m: any) => m.status !== "FINISHED").length ?? 0} pendientes
               </span>
               <span className="text-[10px] font-bold uppercase tracking-widest text-white/30 bg-white/5 border border-white/10 px-3 py-1.5 rounded-full shrink-0">
                 {matchesPlayed} jugados
@@ -353,7 +440,7 @@ export function TournamentDetailsClient({ id }: { id: string }) {
           </div>
           <div className="p-3 pl-14 sm:pl-6 sm:p-6 w-full overflow-hidden">
             {/* ── Warning & Progress stage if matches exist ── */}
-            {matches && matches.length > 0 && (
+            {activeMatches && activeMatches.length > 0 && (
               <>
                 {/* ── Warning for teams with 0 matches ── */}
                 {teamsWithNoMatches.length > 0 && (
@@ -395,7 +482,7 @@ export function TournamentDetailsClient({ id }: { id: string }) {
               </>
             )}
 
-            {(!matches || matches.length === 0) ? (
+            {(!activeMatches || activeMatches.length === 0) ? (
               <div className="py-12 text-center flex flex-col items-center gap-3 w-full">
                 <Calendar size={32} className="text-[#0055cc]/30" />
                 <span className="text-white/40 text-xs uppercase tracking-widest font-semibold">
@@ -498,8 +585,9 @@ export function TournamentDetailsClient({ id }: { id: string }) {
         {format !== "LEAGUE" && (
           <CollapsibleEliminatoriaSection
             isGroupStageComplete={isGroupStageComplete}
-            matches={matches}
+            matches={activeMatches}
             id={id}
+            categoryId={activeCategoryId}
             teamsCount={teamsCount}
             groupMatchesPending={groupMatchesPending}
             groupMatchesPlayed={groupMatchesPlayed}
@@ -518,7 +606,7 @@ export function TournamentDetailsClient({ id }: { id: string }) {
                 <h2 className="text-xs font-black uppercase tracking-[0.2em] text-white">Tabla de Posiciones</h2>
               </div>
               <div className="p-0">
-                <TournamentStandings standings={standings || []} tournamentId={id} />
+                <TournamentStandings standings={activeStandings || []} tournamentId={id} />
               </div>
             </section>
           )}
@@ -533,7 +621,7 @@ export function TournamentDetailsClient({ id }: { id: string }) {
               <h2 className="text-xs font-black uppercase tracking-[0.2em] text-white">Top Goleadores</h2>
             </div>
             <div className="p-6">
-              <TournamentTopScorers scorers={topScorers || []} tournamentId={id} />
+              <TournamentTopScorers scorers={activeScorers || []} tournamentId={id} />
             </div>
           </section>
         </div>

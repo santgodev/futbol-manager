@@ -16,6 +16,7 @@ function statusColor(status: string) {
 export default function AdminTournamentsPage() {
   const [tournaments, setTournaments] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [sportFilter, setSportFilter] = useState<string>("ALL");
 
   useEffect(() => {
     const fetchTournaments = async () => {
@@ -71,9 +72,16 @@ export default function AdminTournamentsPage() {
         </div>
       </header>
 
+      {/* Filters */}
+      <div className="flex items-center gap-2 mb-6">
+        <button onClick={() => setSportFilter("ALL")} className={`px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest transition-colors ${sportFilter === "ALL" ? "bg-[#00f0ff] text-black" : "bg-white/5 text-white/50 hover:bg-white/10"}`}>Todos</button>
+        <button onClick={() => setSportFilter("FOOTBALL")} className={`px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest transition-colors ${sportFilter === "FOOTBALL" ? "bg-[#00f0ff] text-black" : "bg-white/5 text-white/50 hover:bg-white/10"}`}>Fútbol</button>
+        <button onClick={() => setSportFilter("VOLLEYBALL")} className={`px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest transition-colors ${sportFilter === "VOLLEYBALL" ? "bg-[#00f0ff] text-black" : "bg-white/5 text-white/50 hover:bg-white/10"}`}>Voleibol</button>
+      </div>
+
       {/* Tournaments grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {tournaments?.map((tournament: any) => (
+        {tournaments?.filter(t => sportFilter === "ALL" || t.sport === sportFilter).map((tournament: any) => (
           <Link
             key={tournament.id}
             href={`/admin/tournaments/${tournament.id}`}
@@ -126,7 +134,7 @@ export default function AdminTournamentsPage() {
           </Link>
         ))}
 
-        {(!tournaments || tournaments.length === 0) && (
+        {tournaments?.filter(t => sportFilter === "ALL" || t.sport === sportFilter).length === 0 && (
           <div className="col-span-full p-12 text-center rounded-2xl border border-dashed border-[#00f0ff]/15 flex flex-col items-center gap-4"
             style={{ background: "rgba(0,17,51,0.4)" }}>
             <Trophy size={40} className="text-[#00f0ff]/20" />

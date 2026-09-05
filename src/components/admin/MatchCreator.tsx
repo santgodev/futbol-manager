@@ -5,7 +5,7 @@ import { createMatch } from "@/app/admin/actions";
 import { Loader2, Plus, CheckCircle2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 
-export function MatchCreator({ tournamentId, teams, onUpdate }: { tournamentId: string; teams: any[]; onUpdate?: () => void }) {
+export function MatchCreator({ tournamentId, categoryId, teams, onUpdate }: { tournamentId: string; categoryId?: string | null; teams: any[]; onUpdate?: () => void }) {
   const [homeTeamId, setHomeTeamId] = useState("");
   const [awayTeamId, setAwayTeamId] = useState("");
   const [stage, setStage] = useState("GROUP");
@@ -32,6 +32,7 @@ export function MatchCreator({ tournamentId, teams, onUpdate }: { tournamentId: 
         match_date: matchDate || null,
         match_time: matchTime || null,
         is_knockout: stage !== "GROUP",
+        category_id: categoryId || null,
       });
       setDone(true);
       setHomeTeamId("");

@@ -9,6 +9,7 @@ interface CollapsibleEliminatoriaSectionProps {
   isGroupStageComplete: boolean;
   matches: any[];
   id: string;
+  categoryId?: string | null;
   teamsCount: number;
   groupMatchesPending: number;
   groupMatchesPlayed: number;
@@ -18,6 +19,7 @@ export function CollapsibleEliminatoriaSection({
   isGroupStageComplete,
   matches,
   id,
+  categoryId,
   teamsCount,
   groupMatchesPending,
   groupMatchesPlayed,
@@ -55,7 +57,8 @@ export function CollapsibleEliminatoriaSection({
           {(!matches || !hasKnockoutMatches) && (
             <div className="p-6 border-b border-[#0055cc]/20">
               <BracketGenerator 
-                tournamentId={id} 
+                tournamentId={id}
+                categoryId={categoryId}
                 isGroupStageComplete={isGroupStageComplete}
                 pendingGroupMatchesCount={groupMatchesPending}
                 registeredTeamsCount={teamsCount}

@@ -12,7 +12,7 @@ import { EditMinuteModal } from "@/components/admin/EditMinuteModal";
 import { ChangePlayerModal } from "@/components/admin/ChangePlayerModal";
 import { PenaltyShootoutModal } from "@/components/admin/PenaltyShootoutModal";
 import { FinalizeMatchModal } from "@/components/admin/FinalizeMatchModal";
-import { toggleMatchClock } from "@/app/admin/actions";
+import { toggleMatchClock, createPlayer } from "@/app/admin/actions";
 export function LiveControlRoom({ match, homePlayers, awayPlayers, onUpdate }: { match: any, homePlayers: any[], awayPlayers: any[], onUpdate?: () => void }) {
   const router = useRouter();
   
@@ -39,6 +39,11 @@ export function LiveControlRoom({ match, homePlayers, awayPlayers, onUpdate }: {
   // Sub State
   const [isSubMode, setIsSubMode] = useState(false);
   const [playerOut, setPlayerOut] = useState<any>(null);
+
+  // Search / AdHoc State
+  const [searchHome, setSearchHome] = useState("");
+  const [searchAway, setSearchAway] = useState("");
+  const [isCreatingPlayer, setIsCreatingPlayer] = useState(false);
 
   // ── Delete Event Modal State ──
   const [eventToDelete, setEventToDelete] = useState<MatchEvent | null>(null);
@@ -237,6 +242,30 @@ export function LiveControlRoom({ match, homePlayers, awayPlayers, onUpdate }: {
     }
   };
 
+  const handleAdHocPlayer = async (teamId: string, name: string) => {
+    if (!name.trim()) return;
+    setIsCreatingPlayer(true);
+    setErrorMsg("");
+    try {
+      const res = await createPlayer({
+        team_id: teamId,
+        name: name.trim(),
+      });
+      if (res.success && res.player) {
+        setSelectedPlayer(res.player);
+        setSelectedTeamId(teamId);
+        if (teamId === match.home_team_id) setSearchHome("");
+        else setSearchAway("");
+        if (onUpdate) onUpdate();
+        router.refresh();
+      }
+    } catch (err: any) {
+      setErrorMsg(err.message || "Error al crear jugador ad-hoc");
+    } finally {
+      setIsCreatingPlayer(false);
+    }
+  };
+
   const renderRoster = (
     players: any[],
     teamId: string,
@@ -244,15 +273,53 @@ export function LiveControlRoom({ match, homePlayers, awayPlayers, onUpdate }: {
     teamColor: string,
     displayClass = 'flex'
   ) => {
+    const isHome = teamId === match.home_team_id;
+    const searchVal = isHome ? searchHome : searchAway;
+    const setSearch = isHome ? setSearchHome : setSearchAway;
+    
+    const filteredPlayers = players.filter(p => p.name.toLowerCase().includes(searchVal.toLowerCase()));
+    
+    // Si no hay coincidencias exactas, podemos sugerir crearlo
+    const exactMatch = players.some(p => p.name.toLowerCase() === searchVal.toLowerCase().trim());
+    const canCreate = searchVal.trim().length > 2 && !exactMatch;
+
     return (
       <div className={`${displayClass} flex-1 min-h-[320px] lg:min-h-0 bg-[#02060d]/80 backdrop-blur-xl border border-[#0055cc]/30 rounded-2xl flex-col overflow-hidden shadow-[0_0_30px_rgba(0,100,255,0.05)]`}>
         <div 
           className="h-1.5 w-full" 
           style={{ backgroundColor: teamColor || (align === 'left' ? '#0066cc' : '#ff0055') }} 
         />
+        
+        {/* Búsqueda / Ad-Hoc */}
+        <div className="p-3 border-b border-[#0055cc]/20">
+          <input 
+            type="text" 
+            placeholder="Buscar o añadir jugador..."
+            value={searchVal}
+            onChange={(e) => setSearch(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && canCreate && !isCreatingPlayer) {
+                e.preventDefault();
+                handleAdHocPlayer(teamId, searchVal);
+              }
+            }}
+            className="w-full bg-[#001122]/60 border border-white/10 rounded-lg px-3 py-2 text-xs text-white placeholder-white/30 focus:outline-none focus:border-[#00f0ff]/50 transition-colors"
+          />
+          {canCreate && (
+            <button
+              disabled={isCreatingPlayer}
+              onClick={() => handleAdHocPlayer(teamId, searchVal)}
+              className="mt-2 w-full py-2 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-colors flex items-center justify-center gap-2"
+            >
+              {isCreatingPlayer ? <Activity className="w-3 h-3 animate-spin" /> : <UserPlus className="w-3 h-3" />}
+              Crear y Seleccionar
+            </button>
+          )}
+        </div>
+
         <div className="p-4 flex-1 overflow-y-auto custom-scrollbar">
           <div className="flex flex-col gap-2">
-            {players.map(p => {
+            {filteredPlayers.map(p => {
               const isSelected = selectedPlayer?.id === p.id;
               const isOut = playerOut?.id === p.id;
               

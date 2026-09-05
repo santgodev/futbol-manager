@@ -9,6 +9,7 @@ export function HomeSearchInput() {
   const searchParams = useSearchParams();
   const [query, setQuery] = useState(searchParams.get("q") || "");
   const [isPending, startTransition] = useTransition();
+  const [focused, setFocused] = useState(false);
 
   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {
@@ -16,34 +17,42 @@ export function HomeSearchInput() {
         const params = new URLSearchParams(searchParams);
         if (query) {
           params.set("q", query);
-          // Automatically scroll down to the results section so the user sees it on mobile
           setTimeout(() => {
-            document.getElementById('torneos')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            document.getElementById("torneos")?.scrollIntoView({ behavior: "smooth", block: "start" });
           }, 100);
         } else {
           params.delete("q");
         }
-        
         startTransition(() => {
           router.push(`/?${params.toString()}`, { scroll: false });
         });
       }
     }, 500);
-
     return () => clearTimeout(delayDebounceFn);
   }, [query, router, searchParams]);
 
   return (
-    <div className="relative w-full max-w-md group mt-2">
-      <div className="absolute inset-0 bg-[#0088ff] rounded-full blur-[8px] opacity-20 group-hover:opacity-40 transition-opacity duration-300 pointer-events-none"></div>
-      <div className="relative flex items-center bg-[#02050a]/80 backdrop-blur-md border-2 border-[#0088ff]/50 rounded-full px-4 py-3 shadow-[0_0_15px_rgba(0,136,255,0.15)] group-focus-within:border-[#0088ff] group-focus-within:shadow-[0_0_20px_rgba(0,136,255,0.4)] transition-all duration-300">
-        <Search className={`w-5 h-5 text-[#0088ff] shrink-0 mr-3 opacity-80 ${isPending ? 'animate-pulse' : ''}`} />
-        <input 
-          type="text" 
+    <div className="relative w-full max-w-md">
+      <div
+        className={`flex items-center gap-3 px-4 py-3 rounded-xl border transition-all duration-200 ${
+          focused
+            ? "border-[#0a84ff] bg-[#0a0f14] shadow-[0_0_0_3px_rgba(10,132,255,0.15)]"
+            : "border-[#202830] bg-[#0a0f14] hover:border-[#2c3540]"
+        }`}
+      >
+        <Search
+          className={`w-4 h-4 shrink-0 transition-colors ${
+            focused ? "text-[#0a84ff]" : "text-[#707b86]"
+          } ${isPending ? "animate-pulse" : ""}`}
+        />
+        <input
+          type="text"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="Busca tu torneo o equipo..." 
-          className="w-full bg-transparent border-none outline-none text-white placeholder:text-white/40 text-sm font-medium"
+          onFocus={() => setFocused(true)}
+          onBlur={() => setFocused(false)}
+          placeholder="Busca tu torneo o equipo..."
+          className="w-full bg-transparent border-none outline-none text-[#f7f9fb] placeholder:text-[#4d565f] text-[14px] font-medium"
         />
       </div>
     </div>

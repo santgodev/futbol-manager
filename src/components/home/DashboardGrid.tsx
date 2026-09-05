@@ -41,14 +41,14 @@ export const DashboardGrid = ({ tournamentId }: { tournamentId?: string }) => {
         if (tournamentId) {
           const { data: tData } = await supabase
             .from("tournaments")
-            .select("id, slug, name, image_url, status, location, start_date")
+            .select("id, slug, name, image_url, status, location, start_date, sport")
             .eq("id", tournamentId)
             .single();
           activeTournament = tData;
         } else {
           const { data: latestTournaments } = await supabase
             .from("tournaments")
-            .select("id, slug, name, image_url, status, location, start_date")
+            .select("id, slug, name, image_url, status, location, start_date, sport")
             .order("created_at", { ascending: false })
             .limit(20);
           globalTournaments = latestTournaments || [];
@@ -129,9 +129,9 @@ export const DashboardGrid = ({ tournamentId }: { tournamentId?: string }) => {
     return (
       <section id="torneos" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8 mb-6 scroll-mt-24 min-h-[400px]">
         {loading || !data ? (
-          <div className="flex flex-col justify-center items-center py-12">
-            <div className="w-8 h-8 border-4 border-[#0088ff] border-t-transparent rounded-full animate-spin mb-4" />
-            <div className="text-white/40 text-sm">Cargando torneos destacados...</div>
+          <div className="flex flex-col justify-center items-center py-16">
+            <div className="w-7 h-7 border-[3px] border-[#0a84ff] border-t-transparent rounded-full animate-spin mb-4" />
+            <div className="text-[#707b86] text-[13px]">Cargando torneos...</div>
           </div>
         ) : (
           <GlobalSearchResults initialTournaments={data.globalTournaments} />
@@ -144,7 +144,7 @@ export const DashboardGrid = ({ tournamentId }: { tournamentId?: string }) => {
     return (
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6 mb-6">
         <div className="flex justify-center py-12">
-          <div className="w-8 h-8 border-4 border-[#0088ff] border-t-transparent rounded-full animate-spin" />
+          <div className="w-7 h-7 border-[3px] border-[#0a84ff] border-t-transparent rounded-full animate-spin" />
         </div>
       </section>
     );

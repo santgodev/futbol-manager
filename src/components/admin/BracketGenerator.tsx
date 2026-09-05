@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 
 interface BracketGeneratorProps {
   tournamentId: string;
+  categoryId?: string | null;
   isGroupStageComplete: boolean;
   pendingGroupMatchesCount: number;
   registeredTeamsCount: number;
@@ -25,6 +26,7 @@ function getPhaseDescription(num: number): string {
 
 export function BracketGenerator({
   tournamentId,
+  categoryId,
   isGroupStageComplete,
   pendingGroupMatchesCount,
   registeredTeamsCount,
@@ -33,17 +35,20 @@ export function BracketGenerator({
   const [isOpen, setIsOpen] = useState(false);
   const [status, setStatus] = useState<"idle" | "generating" | "success" | "error">("idle");
   const [errorMessage, setErrorMessage] = useState("");
-  const availableOptions = [2, 4, 8].filter(num => num <= registeredTeamsCount);
-  const [teamsCount, setTeamsCount] = useState<2 | 4 | 8>(
-    (availableOptions.includes(4) ? 4 : (availableOptions[0] || 2)) as 2 | 4 | 8
-  );
+  const availableOptions = [2, 4, 8, 16].filter(num => num <= registeredTeamsCount);
+  
+  const [cups, setCups] = useState([{ name: "Copa Oro", teamsCount: (availableOptions.includes(4) ? 4 : (availableOptions[0] || 2)) as number }]);
   const router = useRouter();
 
   const handleGenerate = async () => {
     setStatus("generating");
     setErrorMessage("");
     try {
-      await generateKnockoutBracket(tournamentId, teamsCount);
+      const totalRequested = cups.reduce((acc, c) => acc + c.teamsCount, 0);
+      if (totalRequested > registeredTeamsCount) {
+        throw new Error(`Los equipos seleccionados (${totalRequested}) superan a los inscritos (${registeredTeamsCount}).`);
+      }
+      await generateKnockoutBracket(tournamentId, categoryId, cups);
       setStatus("success");
       setTimeout(() => {
         setIsOpen(false);
@@ -165,34 +170,59 @@ export function BracketGenerator({
                 ¿Cuántos equipos avanzan a la siguiente fase?
               </p>
 
-              {/* Team count selector */}
-              <div className="w-full grid grid-cols-3 gap-3 mb-5">
-                {availableOptions.map((num) => (
-                  <button
-                    key={num}
-                    onClick={() => setTeamsCount(num as 2 | 4 | 8)}
-                    className={`min-h-[72px] rounded-xl border flex flex-col items-center justify-center gap-1.5 transition-all touch-manipulation active:scale-95
-                      ${teamsCount === num
-                        ? "border-[#00f0ff] bg-[#00f0ff]/10 shadow-[0_0_15px_rgba(0,240,255,0.2)]"
-                        : "border-white/10 bg-white/5 hover:border-[#00f0ff]/40"
-                      }`}
-                  >
-                    <span className={`text-2xl font-black ${teamsCount === num ? "text-[#00f0ff]" : "text-white/50"}`}>
-                      {num}
-                    </span>
-                    <span className={`text-[9px] uppercase tracking-widest font-bold ${teamsCount === num ? "text-white" : "text-white/30"}`}>
-                      Equipos
-                    </span>
-                  </button>
+              {/* Dynamic Cups Config */}
+              <div className="w-full flex flex-col gap-3 mb-5 max-h-[30vh] overflow-y-auto custom-scrollbar px-1">
+                {cups.map((cup, idx) => (
+                  <div key={idx} className="flex gap-2 items-center bg-white/5 border border-white/10 p-2 rounded-xl">
+                    <input
+                      type="text"
+                      value={cup.name}
+                      onChange={(e) => {
+                        const newCups = [...cups];
+                        newCups[idx].name = e.target.value;
+                        setCups(newCups);
+                      }}
+                      className="flex-1 bg-transparent text-white text-xs font-bold outline-none uppercase tracking-widest px-2"
+                      placeholder="Nombre (ej. Copa Oro)"
+                    />
+                    <select
+                      value={cup.teamsCount}
+                      onChange={(e) => {
+                        const newCups = [...cups];
+                        newCups[idx].teamsCount = parseInt(e.target.value);
+                        setCups(newCups);
+                      }}
+                      className="bg-[#001122] text-[#00f0ff] border border-[#00f0ff]/30 rounded-lg text-xs font-black p-2 outline-none"
+                    >
+                      {availableOptions.map(num => (
+                        <option key={num} value={num}>{num} Equipos</option>
+                      ))}
+                    </select>
+                    {cups.length > 1 && (
+                      <button
+                        onClick={() => setCups(cups.filter((_, i) => i !== idx))}
+                        className="p-2 text-white/30 hover:text-red-400 transition-colors"
+                      >
+                        <X size={14} />
+                      </button>
+                    )}
+                  </div>
                 ))}
+                
+                <button
+                  onClick={() => setCups([...cups, { name: "Copa Plata", teamsCount: cups[0]?.teamsCount || 4 }])}
+                  className="py-2 text-[10px] uppercase tracking-widest font-bold text-[#00f0ff]/70 border border-[#00f0ff]/20 rounded-xl hover:bg-[#00f0ff]/10 transition-colors"
+                >
+                  + Añadir otra Copa
+                </button>
               </div>
 
               {/* Description */}
               <p className="text-xs text-white/50 leading-relaxed mb-5 text-center px-2">
-                {getPhaseDescription(teamsCount)}
+                Se armarán los árboles de eliminación en orden.
                 <br />
                 <span className="text-white/30 text-[10px]">
-                  Se tomarán los {teamsCount} primeros de la tabla actual.
+                  La 1.ª copa toma a los mejores de la tabla, la 2.ª copa a los siguientes, etc.
                 </span>
               </p>
 

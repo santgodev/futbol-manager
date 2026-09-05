@@ -2,138 +2,134 @@
 
 import React, { useRef } from "react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
-import { ChevronLeft, ChevronRight, MapPin, Users, Star, Trophy, Gamepad2, Activity } from "lucide-react";
+import { ChevronLeft, ChevronRight, MapPin, Users, Trophy, Activity, ArrowUpRight } from "lucide-react";
 
-export function FeaturedTournamentsCarousel({ tournaments, title = "Torneos Destacados" }: { tournaments: any[], title?: string }) {
+export function FeaturedTournamentsCarousel({
+  tournaments,
+  title = "Torneos Destacados",
+}: {
+  tournaments: any[];
+  title?: string;
+}) {
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const scroll = (direction: "left" | "right") => {
     if (scrollRef.current) {
       const { scrollLeft, clientWidth } = scrollRef.current;
-      const scrollTo = direction === "left" ? scrollLeft - clientWidth * 0.8 : scrollLeft + clientWidth * 0.8;
-      scrollRef.current.scrollTo({ left: scrollTo, behavior: "smooth" });
+      scrollRef.current.scrollTo({
+        left: direction === "left" ? scrollLeft - clientWidth * 0.8 : scrollLeft + clientWidth * 0.8,
+        behavior: "smooth",
+      });
     }
   };
 
   if (!tournaments || tournaments.length === 0) {
     return (
-      <div className="w-full relative py-6 select-none flex flex-col items-center justify-center min-h-[300px]">
-        <Trophy className="w-12 h-12 text-[#0088ff]/20 mb-4" />
-        <h2 className="text-xl font-bold text-white/70">No se encontraron torneos</h2>
-        <p className="text-white/40 text-sm mt-2">Intenta con otros términos de búsqueda.</p>
+      <div className="w-full flex flex-col items-center justify-center min-h-[280px] rounded-2xl border border-[#202830] bg-[#0a0f14]">
+        <Trophy className="w-10 h-10 text-[#202830] mb-3" />
+        <p className="text-[#707b86] text-[14px] font-medium">No hay torneos disponibles</p>
       </div>
     );
   }
 
   return (
-    <div className="w-full relative py-6 select-none">
+    <div className="w-full relative select-none">
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-xl md:text-2xl font-bold text-white tracking-wide drop-shadow-[0_0_15px_rgba(255,255,255,0.2)]">
-          Torneos Destacados
-        </h2>
+      <div className="flex items-center justify-between mb-5">
+        <div className="flex items-center gap-3">
+          <h2 className="text-[20px] font-bold text-white tracking-tight">{title}</h2>
+          <span className="px-2 py-0.5 rounded-full bg-[#0a84ff]/10 border border-[#0a84ff]/25 text-[11px] font-semibold text-[#0a84ff]">
+            {tournaments.length}
+          </span>
+        </div>
         <div className="flex items-center gap-2">
-          <button 
+          <button
             onClick={() => scroll("left")}
-            className="p-1.5 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20 transition-all text-white/70 hover:text-white"
+            className="w-8 h-8 flex items-center justify-center rounded-lg border border-[#202830] text-[#707b86] hover:text-white hover:border-[#2c3540] transition-all"
           >
-            <ChevronLeft className="w-5 h-5" />
+            <ChevronLeft className="w-4 h-4" />
           </button>
-          <button 
+          <button
             onClick={() => scroll("right")}
-            className="p-1.5 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20 transition-all text-white/70 hover:text-white"
+            className="w-8 h-8 flex items-center justify-center rounded-lg border border-[#202830] text-[#707b86] hover:text-white hover:border-[#2c3540] transition-all"
           >
-            <ChevronRight className="w-5 h-5" />
+            <ChevronRight className="w-4 h-4" />
           </button>
         </div>
       </div>
 
-      {/* Carousel Container */}
-      <div 
+      {/* Carousel */}
+      <div
         ref={scrollRef}
-        className="flex overflow-x-auto gap-4 md:gap-6 pb-6 snap-x snap-mandatory scrollbar-hide"
+        className="flex overflow-x-auto gap-4 pb-2 snap-x snap-mandatory"
         style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
       >
-        {tournaments.map((tournament, idx) => {
-          // Static mock data for now, until DB has these fields
-          const isEsports = idx % 2 !== 0;
-          const sportName = isEsports ? "Esports" : "Soccer";
-          const SportIcon = isEsports ? Gamepad2 : Trophy;
-          const teamsCount = 8 + ((idx * 7) % 20); // Pseudo-random consistent between server and client
-
-          return (
-            <Link 
-              key={tournament.id}
-              href={`/t/${tournament.slug || tournament.id}`}
-              className="snap-start shrink-0 w-[300px] md:w-[380px] h-[220px] md:h-[260px] rounded-2xl bg-[#030812] border-2 border-[#0088ff]/30 hover:border-[#0088ff] transition-all duration-300 group overflow-hidden shadow-[0_0_15px_rgba(0,136,255,0.1)] hover:shadow-[0_0_25px_rgba(0,136,255,0.4)] relative flex flex-col justify-end"
-            >
-              {/* Background Image that fills the entire card */}
-              <div className="absolute inset-0 z-0">
-                {tournament.image_url ? (
-                  <img 
-                    src={tournament.image_url} 
-                    alt={tournament.name}
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-in-out opacity-70 group-hover:opacity-100"
-                  />
-                ) : (
-                  <div className="w-full h-full bg-[#040814] flex items-center justify-center group-hover:scale-110 transition-transform duration-700 ease-in-out">
-                    <div className="w-full h-full bg-gradient-to-br from-[#0088ff]/10 to-[#0055cc]/20 flex items-center justify-center">
-                      <Activity className="w-16 h-16 text-[#0088ff]/20" />
-                    </div>
-                  </div>
-                )}
-                
-                {/* Dark Gradient Overlay for text readability at the bottom */}
-                <div className="absolute inset-0 bg-gradient-to-t from-[#02050a] via-[#02050a]/70 to-transparent opacity-90 group-hover:opacity-80 transition-opacity duration-300" />
-              </div>
-
-              {/* Status Badge Top Left */}
-              {tournament.status === 'ACTIVE' && (
-                <div className="absolute top-4 left-4 z-20 px-3 py-1 bg-[#0088ff]/20 border border-[#0088ff]/50 rounded-full backdrop-blur-md">
-                  <span className="text-[10px] font-black text-[#0088ff] uppercase tracking-widest drop-shadow-[0_0_5px_rgba(0,136,255,0.8)]">En Curso</span>
+        {tournaments.map((tournament) => (
+          <Link
+            key={tournament.id}
+            href={`/t/${tournament.slug || tournament.id}`}
+            className="snap-start shrink-0 w-[300px] md:w-[340px] rounded-2xl border border-[#202830] bg-[#0a0f14] overflow-hidden group hover:border-[#0a84ff]/40 transition-all duration-200 flex flex-col"
+          >
+            {/* Image area */}
+            <div className="relative h-[160px] overflow-hidden bg-[#0f151c]">
+              {tournament.image_url ? (
+                <img
+                  src={tournament.image_url}
+                  alt={tournament.name}
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-80 group-hover:opacity-100"
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center">
+                  <Activity className="w-12 h-12 text-[#202830]" />
                 </div>
               )}
+              {/* Gradient */}
+              <div className="absolute inset-0 bg-gradient-to-t from-[#0a0f14] via-transparent to-transparent" />
 
-              {/* Content overlaid on bottom */}
-              <div className="relative z-10 p-5 w-full flex flex-col gap-2">
-                <h3 className="text-white font-bold text-xl truncate group-hover:text-[#0088ff] transition-colors drop-shadow-md">
+              {/* Status */}
+              {tournament.status === "ACTIVE" && (
+                <div className="absolute top-3 left-3 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#22c55e]/15 border border-[#22c55e]/30 backdrop-blur-sm">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#22c55e] animate-pulse" />
+                  <span className="text-[10.5px] font-semibold text-[#22c55e]">En curso</span>
+                </div>
+              )}
+            </div>
+
+            {/* Content */}
+            <div className="flex flex-col gap-3 p-4 flex-1">
+              <div className="flex items-start justify-between gap-2">
+                <h3 className="font-bold text-white text-[15px] leading-snug group-hover:text-[#0a84ff] transition-colors line-clamp-2">
                   {tournament.name}
                 </h3>
-                
-                <div className="flex items-center gap-4 text-[#0088ff]/80">
-                  <div className="flex items-center gap-1.5">
-                    <SportIcon className="w-4 h-4" />
-                    <span className="text-sm font-semibold tracking-wide">{sportName}</span>
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    <MapPin className="w-4 h-4" />
-                    <span className="text-sm font-medium truncate max-w-[120px]">{tournament.location || "Online"}</span>
-                  </div>
-                </div>
+                <ArrowUpRight className="w-4 h-4 text-[#707b86] shrink-0 group-hover:text-[#0a84ff] transition-colors mt-0.5" />
+              </div>
 
-                <div className="flex items-center justify-between mt-1 pt-3 border-t border-white/10">
-                  <div className="flex items-center gap-1.5 text-white/70">
-                    <Users className="w-3.5 h-3.5" />
-                    <span className="text-xs font-medium">{teamsCount} Equipos</span>
-                  </div>
-                  <div className="flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-[#00bfff] to-[#00f0ff] text-black font-bold text-[10px] sm:text-xs rounded-md shadow-[0_0_15px_rgba(0,240,255,0.4)] hover:shadow-[0_0_25px_rgba(0,240,255,0.6)] transition-all">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5 sm:w-4 sm:h-4"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
-                    VER EN VIVO
-                  </div>
+              <div className="flex items-center gap-4 text-[#707b86] text-[12.5px]">
+                {tournament.location && (
+                  <span className="flex items-center gap-1.5">
+                    <MapPin className="w-3.5 h-3.5" />
+                    {tournament.location}
+                  </span>
+                )}
+                <span className="flex items-center gap-1.5">
+                  <Trophy className="w-3.5 h-3.5" />
+                  Fútbol
+                </span>
+              </div>
+
+              <div className="mt-auto pt-3 border-t border-[#202830] flex items-center justify-between">
+                <span className="text-[11.5px] text-[#707b86]">Ver torneo</span>
+                <div className="flex items-center gap-1 text-[#0a84ff] text-[11.5px] font-semibold">
+                  Entrar
+                  <ArrowUpRight className="w-3.5 h-3.5" />
                 </div>
               </div>
-            </Link>
-          );
-        })}
+            </div>
+          </Link>
+        ))}
       </div>
-      
-      {/* CSS to hide scrollbar for webkit */}
-      <style dangerouslySetInnerHTML={{__html: `
-        .scrollbar-hide::-webkit-scrollbar {
-            display: none;
-        }
-      `}} />
+
+      <style dangerouslySetInnerHTML={{ __html: `.snap-x::-webkit-scrollbar { display: none; }` }} />
     </div>
   );
 }

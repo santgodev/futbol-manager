@@ -7,11 +7,13 @@ import { Loader2, Calendar, X, CheckCircle2 } from "lucide-react";
 
 export function FixtureGenerator({
   tournamentId,
+  categoryId,
   teamsCount,
   hasGroupMatches,
   onUpdate
 }: {
   tournamentId: string;
+  categoryId?: string | null;
   teamsCount: number;
   hasGroupMatches: boolean;
   onUpdate?: () => void;
@@ -34,7 +36,7 @@ export function FixtureGenerator({
     setLoading(true);
     setErrorMsg("");
     try {
-      await generateRoundRobinFixture(tournamentId);
+      await generateRoundRobinFixture(tournamentId, categoryId);
       setDone(true);
       setTimeout(() => {
         setIsOpen(false);

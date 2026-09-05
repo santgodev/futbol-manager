@@ -5,12 +5,9 @@ import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { MobileBottomNav } from "@/components/layout/MobileBottomNav";
 import { TournamentHero } from "@/components/tournament/TournamentHero";
-import { MatchCenter } from "@/components/tournament/MatchCenter";
-import { TournamentCalendar } from "@/components/tournament/TournamentCalendar";
-import { DashboardGrid } from "@/components/home/DashboardGrid";
+import { TournamentTabsView } from "@/components/tournament/TournamentTabsView";
 import { TournamentRules } from "@/components/tournament/TournamentRules";
-import { KnockoutBracket } from "@/components/tournament/KnockoutBracket";
-import { PublicGroupStandings } from "@/components/tournament/PublicGroupStandings";
+import { DashboardGrid } from "@/components/home/DashboardGrid";
 import { createClient } from "@/utils/supabase/client";
 
 export function TournamentClientWrapper({ slug }: { slug: string }) {
@@ -22,7 +19,7 @@ export function TournamentClientWrapper({ slug }: { slug: string }) {
     async function fetchData() {
       try {
         const supabase = createClient();
-        
+
         // 1. Fetch tournament
         const { data: tournament, error: tournamentError } = await supabase
           .from("tournaments")
@@ -46,7 +43,14 @@ export function TournamentClientWrapper({ slug }: { slug: string }) {
           .eq("tournament_id", tournament.id)
           .order("order_index", { ascending: true });
 
-        // 3. Fetch matches
+        // 2.5. Fetch categories
+        const { data: categories } = await supabase
+          .from("tournament_categories")
+          .select("*")
+          .eq("tournament_id", tournament.id)
+          .order("display_order", { ascending: true });
+
+        // 3. Fetch matches (ascending order for rounds to display correctly)
         const { data: matches } = await supabase
           .from("matches")
           .select(`
@@ -55,10 +59,10 @@ export function TournamentClientWrapper({ slug }: { slug: string }) {
             away_team:teams!matches_away_team_id_fkey(name, logo_url)
           `)
           .eq("tournament_id", tournament.id)
-          .order("match_date", { ascending: false })
-          .order("match_time", { ascending: false });
+          .order("match_date", { ascending: true })
+          .order("match_time", { ascending: true });
 
-        // 4. Fetch standings
+        // 4. Fetch standings (includes group_name)
         const { data: standings } = await supabase
           .from("tournament_standings_view")
           .select("*")
@@ -79,14 +83,15 @@ export function TournamentClientWrapper({ slug }: { slug: string }) {
           goals_for: st.goals_for || 0,
           goals_against: st.goals_against || 0,
           goal_difference: st.goal_difference || 0,
-          points: st.points || 0
+          points: st.points || 0,
         }));
 
         setData({
           tournament: tournamentProps,
           rules: rules || [],
+          categories: categories || [],
           matches: matches || [],
-          standings: mappedStandings
+          standings: mappedStandings,
         });
       } catch (err) {
         console.error(err);
@@ -101,34 +106,44 @@ export function TournamentClientWrapper({ slug }: { slug: string }) {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-brand-deep flex flex-col items-center justify-center">
-        <div className="w-12 h-12 border-4 border-[#0088ff] border-t-transparent rounded-full animate-spin mb-4" />
-        <div className="text-[#00f0ff] uppercase tracking-widest text-xs font-black animate-pulse">Cargando Torneo...</div>
+      <div className="min-h-screen bg-[#05080b] flex flex-col items-center justify-center gap-3">
+        <div className="w-8 h-8 border-[3px] border-[#0a84ff] border-t-transparent rounded-full animate-spin" />
+        <div className="text-[#707b86] text-[13px]">Cargando torneo...</div>
       </div>
     );
   }
 
   if (error || !data) {
     return (
-      <div className="min-h-screen bg-brand-deep flex flex-col items-center justify-center">
-        <h1 className="text-white text-2xl font-bold">Torneo no encontrado</h1>
+      <div className="min-h-screen bg-[#05080b] flex flex-col items-center justify-center gap-2">
+        <h1 className="text-white text-xl font-bold">Torneo no encontrado</h1>
+        <p className="text-[#707b86] text-[13px]">El torneo que buscas no existe o fue eliminado.</p>
       </div>
     );
   }
 
   return (
-    <div id="top" className="min-h-screen bg-brand-deep text-brand-text font-sans selection:bg-brand-blue selection:text-white relative pb-20 md:pb-0">
-      <div className="fixed inset-0 z-50 pointer-events-none opacity-[0.03]" style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E\")" }} />
+    <div id="top" className="min-h-screen bg-[#05080b] text-[#f7f9fb] font-sans relative pb-20 md:pb-0">
       <Header />
       <main>
+        {/* Hero section with tournament name, dates, location */}
         <TournamentHero tournament={data.tournament} />
+
+        {/* Dashboard stats strip */}
         <div className="w-full">
           <DashboardGrid tournamentId={data.tournament.id} />
         </div>
-        <MatchCenter matches={data.matches} />
-        <PublicGroupStandings standings={data.standings} />
-        <TournamentCalendar matches={data.matches} />
-        <KnockoutBracket matches={data.matches} totalTeams={data.tournament.teams_count} />
+
+        {/* Main tabbed content: Fixture / Standings / Ranking / Bracket */}
+        <TournamentTabsView
+          tournament={data.tournament}
+          categories={data.categories}
+          matches={data.matches}
+          standings={data.standings}
+          totalTeams={data.tournament.teams_count}
+        />
+
+        {/* Tournament rules (below tabs) */}
         <TournamentRules rules={data.rules} />
       </main>
       <Footer />

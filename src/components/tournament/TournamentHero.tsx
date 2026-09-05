@@ -2,29 +2,27 @@
 
 import { motion } from "framer-motion";
 import { Tables } from "@/types/supabase";
-import { MapPin, Calendar, Users, ChevronDown } from "lucide-react";
+import { MapPin, Calendar, Users, ChevronDown, Trophy } from "lucide-react";
 
 interface TournamentHeroProps {
   tournament: Tables<"tournaments"> & { teams_count: number };
 }
 
-/** Status → badge config */
-function getStatusConfig(status: string, registrationStatus?: string | null) {
+function getStatusConfig(status: string) {
   switch (status) {
     case "IN_PROGRESS":
-      return { label: "EN CURSO", isLive: false, color: "text-emerald-400", borderColor: "border-emerald-500/30", bg: "bg-emerald-500/10" };
+      return { label: "En curso",      dot: "bg-[#22c55e]", color: "text-[#22c55e]", border: "border-[#22c55e]/30", bg: "bg-[#22c55e]/10" };
     case "REGISTRATION":
-      return { label: "INSCRIPCIONES ABIERTAS", isLive: false, color: "text-emerald-400", borderColor: "border-emerald-500/30", bg: "bg-emerald-500/10" };
+      return { label: "Inscripciones", dot: "bg-[#22c55e]", color: "text-[#22c55e]", border: "border-[#22c55e]/30", bg: "bg-[#22c55e]/10" };
     case "UPCOMING":
-      return { label: "PRÓXIMAMENTE", isLive: false, color: "text-brand-sand", borderColor: "border-brand-sand/20", bg: "bg-brand-sand/5" };
+      return { label: "Próximamente",  dot: "bg-[#f59e0b]", color: "text-[#f59e0b]", border: "border-[#f59e0b]/30", bg: "bg-[#f59e0b]/10" };
     case "FINISHED":
-      return { label: "FINALIZADO", isLive: false, color: "text-white/40", borderColor: "border-white/10", bg: "bg-white/5" };
+      return { label: "Finalizado",    dot: null,            color: "text-[#707b86]", border: "border-[#202830]",   bg: "bg-[#0a0f14]" };
     default:
-      return { label: status, isLive: false, color: "text-brand-teal", borderColor: "border-brand-teal/20", bg: "bg-brand-teal/5" };
+      return { label: status,          dot: "bg-[#0a84ff]",  color: "text-[#0a84ff]", border: "border-[#0a84ff]/30", bg: "bg-[#0a84ff]/10" };
   }
 }
 
-/** Fecha compacta: "20 may. 2026" */
 function formatDate(dateStr: string | null): string {
   if (!dateStr) return "Por definir";
   try {
@@ -37,7 +35,7 @@ function formatDate(dateStr: string | null): string {
 }
 
 export const TournamentHero = ({ tournament }: TournamentHeroProps) => {
-  const status = getStatusConfig(tournament.status, tournament.registration_status);
+  const status = getStatusConfig(tournament.status);
   const startDateLabel = formatDate(tournament.start_date);
 
   const scrollTo = (id: string) => {
@@ -49,101 +47,101 @@ export const TournamentHero = ({ tournament }: TournamentHeroProps) => {
   };
 
   return (
-    <section className="relative w-full flex flex-col overflow-hidden bg-background pt-16 pb-8">
-      {/* Base gradient */}
-      <div className="absolute inset-0" style={{ background: "linear-gradient(160deg, #001133 0%, #002266 55%, #000a1a 100%)" }} />
+    <section className="relative w-full overflow-hidden bg-[#05080b]">
 
-      {/* Atmosphere glow */}
+      {/* Subtle top glow — solo arriba, muy suave */}
       <div
-        className="absolute inset-0 pointer-events-none mix-blend-screen"
-        style={{ background: "radial-gradient(ellipse 80% 80% at 50% 50%, rgba(0,136,255,0.2) 0%, rgba(0,240,255,0.15) 40%, transparent 80%)" }}
+        className="absolute inset-x-0 top-0 h-[400px] pointer-events-none"
+        style={{
+          background:
+            "radial-gradient(ellipse 70% 40% at 50% -5%, rgba(10,132,255,0.14) 0%, transparent 70%)",
+        }}
       />
 
-      {/* Cyberpunk grid floor */}
-      <div className="absolute inset-x-0 bottom-0 pointer-events-none overflow-hidden h-[50%]">
-        <div
-          className="absolute inset-0"
-          style={{
-            backgroundImage: "linear-gradient(to top, rgba(0,240,255,0.08) 1px, transparent 1px), linear-gradient(to right, rgba(0,240,255,0.08) 1px, transparent 1px)",
-            backgroundSize: "40px 40px",
-            transform: "perspective(400px) rotateX(55deg) scale(2)",
-            transformOrigin: "top center",
-            maskImage: "linear-gradient(to bottom, transparent 0%, black 60%, transparent 100%)",
-            WebkitMaskImage: "linear-gradient(to bottom, transparent 0%, black 60%, transparent 100%)",
-          }}
-        />
-      </div>
+      {/* Image background — muy oscurecida, solo textura */}
+      {tournament.image_url && (
+        <div className="absolute inset-0">
+          <img
+            src={tournament.image_url}
+            alt=""
+            className="w-full h-full object-cover opacity-[0.08]"
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-[#05080b]/60 via-[#05080b]/80 to-[#05080b]" />
+        </div>
+      )}
 
-      <div className="relative z-10 flex flex-col items-center text-center px-4 md:px-5 gap-5">
+      <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-14 pb-12 flex flex-col items-center text-center gap-6">
 
         {/* Status badge */}
         <motion.div
-          initial={{ y: -10 }}
-          animate={{ y: 0 }}
-          transition={{ duration: 0.5 }}
-          className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full border text-xs font-bold tracking-[0.3em] uppercase ${status.color} ${status.borderColor} ${status.bg}`}
+          initial={{ opacity: 0, y: -8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4 }}
+          className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border text-[11.5px] font-semibold tracking-wider uppercase ${status.color} ${status.border} ${status.bg}`}
         >
-          {status.isLive && (
-            <span className="w-2 h-2 rounded-full bg-red-500 live-pulse shrink-0" />
+          {status.dot && (
+            <span className={`w-1.5 h-1.5 rounded-full ${status.dot} ${status.label === "En curso" ? "animate-pulse" : ""}`} />
           )}
           {status.label}
         </motion.div>
 
         {/* Tournament name */}
         <motion.h1
-          initial={{ y: 30 }}
-          animate={{ y: 0 }}
-          transition={{ duration: 0.7, delay: 0.15, ease: "easeOut" }}
-          className="hero-title text-[11vw] sm:text-[10vw] md:text-[7rem] lg:text-[120px] leading-[0.85] md:leading-[0.85] w-full max-w-[100vw] break-words"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.1, ease: "easeOut" }}
+          className="font-bold text-white leading-[1.0] tracking-tight"
+          style={{ fontSize: "clamp(40px, 8vw, 96px)" }}
         >
-          {tournament.name.split(" ")[0]}
-          {tournament.name.split(" ").slice(1).join(" ") && (
-            <><br /><span className="text-[#cad5d6]">{tournament.name.split(" ").slice(1).join(" ")}</span></>
-          )}
+          {tournament.name}
         </motion.h1>
 
-        {/* Compact metadata — 1 line */}
+        {/* Metadata */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ duration: 0.5, delay: 0.35 }}
-          className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-[11px] text-brand-aqua/60 font-mono uppercase tracking-wider"
+          transition={{ duration: 0.5, delay: 0.25 }}
+          className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-[13px] text-[#707b86]"
         >
           {tournament.location && (
-            <span className="flex items-center gap-1">
-              <MapPin size={11} /> {tournament.location}
+            <span className="flex items-center gap-1.5">
+              <MapPin className="w-3.5 h-3.5" />
+              {tournament.location}
             </span>
           )}
           {tournament.start_date && (
-            <span className="flex items-center gap-1">
-              <Calendar size={11} /> {startDateLabel}
+            <span className="flex items-center gap-1.5">
+              <Calendar className="w-3.5 h-3.5" />
+              {startDateLabel}
             </span>
           )}
           {tournament.teams_count > 0 && (
-            <span className="flex items-center gap-1">
-              <Users size={11} /> {tournament.teams_count} equipos
+            <span className="flex items-center gap-1.5">
+              <Users className="w-3.5 h-3.5" />
+              {tournament.teams_count} equipos
             </span>
           )}
         </motion.div>
 
-        {/* CTA buttons — thumb-friendly */}
+        {/* CTA buttons */}
         <motion.div
-          initial={{ y: 20 }}
-          animate={{ y: 0 }}
-          transition={{ duration: 0.6, delay: 0.5 }}
-          className="flex gap-3 w-full max-w-sm mt-1 relative z-50"
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.4 }}
+          className="flex gap-3 mt-2"
         >
           <button
             onClick={() => scrollTo("posiciones")}
-            className="btn-cta-primary flex-1 text-xs"
+            className="inline-flex items-center gap-2 px-5 py-2.5 text-[13px] font-semibold text-white bg-[#0a84ff] rounded-full hover:bg-[#2493ff] transition-all shadow-[0_2px_16px_rgba(10,132,255,0.3)]"
           >
-            <span>🏆</span> Ver Tabla
+            <Trophy className="w-3.5 h-3.5" />
+            Ver Tabla
           </button>
           <button
             onClick={() => scrollTo("partidos")}
-            className="btn-cta-secondary flex-1 text-xs"
+            className="inline-flex items-center gap-2 px-5 py-2.5 text-[13px] font-semibold text-[#a7b0ba] border border-[#202830] rounded-full hover:bg-[#0a0f14] hover:text-white transition-all"
           >
-            <span>⚽</span> Partidos
+            ⚽ Partidos
           </button>
         </motion.div>
 
@@ -151,10 +149,10 @@ export const TournamentHero = ({ tournament }: TournamentHeroProps) => {
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ duration: 0.5, delay: 1 }}
-          className="flex flex-col items-center gap-1 mt-2 text-white/20"
+          transition={{ duration: 0.5, delay: 0.9 }}
+          className="text-[#4d565f] mt-1"
         >
-          <ChevronDown size={16} className="animate-bounce" />
+          <ChevronDown className="w-4 h-4 animate-bounce" />
         </motion.div>
 
       </div>

@@ -7,8 +7,9 @@ import { generateRandomGroups, removeTeamFromGroup, assignTeamToGroup } from "@/
 import { Loader2, Users, Shield, XCircle, Shuffle, Check, Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
 
-export function TournamentGroupManager({ tournamentId, currentTeams, onUpdate, isDisabled = false }: {
+export function TournamentGroupManager({ tournamentId, categoryId, currentTeams, onUpdate, isDisabled = false }: {
   tournamentId: string;
+  categoryId?: string | null;
   currentTeams: any[];
   onUpdate?: () => void;
   isDisabled?: boolean;
@@ -27,7 +28,7 @@ export function TournamentGroupManager({ tournamentId, currentTeams, onUpdate, i
     if (!teamToAssignId || !targetGroup || isDisabled) return;
     setAssignStatus("assigning");
     try {
-      await assignTeamToGroup(tournamentId, teamToAssignId, targetGroup);
+      await assignTeamToGroup(tournamentId, teamToAssignId, targetGroup, categoryId);
       setAssignStatus("success");
       setTimeout(() => {
         setAssignStatus("idle");
@@ -46,7 +47,7 @@ export function TournamentGroupManager({ tournamentId, currentTeams, onUpdate, i
     if (!teamToRemove || isDisabled) return;
     setStatus("removing");
     try {
-      await removeTeamFromGroup(tournamentId, teamToRemove.id);
+      await removeTeamFromGroup(tournamentId, teamToRemove.id, categoryId);
       if (onUpdate) onUpdate();
       router.refresh();
       setTeamToRemove(null);
@@ -66,7 +67,7 @@ export function TournamentGroupManager({ tournamentId, currentTeams, onUpdate, i
   const confirmGenerateRandomGroups = async () => {
     setIsGeneratingGroups(true);
     try {
-      await generateRandomGroups(tournamentId, groupSize as number);
+      await generateRandomGroups(tournamentId, groupSize as number, categoryId);
       if (onUpdate) onUpdate();
       router.refresh();
       setShowRandomConfirm(false);

@@ -2,12 +2,13 @@
 
 import { useState } from "react";
 import { createPortal } from "react-dom";
-import { addTeamToTournament, removeTeamFromTournament } from "@/app/admin/actions";
+import { addTeamToTournament, removeTeamFromTournament, removeTeamFromCategory } from "@/app/admin/actions";
 import { Plus, Check, Loader2, Users, Shield, XCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
 
-export function TournamentEnrollmentManager({ tournamentId, availableTeams, currentTeams, onUpdate, isDisabled = false }: {
+export function TournamentEnrollmentManager({ tournamentId, categoryId, availableTeams, currentTeams, onUpdate, isDisabled = false }: {
   tournamentId: string;
+  categoryId?: string | null;
   availableTeams: any[];
   currentTeams: any[];
   onUpdate?: () => void;
@@ -26,7 +27,7 @@ export function TournamentEnrollmentManager({ tournamentId, availableTeams, curr
     if (!selectedTeamId || isDisabled) return;
     setStatus("adding");
     try {
-      await addTeamToTournament(tournamentId, selectedTeamId);
+      await addTeamToTournament(tournamentId, selectedTeamId, undefined, categoryId);
       setStatus("success");
       setTimeout(() => {
         setStatus("idle");
@@ -44,7 +45,11 @@ export function TournamentEnrollmentManager({ tournamentId, availableTeams, curr
     if (!teamToRemove || isDisabled) return;
     setStatus("removing");
     try {
-      await removeTeamFromTournament(tournamentId, teamToRemove.id);
+      if (categoryId) {
+        await removeTeamFromCategory(tournamentId, teamToRemove.id, categoryId);
+      } else {
+        await removeTeamFromTournament(tournamentId, teamToRemove.id);
+      }
       if (onUpdate) onUpdate();
       router.refresh();
       setTeamToRemove(null);

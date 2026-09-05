@@ -19,6 +19,7 @@ interface Match {
   winner_team_id: string | null;
   home_team_id: string | null;
   away_team_id: string | null;
+  cup_name?: string | null;
 }
 
 const STAGE_ORDER = ["ROUND_16", "QUARTERFINAL", "SEMIFINAL", "FINAL"];
@@ -40,44 +41,67 @@ export function TournamentBracket({ matches }: { matches: Match[] }) {
     );
   }
 
-  // Agrupar y ordenar
-  const bracketData: Record<string, Match[]> = {};
-  
-  STAGE_ORDER.forEach((stage) => {
-    const stageMatches = knockoutMatches.filter((m) => m.stage === stage);
-    if (stageMatches.length > 0) {
-      // Ordenar por bracket_order
-      bracketData[stage] = stageMatches.sort((a, b) => (a.bracket_order || 0) - (b.bracket_order || 0));
-    }
-  });
+  // Agrupar por cup_name
+  const cups = Array.from(new Set(knockoutMatches.map(m => m.cup_name || "Copa Principal")));
 
   return (
-    <div className="w-full overflow-x-auto snap-x snap-mandatory pb-8 pt-4 custom-scrollbar">
-      <div className="flex gap-12 min-w-max px-4">
-        {STAGE_ORDER.map((stage) => {
-          const matchesInStage = bracketData[stage];
-          if (!matchesInStage) return null;
+    <div className="flex flex-col gap-12 pb-8 pt-4">
+      {cups.map((cupName, idx) => {
+        const cupMatches = knockoutMatches.filter(m => (m.cup_name || "Copa Principal") === cupName);
+        
+        // Agrupar y ordenar para esta copa
+        const bracketData: Record<string, Match[]> = {};
+        STAGE_ORDER.forEach((stage) => {
+          const stageMatches = cupMatches.filter((m) => m.stage === stage);
+          if (stageMatches.length > 0) {
+            bracketData[stage] = stageMatches.sort((a, b) => (a.bracket_order || 0) - (b.bracket_order || 0));
+          }
+        });
 
-          return (
-            <div key={stage} className="w-[320px] shrink-0 snap-center flex flex-col gap-6">
-              {/* Header de la Fase */}
-              <div className="text-center pb-4 border-b border-[#0055cc]/30 mb-2 relative">
-                <div className="absolute -bottom-px left-1/2 -translate-x-1/2 w-1/2 h-px bg-gradient-to-r from-transparent via-[#00f0ff] to-transparent" />
-                <h3 className="text-[#00f0ff] font-black uppercase tracking-widest text-sm drop-shadow-[0_0_10px_rgba(0,240,255,0.4)]">
-                  {STAGE_LABELS[stage] || stage}
-                </h3>
+        return (
+          <div key={cupName} className="w-full">
+            {/* Título de la Copa */}
+            <div className="flex items-center justify-center gap-3 mb-8">
+              <div className="h-px w-12 bg-gradient-to-r from-transparent to-[#00f0ff]/50" />
+              <div className="flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#00f0ff]/30 bg-[#00f0ff]/10">
+                <Trophy size={14} className="text-[#00f0ff]" />
+                <h2 className="text-[#00f0ff] font-black uppercase tracking-widest text-sm drop-shadow-[0_0_10px_rgba(0,240,255,0.4)]">
+                  {cupName}
+                </h2>
               </div>
+              <div className="h-px w-12 bg-gradient-to-l from-transparent to-[#00f0ff]/50" />
+            </div>
 
-              {/* Partidos de la Fase */}
-              <div className="flex flex-col gap-8 flex-1 justify-center">
-                {matchesInStage.map((match) => (
-                  <BracketMatchCard key={match.id} match={match} />
-                ))}
+            <div className="w-full overflow-x-auto snap-x snap-mandatory custom-scrollbar pb-4">
+              <div className="flex gap-12 min-w-max px-4">
+                {STAGE_ORDER.map((stage) => {
+                  const matchesInStage = bracketData[stage];
+                  if (!matchesInStage) return null;
+
+                  return (
+                    <div key={stage} className="w-[320px] shrink-0 snap-center flex flex-col gap-6">
+                      {/* Header de la Fase */}
+                      <div className="text-center pb-4 border-b border-[#0055cc]/30 mb-2 relative">
+                        <div className="absolute -bottom-px left-1/2 -translate-x-1/2 w-1/2 h-px bg-gradient-to-r from-transparent via-[#00f0ff] to-transparent" />
+                        <h3 className="text-[#00f0ff] font-black uppercase tracking-widest text-sm drop-shadow-[0_0_10px_rgba(0,240,255,0.4)]">
+                          {STAGE_LABELS[stage] || stage}
+                        </h3>
+                      </div>
+
+                      {/* Partidos de la Fase */}
+                      <div className="flex flex-col gap-8 flex-1 justify-center">
+                        {matchesInStage.map((match) => (
+                          <BracketMatchCard key={match.id} match={match} />
+                        ))}
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </div>
-          );
-        })}
-      </div>
+          </div>
+        );
+      })}
     </div>
   );
 }
