@@ -7,9 +7,10 @@ import { createClient } from "@/utils/supabase/client";
 interface LogoUploaderProps {
   onUploadSuccess: (url: string) => void;
   defaultImage?: string;
+  compact?: boolean;
 }
 
-export function LogoUploader({ onUploadSuccess, defaultImage }: LogoUploaderProps) {
+export function LogoUploader({ onUploadSuccess, defaultImage, compact = false }: LogoUploaderProps) {
   const [preview, setPreview] = useState<string | null>(defaultImage || null);
   const [status, setStatus] = useState<"idle" | "processing" | "uploading" | "success" | "error">("idle");
   const [errorMessage, setErrorMessage] = useState("");
@@ -80,7 +81,7 @@ export function LogoUploader({ onUploadSuccess, defaultImage }: LogoUploaderProp
       setStatus("uploading");
       const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.webp`;
       
-      const { data, error } = await supabase.storage
+      const { error } = await supabase.storage
         .from("logos")
         .upload(fileName, processedBlob, {
           contentType: "image/webp",
@@ -97,7 +98,7 @@ export function LogoUploader({ onUploadSuccess, defaultImage }: LogoUploaderProp
       setStatus("success");
       onUploadSuccess(publicUrlData.publicUrl);
 
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
       setStatus("error");
       setErrorMessage("Error procesando imagen");
@@ -114,28 +115,33 @@ export function LogoUploader({ onUploadSuccess, defaultImage }: LogoUploaderProp
         className="hidden" 
       />
 
-      <div 
-        onClick={() => status !== "uploading" && fileInputRef.current?.click()}
-        className={`w-32 h-32 rounded-full border-2 border-dashed flex items-center justify-center cursor-pointer transition-all overflow-hidden group
-          ${status === 'error' ? 'border-red-500 bg-red-500/10' : 'border-brand-navy/50 hover:border-brand-teal bg-brand-deep/50'}
+      <button
+        type="button"
+        aria-label="Cambiar escudo del club"
+        title="Cambiar escudo del club"
+        disabled={status === "uploading" || status === "processing"}
+        onClick={() => fileInputRef.current?.click()}
+        className={`${compact ? 'size-20 sm:size-32' : 'size-32'} rounded-lg border flex items-center justify-center cursor-pointer transition-colors overflow-hidden group focus-visible:outline-2 focus-visible:outline-brand-primary focus-visible:outline-offset-4 disabled:opacity-50
+          ${status === 'error' ? 'border-red-500 bg-red-500/10' : 'border-border-default hover:border-brand-primary bg-bg-elevated'}
         `}
       >
         {preview ? (
-          <div className="relative w-full h-full">
-            <img src={preview} alt="Preview" className="w-full h-full object-cover" />
-            <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+          <span className="relative w-full h-full">
+            <img src={preview} alt="Escudo del club" className="w-full h-full object-contain p-3" />
+            <span className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100 transition-opacity flex items-center justify-center">
               <UploadCloud className="w-8 h-8 text-white" />
-            </div>
-          </div>
+            </span>
+          </span>
         ) : (
-          <div className="flex flex-col items-center gap-2 text-brand-aqua/50 group-hover:text-brand-teal">
+          <span className="flex flex-col items-center gap-2 text-text-secondary group-hover:text-brand-primary">
             <UploadCloud className="w-8 h-8" />
-            <span className="text-[9px] uppercase tracking-widest text-center px-2">Subir Escudo</span>
-          </div>
+            <span className="text-xs text-center px-2">Subir escudo</span>
+          </span>
         )}
-      </div>
+      </button>
 
-      <div className="h-4">
+      <div className="min-h-4" role="status">
+        {status === 'idle' && <span className="text-xs text-text-secondary">Cambiar escudo</span>}
         {status === 'processing' && (
           <span className="flex items-center gap-1 text-yellow-500 font-bold text-[10px] uppercase tracking-widest animate-pulse">
             <Loader2 className="w-3 h-3 animate-spin" /> Optimizando...

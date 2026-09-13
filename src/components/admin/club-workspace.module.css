@@ -1,0 +1,96 @@
+.workspace {
+  --background: #0a0f14;
+  --foreground: #f7f9fb;
+  --card: #0a0f14;
+  --muted: #101a24;
+  --muted-foreground: #a7b0ba;
+  --border: #202830;
+  --input: #34404c;
+  --primary: #0073df;
+  --primary-foreground: #ffffff;
+  --ring: #0088ff;
+  --radius: 0.5rem;
+  color: var(--foreground);
+  font-family: var(--font-geist-sans);
+  letter-spacing: 0;
+}
+
+.workspace :is(h1, h2, h3, p, label, button, input) {
+  font-family: inherit;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.workspace :is(input, select) { color-scheme: dark; }
+
+.workspace :is(h1, h2) { font-weight: 750; }
+
+.profile {
+  border-bottom: 1px solid var(--border);
+}
+
+.signing {
+  background: var(--card);
+  border: 1px solid var(--border);
+  box-shadow: 0 12px 32px rgb(0 0 0 / 16%);
+}
+
+.playerRow {
+  border-left: 2px solid transparent;
+}
+
+.playerRow:hover,
+.playerRow:focus-within {
+  border-left-color: #72b8fb;
+  background: #0c1925;
+}
+
+.playerAvatar {
+  box-shadow: 0 3px 8px rgb(9 19 33 / 18%);
+}
+
+.playerAvatar [data-slot="avatar-fallback"] {
+  background: #0d2235;
+  color: #8fcaff;
+}
+
+.workspace [data-slot="button"][data-variant="default"] {
+  background: var(--primary);
+  color: white;
+  box-shadow: 0 4px 16px rgb(0 136 255 / 18%);
+}
+
+.workspace [data-slot="button"][data-variant="default"]:hover:not(:disabled) {
+  background: #0067c9;
+}
+
+.workspace [data-slot="tabs-trigger"][data-active] {
+  background: var(--primary);
+  color: white;
+}
+
+.workspace :is(button, a):focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 3px;
+}
+
+.field {
+  display: grid;
+  gap: 0.5rem;
+  min-width: 0;
+  font-size: 0.875rem;
+  color: var(--muted-foreground);
+}
+
+.control {
+  height: 2.75rem;
+  border-radius: 0.375rem;
+  border-color: var(--input);
+  background: var(--background);
+  color: var(--foreground);
+  font-size: 1rem;
+}
+
+@media (min-width: 640px) {
+  .control { font-size: 0.875rem; }
+}

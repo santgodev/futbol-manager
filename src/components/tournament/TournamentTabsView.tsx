@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { Calendar, BarChart2, Trophy, GitMerge } from "lucide-react";
 import { FixtureTab } from "./FixtureTab";
 import { PublicGroupStandings } from "./PublicGroupStandings";
@@ -19,6 +19,8 @@ interface StandingRow {
   goals_for: number;
   goals_against: number;
   goal_difference: number;
+  volleyball_points_for?: number;
+  volleyball_points_against?: number;
   points: number;
 }
 
@@ -36,17 +38,48 @@ interface Match {
   group_name?: string | null;
   venue?: string | null;
   bracket_order?: number | null;
+  category_id?: string | null;
+  is_knockout?: boolean;
+  match_sets?: MatchSet[] | null;
+}
+
+interface MatchSet {
+  id: string;
+  set_number: number;
+  home_points: number | null;
+  away_points: number | null;
+  status: string | null;
+  winner_team_id: string | null;
+}
+
+interface TournamentTeam {
+  team_id: string;
+  category_id?: string | null;
+}
+
+interface TournamentData {
+  sport?: string | null;
+  tournament_teams?: TournamentTeam[] | null;
+}
+
+interface TournamentCategory {
+  id: string;
+  name: string;
 }
 
 interface TournamentTabsViewProps {
-  tournament: any;
-  categories: any[];
+  tournament: TournamentData;
+  categories: TournamentCategory[];
   matches: Match[];
   standings: StandingRow[];
   totalTeams?: number;
 }
 
 type TabId = "fixture" | "standings" | "ranking" | "bracket";
+
+function isTabId(value: string): value is TabId {
+  return value === "fixture" || value === "standings" || value === "ranking" || value === "bracket";
+}
 
 const TABS: { id: TabId; label: string; icon: React.ComponentType<{ size?: number; className?: string }> }[] = [
   { id: "fixture", label: "Fixture y Resultados", icon: Calendar },
@@ -98,36 +131,51 @@ function stageBadgeLabel(stage: string): string {
   }
 }
 
-export function TournamentTabsView({ tournament, categories, matches, standings, totalTeams = 0 }: TournamentTabsViewProps) {
+export function TournamentTabsView({ tournament, categories, matches, standings }: TournamentTabsViewProps) {
   const [activeCategoryId, setActiveCategoryId] = useState<string | null>(categories?.[0]?.id || null);
   const [activeTab, setActiveTab] = useState<TabId>("fixture");
+
+  useEffect(() => {
+    const applyHashTab = () => {
+      const hashTab = window.location.hash.replace("#", "");
+      if (isTabId(hashTab)) setActiveTab(hashTab);
+    };
+
+    const handleTabChange = (event: Event) => {
+      const tabId = (event as CustomEvent<{ tabId?: string }>).detail?.tabId;
+      if (tabId && isTabId(tabId)) setActiveTab(tabId);
+    };
+
+    applyHashTab();
+    window.addEventListener("hashchange", applyHashTab);
+    window.addEventListener("tournament-tab-change", handleTabChange);
+
+    return () => {
+      window.removeEventListener("hashchange", applyHashTab);
+      window.removeEventListener("tournament-tab-change", handleTabChange);
+    };
+  }, []);
 
   // ── FILTER BY ACTIVE CATEGORY ──
   const activeTeams = useMemo(() => {
     return activeCategoryId
-      ? tournament?.tournament_teams?.filter((tt: any) => tt.category_id === activeCategoryId) || []
+      ? tournament?.tournament_teams?.filter((tt) => tt.category_id === activeCategoryId) || []
       : tournament?.tournament_teams || [];
   }, [tournament, activeCategoryId]);
 
   const activeMatches = useMemo(() => {
     return activeCategoryId
-      ? matches.filter((m: any) => m.category_id === activeCategoryId)
+      ? matches.filter((m) => m.category_id === activeCategoryId)
       : matches;
   }, [matches, activeCategoryId]);
 
   const activeStandings = useMemo(() => {
     return activeCategoryId
-      ? standings.filter((s: any) => activeTeams.some((tt: any) => tt.team_id === s.team_id))
+      ? standings.filter((s) => activeTeams.some((tt) => tt.team_id === s.team_id))
       : standings;
   }, [standings, activeTeams, activeCategoryId]);
 
   const activePhase = useMemo(() => getActivePhase(activeMatches), [activeMatches]);
-
-  // Group matches — fixtures only for GROUP stage, knockout for bracket tab
-  const groupMatches = useMemo(
-    () => activeMatches.filter((m) => m.stage === "GROUP"),
-    [activeMatches]
-  );
 
   // Show both group + knockout in fixture, but always show knockout in bracket
   const hasKnockout = useMemo(
@@ -145,7 +193,7 @@ export function TournamentTabsView({ tournament, categories, matches, standings,
   );
 
   return (
-    <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 scroll-mt-20">
+    <section id="tournament-tabs" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 scroll-mt-20">
       {/* ── SELECTOR DE CATEGORÍA ── */}
       {categories && categories.length > 0 && (
         <div className="mb-8">
@@ -217,7 +265,7 @@ export function TournamentTabsView({ tournament, categories, matches, standings,
 
         {activeTab === "standings" && (
           activeStandings.length > 0 ? (
-            <PublicGroupStandings standings={activeStandings} />
+            <PublicGroupStandings standings={activeStandings} sport={tournament?.sport} />
           ) : (
             <EmptyState text="No hay tablas de posiciones disponibles aún." />
           )
@@ -225,7 +273,7 @@ export function TournamentTabsView({ tournament, categories, matches, standings,
 
         {activeTab === "ranking" && (
           activeStandings.length > 0 ? (
-            <RankingTab standings={activeStandings} />
+            <RankingTab standings={activeStandings} sport={tournament?.sport} />
           ) : (
             <EmptyState text="No hay suficientes datos para el ranking." />
           )

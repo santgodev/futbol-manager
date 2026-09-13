@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import { createPortal } from "react-dom";
-import { addTeamToTournament, removeTeamFromTournament, removeTeamFromCategory } from "@/app/admin/actions";
-import { Plus, Check, Loader2, Users, Shield, XCircle } from "lucide-react";
+import { addTeamToTournament, removeTeamFromTournament, removeTeamFromCategory, bulkCreateAndEnrollTeams } from "@/app/admin/actions";
+import { Plus, Check, Loader2, Users, Shield, XCircle, FileText } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 export function TournamentEnrollmentManager({ tournamentId, categoryId, availableTeams, currentTeams, onUpdate, isDisabled = false }: {
@@ -14,7 +14,9 @@ export function TournamentEnrollmentManager({ tournamentId, categoryId, availabl
   onUpdate?: () => void;
   isDisabled?: boolean;
 }) {
-  const [selectedTeamId, setSelectedTeamId] = useState("");
+  const [selectedTeamIds, setSelectedTeamIds] = useState<string[]>([]);
+  const [bulkText, setBulkText] = useState("");
+  const [isBulkMode, setIsBulkMode] = useState(false);
   const [status, setStatus] = useState<"idle" | "adding" | "success" | "removing">("idle");
   const [teamToRemove, setTeamToRemove] = useState<{ id: string, name: string } | null>(null);
   const router = useRouter();
@@ -23,21 +25,49 @@ export function TournamentEnrollmentManager({ tournamentId, categoryId, availabl
   const teamsToSelect = availableTeams.filter(t => !currentTeamIds.has(t.id));
   const teamsWithoutGroup = currentTeams.filter(t => !t.group_name);
 
+  const toggleSelection = (id: string) => {
+    setSelectedTeamIds(prev => 
+      prev.includes(id) ? prev.filter(tId => tId !== id) : [...prev, id]
+    );
+  };
+
   const handleAdd = async () => {
-    if (!selectedTeamId || isDisabled) return;
+    if (selectedTeamIds.length === 0 || isDisabled) return;
     setStatus("adding");
     try {
-      await addTeamToTournament(tournamentId, selectedTeamId, undefined, categoryId);
+      await Promise.all(
+        selectedTeamIds.map(teamId => addTeamToTournament(tournamentId, teamId, undefined, categoryId))
+      );
       setStatus("success");
       setTimeout(() => {
         setStatus("idle");
-        setSelectedTeamId("");
+        setSelectedTeamIds([]);
         if (onUpdate) onUpdate();
         router.refresh();
       }, 1000);
     } catch (err) {
       console.error(err);
       setStatus("idle");
+    }
+  };
+
+  const handleBulkAdd = async () => {
+    if (!bulkText.trim() || isDisabled) return;
+    setStatus("adding");
+    try {
+      await bulkCreateAndEnrollTeams(tournamentId, categoryId, bulkText);
+      setStatus("success");
+      setTimeout(() => {
+        setStatus("idle");
+        setBulkText("");
+        setIsBulkMode(false);
+        if (onUpdate) onUpdate();
+        router.refresh();
+      }, 1000);
+    } catch (err: any) {
+      console.error(err);
+      setStatus("idle");
+      alert("Error agregando lista: " + err.message);
     }
   };
 
@@ -67,48 +97,97 @@ export function TournamentEnrollmentManager({ tournamentId, categoryId, availabl
         Equipos Inscritos ({currentTeams.length})
       </h3>
 
-      {/* Inscribir equipo */}
-      {teamsToSelect.length > 0 ? (
-        <div className="flex flex-col sm:flex-row gap-4 bg-[#02060d]/50 p-4 rounded-xl border border-brand-navy/30">
-          <select
-            value={selectedTeamId}
-            onChange={(e) => setSelectedTeamId(e.target.value)}
-            disabled={isDisabled}
-            className={`flex-1 w-full p-3 bg-black/60 border border-brand-navy/50 focus:border-brand-teal focus:outline-none focus:ring-1 focus:ring-brand-teal appearance-none rounded-lg text-sm text-white ${
-              isDisabled ? 'opacity-40 cursor-not-allowed border-red-500/20 text-white/35' : ''
-            }`}
-            title={isDisabled ? "Inscripciones bloqueadas (ya existen partidos o hay inconsistencias)" : ""}
-          >
-            <option value="" className="bg-[#02060d]">1. Selecciona equipo...</option>
-            {teamsToSelect.map(team => (
-              <option key={team.id} value={team.id} className="bg-[#02060d]">
-                {team.name}
-              </option>
-            ))}
-          </select>
-
+      {/* Panel de Inscripción */}
+      <div className="flex flex-col gap-4 bg-[#02060d]/50 p-4 rounded-xl border border-brand-navy/30">
+        <div className="flex items-center justify-between gap-4 border-b border-brand-navy/30 pb-3">
+          <div className="text-xs text-brand-aqua/50 uppercase tracking-widest font-bold">
+            Agregar Equipos al Torneo
+          </div>
           <button
-            onClick={handleAdd}
-            disabled={!selectedTeamId || status !== "idle" || isDisabled}
-            className="w-full sm:w-auto bg-gradient-to-r from-brand-teal to-brand-aqua text-brand-deep px-6 py-3 rounded-lg text-xs font-bold uppercase tracking-widest flex items-center justify-center gap-2 hover:shadow-[0_0_20px_rgba(0,240,255,0.4)] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            onClick={() => setIsBulkMode(!isBulkMode)}
+            className="text-[10px] font-bold uppercase tracking-widest text-brand-teal bg-brand-teal/10 hover:bg-brand-teal/20 px-3 py-1.5 rounded-md transition-colors"
           >
-            {status === "adding" ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
-            ) : status === "success" ? (
-              <Check className="w-4 h-4" />
-            ) : (
-              <Plus className="w-4 h-4" />
-            )}
-            {status === "success" ? "Inscrito" : "Inscribir"}
+            {isBulkMode ? "Modo Selección" : "Pegar Lista"}
           </button>
         </div>
-      ) : (
-        <div className="bg-brand-navy/10 rounded p-4 text-xs text-brand-aqua/40 border border-brand-navy/30 uppercase tracking-wider font-semibold">
-          {availableTeams.length === 0 
-            ? "No hay equipos en el sistema. Ve a la sección de Equipos para crear uno primero."
-            : "Todos los equipos disponibles ya están inscritos en este torneo."}
-        </div>
-      )}
+
+        {isBulkMode ? (
+          <div className="flex flex-col gap-3">
+            <p className="text-xs text-white/50">
+              Escribe o pega una lista de equipos, uno por línea. El sistema los creará automáticamente si no existen y los inscribirá.
+            </p>
+            <textarea
+              value={bulkText}
+              onChange={(e) => setBulkText(e.target.value)}
+              disabled={isDisabled || status === "adding"}
+              placeholder="Dragones FC&#10;Atlético City&#10;Tigres..."
+              className="w-full h-32 bg-[#050b14] border border-brand-navy/50 rounded-lg p-3 text-sm text-white font-mono focus:outline-none focus:border-brand-teal/50 transition-colors resize-none custom-scrollbar"
+            />
+            <div className="flex justify-end pt-2">
+              <button
+                onClick={handleBulkAdd}
+                disabled={!bulkText.trim() || status !== "idle" || isDisabled}
+                className="w-full sm:w-auto bg-gradient-to-r from-brand-teal to-brand-aqua text-brand-deep px-6 py-3 rounded-lg text-xs font-bold uppercase tracking-widest flex items-center justify-center gap-2 hover:shadow-[0_0_20px_rgba(0,240,255,0.4)] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {status === "adding" ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileText className="w-4 h-4" />}
+                {status === "success" ? "Inscritos" : "Inscribir Lista"}
+              </button>
+            </div>
+          </div>
+        ) : (
+          teamsToSelect.length > 0 ? (
+            <>
+              <div className="flex flex-wrap gap-2 max-h-60 overflow-y-auto custom-scrollbar p-1">
+                {teamsToSelect.map(team => {
+                  const isSelected = selectedTeamIds.includes(team.id);
+                  return (
+                    <button
+                      key={team.id}
+                      onClick={() => toggleSelection(team.id)}
+                      disabled={isDisabled}
+                      type="button"
+                      className={`flex items-center gap-2 px-3 py-2 rounded-lg border text-xs font-bold transition-all ${
+                        isSelected 
+                          ? "bg-[#00f0ff]/10 border-[#00f0ff]/50 text-[#00f0ff]" 
+                          : "bg-[#050b14]/50 border-brand-navy/30 text-white/60 hover:bg-white/5"
+                      } ${isDisabled ? 'opacity-40 cursor-not-allowed' : ''}`}
+                    >
+                      <div className={`w-4 h-4 rounded flex items-center justify-center border transition-colors ${isSelected ? "bg-[#00f0ff] border-[#00f0ff]" : "border-brand-navy/50"}`}>
+                        {isSelected && <Check size={12} className="text-black" />}
+                      </div>
+                      {team.name}
+                    </button>
+                  );
+                })}
+              </div>
+
+              <div className="flex flex-col sm:flex-row justify-between items-center gap-3 pt-4 border-t border-brand-navy/30">
+                <span className="text-xs text-brand-aqua/60 font-bold uppercase tracking-widest">
+                  {selectedTeamIds.length} {selectedTeamIds.length === 1 ? 'equipo seleccionado' : 'equipos seleccionados'}
+                </span>
+                <button
+                  onClick={handleAdd}
+                  disabled={selectedTeamIds.length === 0 || status !== "idle" || isDisabled}
+                  className="w-full sm:w-auto bg-gradient-to-r from-brand-teal to-brand-aqua text-brand-deep px-6 py-3 rounded-lg text-xs font-bold uppercase tracking-widest flex items-center justify-center gap-2 hover:shadow-[0_0_20px_rgba(0,240,255,0.4)] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {status === "adding" ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : status === "success" ? (
+                    <Check className="w-4 h-4" />
+                  ) : (
+                    <Plus className="w-4 h-4" />
+                  )}
+                  {status === "success" ? "Inscritos" : `Inscribir Selección`}
+                </button>
+              </div>
+            </>
+          ) : (
+            <div className="bg-brand-navy/10 rounded p-4 text-xs text-brand-aqua/40 border border-brand-navy/30 uppercase tracking-wider font-semibold">
+              Todos los equipos existentes ya están inscritos. Usa "Pegar Lista" para agregar equipos nuevos rápidamente.
+            </div>
+          )
+        )}
+      </div>
 
       {/* Grid de equipos inscritos sin asignar */}
       {teamsWithoutGroup.length > 0 ? (

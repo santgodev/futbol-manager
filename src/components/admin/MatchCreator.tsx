@@ -5,18 +5,33 @@ import { createMatch } from "@/app/admin/actions";
 import { Loader2, Plus, CheckCircle2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 
-export function MatchCreator({ tournamentId, categoryId, teams, onUpdate }: { tournamentId: string; categoryId?: string | null; teams: any[]; onUpdate?: () => void }) {
+export function MatchCreator({
+  tournamentId,
+  categoryId,
+  teams,
+  venues = [],
+  onUpdate
+}: {
+  tournamentId: string;
+  categoryId?: string | null;
+  teams: any[];
+  venues?: any[];
+  onUpdate?: () => void;
+}) {
   const [homeTeamId, setHomeTeamId] = useState("");
   const [awayTeamId, setAwayTeamId] = useState("");
   const [stage, setStage] = useState("GROUP");
   const [matchDate, setMatchDate] = useState(new Date().toISOString().split("T")[0]);
   const [matchTime, setMatchTime] = useState("18:00");
+  const [venueId, setVenueId] = useState("");
+  const [customVenue, setCustomVenue] = useState("");
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const router = useRouter();
 
   const canCreate = homeTeamId && awayTeamId && homeTeamId !== awayTeamId;
+  const activeVenues = venues.filter((venue) => venue.is_active !== false);
 
   const handleCreate = async () => {
     if (!canCreate) return;
@@ -31,12 +46,16 @@ export function MatchCreator({ tournamentId, categoryId, teams, onUpdate }: { to
         stage,
         match_date: matchDate || null,
         match_time: matchTime || null,
+        venue_id: venueId || null,
+        venue: venueId ? null : customVenue.trim() || null,
         is_knockout: stage !== "GROUP",
         category_id: categoryId || null,
       });
       setDone(true);
       setHomeTeamId("");
       setAwayTeamId("");
+      setVenueId("");
+      setCustomVenue("");
       if (onUpdate) onUpdate();
       router.refresh();
       setTimeout(() => setDone(false), 2000);
@@ -95,8 +114,8 @@ export function MatchCreator({ tournamentId, categoryId, teams, onUpdate }: { to
         </div>
       </div>
 
-      {/* Row 2: Fecha, Hora y Fase */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+      {/* Row 2: Fecha, Hora, Cancha y Fase */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <div className="flex flex-col gap-1.5">
           <label className="text-[9px] uppercase tracking-[0.25em] text-[#00f0ff]/50 font-bold px-1">Fecha</label>
           <input
@@ -115,6 +134,34 @@ export function MatchCreator({ tournamentId, categoryId, teams, onUpdate }: { to
             onChange={e => setMatchTime(e.target.value)}
             className={`${selectClass} [color-scheme:dark]`}
           />
+        </div>
+
+        <div className="flex flex-col gap-1.5 col-span-2 sm:col-span-1">
+          <label className="text-[9px] uppercase tracking-[0.25em] text-[#00f0ff]/50 font-bold px-1">Cancha</label>
+          {activeVenues.length > 0 ? (
+            <select
+              value={venueId}
+              onChange={e => {
+                setVenueId(e.target.value);
+                if (e.target.value) setCustomVenue("");
+              }}
+              className={selectClass}
+            >
+              <option value="" className="bg-[#001122]">Sin cancha fija</option>
+              {activeVenues.map((venue) => (
+                <option key={venue.id} value={venue.id} className="bg-[#001122]">
+                  {venue.name}
+                </option>
+              ))}
+            </select>
+          ) : (
+            <input
+              value={customVenue}
+              onChange={e => setCustomVenue(e.target.value)}
+              placeholder="Cancha / sede..."
+              className={selectClass}
+            />
+          )}
         </div>
 
         <div className="flex flex-col gap-1.5 col-span-2 sm:col-span-1">

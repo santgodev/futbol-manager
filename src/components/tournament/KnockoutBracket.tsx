@@ -310,20 +310,58 @@ export function KnockoutBracket({ matches, totalTeams = 0 }: KnockoutBracketProp
   // ── Tree view ──────────────────────────────────────────────────────
   const TreeView = ({ cupMatches }: { cupMatches: any[] }) => {
     const getMatchesByStage = (stage: string) => cupMatches.filter((m) => m.stage === stage);
+    const round16 = getMatchesByStage("ROUND_16");
     const quarterfinals = getMatchesByStage("QUARTERFINAL");
     const semifinals = getMatchesByStage("SEMIFINAL");
     const final = getMatchesByStage("FINAL");
     const thirdPlace = getMatchesByStage("THIRD_PLACE");
 
+    const hasRound16 = round16.length > 0;
+    const hasQuarterfinals = quarterfinals.length > 0 || hasRound16;
+    const hasSemifinals = semifinals.length > 0 || hasQuarterfinals;
+    const hasFinal = final.length > 0 || hasSemifinals;
+
     return (
-      <div className="w-full overflow-x-auto py-4 custom-scrollbar">
-        <div className="flex items-stretch min-w-[800px] max-w-[1000px] mx-auto gap-8 relative px-4">
+      <div className="w-full overflow-x-auto py-8 custom-scrollbar mobile-zoom-bracket">
+        {/* pt-10 leaves room for the absolute headers */}
+        <div className="flex items-stretch min-w-[1000px] max-w-[1400px] mx-auto gap-4 md:gap-8 relative px-4 pt-10">
+
+          {/* OCTAVOS DE FINAL */}
+          {hasRound16 && (
+          <>
+            <div className="flex-1 flex flex-col justify-around relative z-10">
+              <h4 className="text-[9px] text-brand-cyan/50 uppercase tracking-widest font-mono font-bold text-center absolute -top-8 w-full left-0">
+                // OCTAVOS
+              </h4>
+              <MatchNode match={round16[0]} />
+              <MatchNode match={round16[1]} />
+              <MatchNode match={round16[2]} />
+              <MatchNode match={round16[3]} />
+              <MatchNode match={round16[4]} />
+              <MatchNode match={round16[5]} />
+              <MatchNode match={round16[6]} />
+              <MatchNode match={round16[7]} />
+            </div>
+            {/* Connectors to Cuartos */}
+            <div className="hidden md:flex flex-col w-8 opacity-30">
+              <div style={{ flex: 1 }} />
+              <div style={{ flex: 2 }} className="border-r border-t border-b border-[#00f0ff] rounded-r-lg w-full" />
+              <div style={{ flex: 2 }} />
+              <div style={{ flex: 2 }} className="border-r border-t border-b border-[#00f0ff] rounded-r-lg w-full" />
+              <div style={{ flex: 2 }} />
+              <div style={{ flex: 2 }} className="border-r border-t border-b border-[#00f0ff] rounded-r-lg w-full" />
+              <div style={{ flex: 2 }} />
+              <div style={{ flex: 2 }} className="border-r border-t border-b border-[#00f0ff] rounded-r-lg w-full" />
+              <div style={{ flex: 1 }} />
+            </div>
+          </>
+          )}
 
           {/* CUARTOS DE FINAL */}
-          {quarterfinals.length > 0 && (
+          {hasQuarterfinals && (
           <>
-            <div className="flex-1 flex flex-col justify-around gap-4 md:gap-8 relative z-10">
-              <h4 className="text-[9px] text-brand-cyan/50 uppercase tracking-widest font-mono font-bold text-center mb-2">
+            <div className="flex-1 flex flex-col justify-around relative z-10">
+              <h4 className="text-[9px] text-brand-cyan/50 uppercase tracking-widest font-mono font-bold text-center absolute -top-8 w-full left-0">
                 // CUARTOS
               </h4>
               <MatchNode match={quarterfinals[0]} />
@@ -331,33 +369,40 @@ export function KnockoutBracket({ matches, totalTeams = 0 }: KnockoutBracketProp
               <MatchNode match={quarterfinals[2]} />
               <MatchNode match={quarterfinals[3]} />
             </div>
-            <div className="hidden md:flex flex-col justify-around w-8 py-12">
-              <div className="h-1/4 border-r border-t border-b border-brand-cyan/10 rounded-r-lg w-full mb-12" />
-              <div className="h-1/4 border-r border-t border-b border-brand-cyan/10 rounded-r-lg w-full mt-12" />
+            {/* Connectors to Semis */}
+            <div className="hidden md:flex flex-col w-8 opacity-30">
+              <div style={{ flex: 1 }} />
+              <div style={{ flex: 2 }} className="border-r border-t border-b border-[#00f0ff] rounded-r-lg w-full" />
+              <div style={{ flex: 2 }} />
+              <div style={{ flex: 2 }} className="border-r border-t border-b border-[#00f0ff] rounded-r-lg w-full" />
+              <div style={{ flex: 1 }} />
             </div>
           </>
         )}
 
         {/* SEMIFINALES */}
-        {semifinals.length > 0 && (
+        {hasSemifinals && (
           <>
-            <div className="flex-1 flex flex-col justify-around gap-16 md:gap-32 py-12 relative z-10">
-              <h4 className="text-[9px] text-brand-cyan/50 uppercase tracking-widest font-mono font-bold text-center mb-2 absolute top-0 w-full left-0">
+            <div className="flex-1 flex flex-col justify-around relative z-10">
+              <h4 className="text-[9px] text-brand-cyan/50 uppercase tracking-widest font-mono font-bold text-center absolute -top-8 w-full left-0">
                 // SEMIFINALES
               </h4>
               <MatchNode match={semifinals[0]} />
               <MatchNode match={semifinals[1]} />
             </div>
-            <div className="hidden md:flex flex-col justify-center w-8 py-32">
-              <div className="h-1/2 border-r border-t border-b border-brand-cyan/30 rounded-r-lg w-full" />
+            {/* Connector to Final */}
+            <div className="hidden md:flex flex-col w-8 opacity-30">
+              <div style={{ flex: 1 }} />
+              <div style={{ flex: 2 }} className="border-r border-t border-b border-[#00f0ff] rounded-r-lg w-full" />
+              <div style={{ flex: 1 }} />
             </div>
           </>
         )}
 
         {/* FINAL */}
-        {final.length > 0 && (
-          <div className="flex-1 flex flex-col justify-center relative z-10">
-            <h4 className="text-[9px] text-brand-yellow uppercase tracking-widest font-mono font-bold text-center mb-2 absolute top-0 w-full left-0">
+        {hasFinal && (
+          <div className="flex-1 flex flex-col justify-around relative z-10">
+            <h4 className="text-[9px] text-brand-yellow uppercase tracking-widest font-mono font-bold text-center absolute -top-8 w-full left-0">
               // FINAL
             </h4>
             <MatchNode match={final[0]} isFinal />

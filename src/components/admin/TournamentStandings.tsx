@@ -4,9 +4,10 @@ import Image from "next/image";
 import { Shield } from "lucide-react";
 import { TeamProfileModal } from "@/components/home/TeamProfileModal";
 
-export function TournamentStandings({ standings, tournamentId }: { standings: any[], tournamentId?: string }) {
+export function TournamentStandings({ standings, tournamentId, sport }: { standings: any[], tournamentId?: string, sport?: string | null }) {
   const [selectedTeam, setSelectedTeam] = useState<any | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const isVolleyball = sport === "VOLLEYBALL" || sport === "BEACH_VOLLEYBALL";
 
   const openTeamProfile = (team: any) => {
     setSelectedTeam(team);
@@ -36,7 +37,7 @@ export function TournamentStandings({ standings, tournamentId }: { standings: an
             <th className="py-4 px-4 text-[10px] text-[#00f0ff]/50 font-black uppercase tracking-[0.2em] w-12 text-center">Pos</th>
             <th className="py-4 px-4 text-[10px] text-[#00f0ff]/50 font-black uppercase tracking-[0.2em] w-full">Equipo</th>
             <th className="py-4 px-3 text-[10px] text-white/50 font-bold uppercase tracking-widest text-center">PJ</th>
-            <th className="py-4 px-3 text-[10px] text-white/50 font-bold uppercase tracking-widest text-center">DG</th>
+            <th className="py-4 px-3 text-[10px] text-white/50 font-bold uppercase tracking-widest text-center">{isVolleyball ? "DS" : "DG"}</th>
             <th className="py-4 px-4 text-[12px] text-[#00f0ff] font-black uppercase tracking-widest text-center">PTS</th>
           </tr>
         </thead>

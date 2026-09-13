@@ -1,26 +1,52 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
 import Link from "next/link";
+import { Badge } from "@/components/ui/badge";
 import { Shield } from "@/components/ui/Shield";
 import { GlobalRosterManager } from "@/components/admin/GlobalRosterManager";
 import { LogoUploader } from "@/components/admin/LogoUploader";
 import { updateTeamLogo } from "@/app/admin/actions";
+import styles from "./club-workspace.module.css";
+import { ArrowLeft, CalendarDays, MapPin, Trophy, Users } from "lucide-react";
+
+type Team = {
+  id: string;
+  name: string;
+  city?: string | null;
+  logo_url?: string | null;
+  created_at: string;
+};
+
+type Player = {
+  id: string;
+  name: string;
+  number?: number | null;
+  date_of_birth?: string | null;
+  position?: string | null;
+  team_id?: string | null;
+};
+
+type TeamTournamentRow = {
+  tournament: {
+    id: string;
+    name: string;
+    slug?: string | null;
+  } | null;
+};
 
 export function TeamDetailsClient({ id }: { id: string }) {
   const router = useRouter();
 
-  const [team, setTeam] = useState<any>(null);
-  const [teamTournaments, setTeamTournaments] = useState<any[]>([]);
-  const [rosterPlayers, setRosterPlayers] = useState<any[]>([]);
-  const [globalPlayers, setGlobalPlayers] = useState<any[]>([]);
-  const [globalTeamPlayers, setGlobalTeamPlayers] = useState<any[]>([]);
-  const [unassignedPlayers, setUnassignedPlayers] = useState<any[]>([]);
+  const [team, setTeam] = useState<Team | null>(null);
+  const [teamTournaments, setTeamTournaments] = useState<TeamTournamentRow[]>([]);
+  const [globalTeamPlayers, setGlobalTeamPlayers] = useState<Player[]>([]);
+  const [unassignedPlayers, setUnassignedPlayers] = useState<Player[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const fetchAllData = async () => {
+  const fetchAllData = useCallback(async () => {
     if (!id) return;
     const supabase = createClient();
 
@@ -37,28 +63,12 @@ export function TeamDetailsClient({ id }: { id: string }) {
     }
     setTeam(teamData);
 
-    // 2. Fetch tournaments this team is registered in
     const { data: tournamentsData } = await supabase
       .from("tournament_teams")
       .select("tournament:tournaments(id, name, slug)")
       .eq("team_id", id);
     if (tournamentsData) setTeamTournaments(tournamentsData);
 
-    // 3. Fetch players registered for this team, grouped by tournament
-    const { data: playersData } = await supabase
-      .from("tournament_players")
-      .select("*, player:players(id, name), tournament:tournaments(id, name)")
-      .eq("team_id", id);
-    if (playersData) setRosterPlayers(playersData);
-
-    // 4. Fetch all global players (to suggest/add existing ones)
-    const { data: allPlayers } = await supabase
-      .from("players")
-      .select("*")
-      .order("name");
-    if (allPlayers) setGlobalPlayers(allPlayers);
-
-    // 5. Fetch players belonging globally to this team
     const { data: teamPlayers } = await supabase
       .from("players")
       .select("*")
@@ -75,11 +85,15 @@ export function TeamDetailsClient({ id }: { id: string }) {
     if (freePlayers) setUnassignedPlayers(freePlayers);
 
     setLoading(false);
-  };
+  }, [id, router]);
 
   useEffect(() => {
-    fetchAllData();
-  }, [id]);
+    const timeoutId = window.setTimeout(() => {
+      void fetchAllData();
+    }, 0);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [fetchAllData]);
 
   if (loading) {
     return (
@@ -91,115 +105,60 @@ export function TeamDetailsClient({ id }: { id: string }) {
 
   if (!team) return null;
 
+  return <TeamDetailsView team={team} teamTournaments={teamTournaments} players={globalTeamPlayers} unassignedPlayers={unassignedPlayers}
+    onRosterChanged={fetchAllData} onLogoChanged={async (url) => {
+      try {
+        await updateTeamLogo(id, url);
+        await fetchAllData();
+      } catch (err) {
+        console.error("Error guardando escudo:", err);
+      }
+    }} />;
+}
+
+export function TeamDetailsView({ team, teamTournaments, players, unassignedPlayers, onRosterChanged, onLogoChanged }: {
+  team: Team;
+  teamTournaments: TeamTournamentRow[];
+  players: Player[];
+  unassignedPlayers: Player[];
+  onRosterChanged: () => void;
+  onLogoChanged: (url: string) => void;
+}) {
+  const createdAtLabel = new Date(team.created_at).toLocaleDateString("es-CO");
+  const activeTournamentRows = teamTournaments.filter((row) => row.tournament);
+
   return (
-    <div className="p-4 md:p-8 max-w-5xl mx-auto">
-      <Link href="/admin/teams" className="text-[10px] text-brand-aqua/60 uppercase tracking-widest hover:text-brand-teal transition-colors mb-8 inline-block">
-        ← Volver a Equipos
+    <div className={`${styles.workspace} mx-auto w-full max-w-6xl px-4 py-6 sm:px-8 lg:py-10`}>
+      <Link href="/admin/teams" className="mb-8 inline-flex min-h-11 items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground">
+        <ArrowLeft className="size-4" /> Equipos
       </Link>
 
-      <header className="mb-12 pb-6 border-b border-brand-navy/30 flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl md:text-5xl font-black tracking-tighter text-[#00f0ff] hero-title !not-italic mb-2 drop-shadow-[0_0_12px_rgba(0,240,255,0.3)]">
-            {team.name}
-          </h1>
-          <p className="text-brand-aqua/50 text-xs uppercase tracking-widest">
-            Ficha Técnica y Gestión de Nómina
-          </p>
+      <header className={`${styles.profile} flex flex-row items-start gap-4 pb-8 sm:gap-8 sm:pb-10`}>
+        <div className="shrink-0 self-start">
+          <LogoUploader compact defaultImage={team.logo_url || undefined} onUploadSuccess={onLogoChanged} />
         </div>
-
-        {team.logo_url && (
-          <div className="w-16 h-16 rounded-xl bg-[#001122] border border-[#00f0ff]/30 shadow-[0_0_15px_rgba(0,240,255,0.2)] flex items-center justify-center p-2">
-            <img src={team.logo_url} alt={team.name} className="max-w-full max-h-full object-contain" />
+        <div className="min-w-0 flex-1">
+          <p className="mb-3 inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-medium text-primary"><span className="size-1.5 rounded-full bg-primary" />Perfil del club</p>
+          <h1 className="break-words text-3xl font-semibold text-foreground sm:text-5xl">{team.name}</h1>
+          <dl className="mt-5 flex flex-wrap gap-x-6 gap-y-3 text-sm text-muted-foreground">
+            <div className="flex items-center gap-2"><MapPin className="size-4 shrink-0" /><dt className="sr-only">Ciudad</dt><dd>{team.city || "Sin ciudad"}</dd></div>
+            <div className="flex items-center gap-2"><CalendarDays className="size-4 shrink-0" /><dt>Creado el</dt><dd>{createdAtLabel}</dd></div>
+            <div className="flex items-center gap-2"><Users className="size-4 shrink-0" /><dt className="sr-only">Plantilla</dt><dd>{players.length} jugadores</dd></div>
+          </dl>
+          <div className="mt-6 flex flex-wrap items-center gap-2">
+            <span className="mr-1 text-xs text-muted-foreground">Torneos</span>
+            {activeTournamentRows.length ? activeTournamentRows.map(({ tournament }) => tournament && (
+              <Badge key={tournament.id} variant="secondary" render={<Link href={`/admin/tournaments/${tournament.id}`} />}
+                className="h-auto max-w-full gap-2 rounded-md border border-border bg-background px-3 py-2 text-xs font-medium text-foreground hover:border-brand-primary/50 hover:bg-muted">
+                <Trophy className="size-3.5 shrink-0 text-brand-primary" />
+                <span className="whitespace-normal break-words">{tournament.name}</span>
+              </Badge>
+            )) : <span className="text-sm text-muted-foreground">Sin inscripciones</span>}
           </div>
-        )}
+        </div>
       </header>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-        
-        {/* Left Side: Logo + Info + Tournaments */}
-        <div className="md:col-span-1 flex flex-col gap-6">
-          {/* Escudo del Equipo */}
-          <section className="panel-premium p-6">
-            <h2 className="text-xs font-bold uppercase tracking-widest text-brand-sand mb-4">Escudo del Club</h2>
-            <div className="flex flex-col items-center gap-3">
-              <LogoUploader
-                defaultImage={team.logo_url || undefined}
-                onUploadSuccess={async (url) => {
-                  try {
-                    await updateTeamLogo(id, url);
-                    fetchAllData();
-                  } catch (err) {
-                    console.error("Error guardando escudo:", err);
-                  }
-                }}
-              />
-              <p className="text-[9px] text-brand-aqua/40 uppercase tracking-widest text-center">
-                Haz click para subir o cambiar el escudo
-              </p>
-            </div>
-          </section>
-
-          <section className="panel-premium p-6">
-            <h2 className="text-xs font-bold uppercase tracking-widest text-brand-sand mb-4">Información General</h2>
-            <div className="flex flex-col gap-3">
-              <div className="bg-black/30 p-3 rounded-lg border border-white/5">
-                <span className="text-[9px] text-brand-aqua/50 uppercase tracking-widest font-bold block mb-1">Ciudad Base</span>
-                <span className="text-[10px] font-mono text-white/70 block">{team.city || "Sin especificar"}</span>
-              </div>
-              <div className="bg-black/30 p-3 rounded-lg border border-white/5">
-                <span className="text-[9px] text-brand-aqua/50 uppercase tracking-widest font-bold block mb-1">Creado el</span>
-                <span className="text-xs text-white/90 font-bold">{new Date(team.created_at).toLocaleDateString()}</span>
-              </div>
-            </div>
-          </section>
-
-          <section className="panel-premium p-6">
-            <h2 className="text-xs font-bold uppercase tracking-widest text-brand-sand mb-4">Torneos Inscritos</h2>
-            <div className="flex flex-col gap-3">
-              {teamTournaments?.map(({ tournament }: any) => (
-                <Link 
-                  key={tournament.id} 
-                  href={`/admin/tournaments/${tournament.id}`}
-                  className="flex items-center gap-3 bg-black/30 hover:bg-[#001122] border border-white/5 hover:border-brand-teal/40 transition-colors rounded-lg p-3 group"
-                >
-                  <span className="text-lg group-hover:scale-110 transition-transform">🏆</span>
-                  <span className="text-xs font-bold text-white/80 group-hover:text-brand-teal uppercase tracking-wide">
-                    {tournament.name}
-                  </span>
-                </Link>
-              ))}
-              {(!teamTournaments || teamTournaments.length === 0) && (
-                <div className="bg-black/30 p-4 rounded-lg border border-white/5 border-dashed text-center">
-                  <span className="text-[10px] text-brand-aqua/40 uppercase tracking-widest font-bold">No inscrito en ningún torneo</span>
-                </div>
-              )}
-            </div>
-          </section>
-        </div>
-
-        {/* Right Side: Roster Managers */}
-        <div className="md:col-span-2 flex flex-col gap-8">
-          {/* Global Club Roster */}
-          <section className="w-full">
-            <div className="mb-4 pl-1">
-              <h2 className="text-sm font-bold uppercase tracking-widest text-brand-sand mb-2">Plantilla del Club (Nómina Global)</h2>
-              <p className="text-[10px] text-brand-aqua/50 uppercase tracking-widest leading-relaxed">
-                Administra los jugadores oficiales del club. Los jugadores creados o agregados aquí pertenecerán al club globalmente y estarán libres para ser inscritos en torneos específicos.
-              </p>
-            </div>
-
-            <GlobalRosterManager 
-              teamId={id} 
-              initialPlayers={globalTeamPlayers || []} 
-              unassignedPlayers={unassignedPlayers || []}
-              onRosterChanged={fetchAllData}
-            />
-          </section>
-
-
-        </div>
-
-      </div>
+      <GlobalRosterManager teamId={team.id} initialPlayers={players} unassignedPlayers={unassignedPlayers} onRosterChanged={onRosterChanged} />
     </div>
   );
 }

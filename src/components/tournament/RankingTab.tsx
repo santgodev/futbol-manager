@@ -17,11 +17,14 @@ interface StandingRow {
   goals_for: number;
   goals_against: number;
   goal_difference: number;
+  volleyball_points_for?: number;
+  volleyball_points_against?: number;
   points: number;
 }
 
 interface RankingTabProps {
   standings: StandingRow[];
+  sport?: string | null;
 }
 
 function safeRatio(a: number, b: number): string {
@@ -51,20 +54,29 @@ function buildGroupPositions(standings: StandingRow[]): Map<string, number> {
   return posMap;
 }
 
-export function RankingTab({ standings }: RankingTabProps) {
+export function RankingTab({ standings, sport }: RankingTabProps) {
+  const isVolleyball = sport === "VOLLEYBALL" || sport === "BEACH_VOLLEYBALL";
   const posMap = useMemo(() => buildGroupPositions(standings), [standings]);
 
   const ranked = useMemo(() => {
     return [...standings].sort((a, b) => {
       if (b.points !== a.points) return b.points - a.points;
-      const ratioA = a.lost === 0 ? 999 : a.won / a.lost;
-      const ratioB = b.lost === 0 ? 999 : b.won / b.lost;
-      if (ratioB !== ratioA) return ratioB - ratioA;
-      const goalRatioA = a.goals_against === 0 ? 999 : a.goals_for / a.goals_against;
-      const goalRatioB = b.goals_against === 0 ? 999 : b.goals_for / b.goals_against;
-      return goalRatioB - goalRatioA;
+      if (isVolleyball) {
+        const setRatioA = a.goals_against === 0 ? 999 : a.goals_for / a.goals_against;
+        const setRatioB = b.goals_against === 0 ? 999 : b.goals_for / b.goals_against;
+        if (setRatioB !== setRatioA) return setRatioB - setRatioA;
+        const pointsForA = a.volleyball_points_for ?? a.goals_for;
+        const pointsAgainstA = a.volleyball_points_against ?? a.goals_against;
+        const pointsForB = b.volleyball_points_for ?? b.goals_for;
+        const pointsAgainstB = b.volleyball_points_against ?? b.goals_against;
+        const pointRatioA = pointsAgainstA === 0 ? 999 : pointsForA / pointsAgainstA;
+        const pointRatioB = pointsAgainstB === 0 ? 999 : pointsForB / pointsAgainstB;
+        return pointRatioB - pointRatioA;
+      }
+      if (b.goal_difference !== a.goal_difference) return b.goal_difference - a.goal_difference;
+      return b.goals_for - a.goals_for;
     });
-  }, [standings]);
+  }, [standings, isVolleyball]);
 
   if (standings.length === 0) {
     return (
@@ -110,14 +122,14 @@ export function RankingTab({ standings }: RankingTabProps) {
               <th className="py-3 px-2 text-[9px] text-white/40 font-bold uppercase tracking-widest text-center" title="Perdidos">
                 PP
               </th>
-              <th className="py-3 px-2 text-[9px] text-white/40 font-bold uppercase tracking-widest text-center" title="Sets Favor:Contra">
-                Sets (F:A)
+              <th className="py-3 px-2 text-[9px] text-white/40 font-bold uppercase tracking-widest text-center" title={isVolleyball ? "Sets Favor:Contra" : "Goles Favor:Contra"}>
+                {isVolleyball ? "Sets (F:A)" : "Goles (F:A)"}
               </th>
-              <th className="py-3 px-2 text-[9px] text-white/40 font-bold uppercase tracking-widest text-center" title="Ratio de Sets">
-                Ratio S
+              <th className="py-3 px-2 text-[9px] text-white/40 font-bold uppercase tracking-widest text-center" title={isVolleyball ? "Ratio de Sets" : "Diferencia de Goles"}>
+                {isVolleyball ? "Ratio S" : "DG"}
               </th>
-              <th className="py-3 px-2 text-[9px] text-white/40 font-bold uppercase tracking-widest text-center" title="Puntos Favor:Contra">
-                Puntos (F:A)
+              <th className="py-3 px-2 text-[9px] text-white/40 font-bold uppercase tracking-widest text-center" title={isVolleyball ? "Puntos Favor:Contra" : "Marcador Favor:Contra"}>
+                {isVolleyball ? "Puntos (F:A)" : "Marcador"}
               </th>
               <th className="py-3 px-2 text-[9px] text-white/40 font-bold uppercase tracking-widest text-center" title="Ratio de Puntos">
                 Ratio P
@@ -137,8 +149,10 @@ export function RankingTab({ standings }: RankingTabProps) {
               const isTop3 = pos <= 3;
               const groupLabel = team.group_name ? `Grp ${team.group_name}` : "—";
 
-              const setRatio = safeRatio(team.won, team.lost);
-              const goalRatio = safeRatio(team.goals_for, team.goals_against);
+              const setRatio = safeRatio(team.goals_for, team.goals_against);
+              const pointsFor = team.volleyball_points_for ?? team.goals_for;
+              const pointsAgainst = team.volleyball_points_against ?? team.goals_against;
+              const pointRatio = safeRatio(pointsFor, pointsAgainst);
 
               return (
                 <tr
@@ -221,22 +235,22 @@ export function RankingTab({ standings }: RankingTabProps) {
 
                   {/* Sets F:A */}
                   <td className="py-3 px-2 text-center text-[11px] font-mono text-white/60">
-                    {team.won}:{team.lost}
+                    {team.goals_for}:{team.goals_against}
                   </td>
 
                   {/* Ratio S */}
                   <td className="py-3 px-2 text-center text-[11px] font-mono text-white/60">
-                    {setRatio}
+                    {isVolleyball ? setRatio : team.goal_difference > 0 ? `+${team.goal_difference}` : team.goal_difference}
                   </td>
 
                   {/* Puntos F:A */}
                   <td className="py-3 px-2 text-center text-[11px] font-mono text-white/60">
-                    {team.goals_for}:{team.goals_against}
+                    {pointsFor}:{pointsAgainst}
                   </td>
 
                   {/* Ratio P */}
                   <td className="py-3 px-2 text-center text-[11px] font-mono text-white/60">
-                    {goalRatio}
+                    {pointRatio}
                   </td>
 
                   {/* Pos. Origen */}

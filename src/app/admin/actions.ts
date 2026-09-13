@@ -77,6 +77,33 @@ export async function updateMatchScore(
   return { success: true, newVersion: (data[0] as any).version };
 }
 
+export async function updateVolleyballSetScore(params: {
+  matchId: string;
+  tournamentId: string;
+  setNumber: number;
+  homePoints: number;
+  awayPoints: number;
+}) {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error("No autorizado");
+
+  // Upsert the set score into match_sets table
+  const { error } = await supabase
+    .from("match_sets")
+    .upsert({
+      match_id: params.matchId,
+      set_number: params.setNumber,
+      home_points: params.homePoints,
+      away_points: params.awayPoints,
+    }, { onConflict: 'match_id, set_number' });
+
+  if (error) {
+    console.error("Error saving volleyball set:", error);
+  }
+
+  return { success: true };
+}
 
 function sanitizeTeamName(rawName: string): string {
   return rawName
@@ -1098,6 +1125,22 @@ export async function updateMatchSchedule(matchId: string, matchDate: string, ma
   return { success: true };
 }
 
+export async function deleteMatch(matchId: string, tournamentId: string) {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error("No autorizado");
+
+  const { error } = await supabase
+    .from("matches")
+    .delete()
+    .eq("id", matchId)
+    .eq("tournament_id", tournamentId);
+
+  if (error) throw new Error("Error al eliminar el partido: " + error.message);
+
+  return { success: true };
+}
+
 export async function deleteMatchEvent(
   eventId: string,
   tournamentId: string
@@ -1397,4 +1440,80 @@ export async function generateRoundRobinFixture(tournamentId: string, categoryId
     matchesGenerated: matchesToInsert.length, 
     rounds: isDoubleRound ? maxRoundsGenerated * 2 : maxRoundsGenerated 
   };
+}
+
+export async function bulkCreateAndEnrollTeams(
+  tournamentId: string,
+  categoryId: string | null | undefined,
+  teamNamesText: string
+) {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error("No autorizado");
+
+  const names = teamNamesText
+    .split("\n")
+    .map(n => n.trim())
+    .filter(Boolean);
+
+  if (names.length === 0) return { success: true, count: 0 };
+
+  let addedCount = 0;
+
+  for (const rawName of names) {
+    const cleanName = sanitizeTeamName(rawName);
+
+    // 1. Check if team exists
+    let teamId: string;
+    const { data: existingTeam } = await supabase
+      .from("teams")
+      .select("id")
+      .ilike("name", cleanName)
+      .maybeSingle();
+
+    if (existingTeam) {
+      teamId = existingTeam.id;
+    } else {
+      // Create team
+      const { data: newTeam, error: createError } = await supabase
+        .from("teams")
+        .insert({ name: cleanName, created_by: user.id })
+        .select("id")
+        .single();
+      if (createError) {
+        console.error("Error creando equipo:", createError);
+        continue;
+      }
+      teamId = newTeam.id;
+    }
+
+    // 2. Check existing enrollment
+    let query = supabase
+      .from("tournament_teams")
+      .select("id")
+      .eq("tournament_id", tournamentId)
+      .eq("team_id", teamId);
+    
+    if (categoryId) {
+      query = query.eq("category_id", categoryId);
+    } else {
+      query = query.is("category_id", null);
+    }
+    
+    const { data: existingEnrollment } = await query.maybeSingle();
+
+    if (!existingEnrollment) {
+      const { error: enrollError } = await supabase
+        .from("tournament_teams")
+        .insert({
+          tournament_id: tournamentId,
+          team_id: teamId,
+          category_id: categoryId || null,
+        });
+      
+      if (!enrollError) addedCount++;
+    }
+  }
+
+  return { success: true, count: addedCount };
 }

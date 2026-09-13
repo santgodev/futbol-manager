@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useId, useState } from "react";
 import { useRouter } from "next/navigation";
 import { 
   createGlobalPlayer, 
@@ -8,14 +8,20 @@ import {
   removePlayerFromTeamGlobally,
   updateGlobalPlayer
 } from "@/app/admin/actions";
-import { Plus, Trash2, Check, Loader2, Users, Search, Calendar as CalendarIcon, Edit2, X } from "lucide-react";
-import DatePicker, { registerLocale } from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
+import { Button } from "@/components/ui/button";
+import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
+import { Plus, Trash2, Check, Loader2, Users, Search, Edit2, MoreHorizontal, X } from "lucide-react";
+import { Menu } from "@base-ui/react/menu";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Input } from "@/components/ui/input";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { SearchableSelect } from "@/components/ui/searchable-select";
 import { format } from "date-fns";
-import { es } from "date-fns/locale";
+import styles from "./club-workspace.module.css";
 
-// Register Spanish locale for react-datepicker
-registerLocale("es", es);
+function getErrorMessage(error: unknown, fallback: string) {
+  return error instanceof Error ? error.message : fallback;
+}
 
 interface Player {
   id: string;
@@ -42,11 +48,12 @@ export function GlobalRosterManager({ teamId, initialPlayers, unassignedPlayers,
   const [newPlayerName, setNewPlayerName] = useState("");
   const [newPlayerNumber, setNewPlayerNumber] = useState("");
   const [newPlayerDob, setNewPlayerDob] = useState<Date | undefined>(undefined);
-  const [showNewDatePicker, setShowNewDatePicker] = useState(false);
   const [newPlayerPosition, setNewPlayerPosition] = useState("");
   
   // Search state
-  const [playerSearchQuery, setPlayerSearchQuery] = useState("");
+  const [rosterSearch, setRosterSearch] = useState("");
+  const [showSigning, setShowSigning] = useState(false);
+  const searchId = useId();
   const [loadingState, setLoadingState] = useState<"idle" | "adding" | "success">("idle");
   const [deletingStates, setDeletingStates] = useState<Record<string, boolean>>({});
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -56,7 +63,6 @@ export function GlobalRosterManager({ teamId, initialPlayers, unassignedPlayers,
   const [editPlayerName, setEditPlayerName] = useState("");
   const [editPlayerNumber, setEditPlayerNumber] = useState("");
   const [editPlayerDob, setEditPlayerDob] = useState<Date | undefined>(undefined);
-  const [showEditDatePicker, setShowEditDatePicker] = useState(false);
   const [editPlayerPosition, setEditPlayerPosition] = useState("");
   const [editLoading, setEditLoading] = useState(false);
 
@@ -68,15 +74,14 @@ export function GlobalRosterManager({ teamId, initialPlayers, unassignedPlayers,
       await addPlayerToTeamGlobally(selectedPlayerId, teamId);
       setLoadingState("success");
       setSelectedPlayerId("");
-      setPlayerSearchQuery("");
       setTimeout(() => {
         setLoadingState("idle");
         router.refresh();
         onRosterChanged?.();
       }, 1000);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
-      setErrorMsg(err.message || "Error al fichar jugador");
+      setErrorMsg(getErrorMessage(err, "Error al fichar jugador"));
       setLoadingState("idle");
     }
   };
@@ -99,16 +104,15 @@ export function GlobalRosterManager({ teamId, initialPlayers, unassignedPlayers,
       setNewPlayerName("");
       setNewPlayerNumber("");
       setNewPlayerDob(undefined);
-      setShowNewDatePicker(false);
       setNewPlayerPosition("");
       setTimeout(() => {
         setLoadingState("idle");
         router.refresh();
         onRosterChanged?.();
       }, 1000);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
-      setErrorMsg(err.message || "Error al crear jugador");
+      setErrorMsg(getErrorMessage(err, "Error al crear jugador"));
       setLoadingState("idle");
     }
   };
@@ -123,6 +127,7 @@ export function GlobalRosterManager({ teamId, initialPlayers, unassignedPlayers,
       onRosterChanged?.();
     } catch (err) {
       console.error(err);
+      setErrorMsg(getErrorMessage(err, "No se pudo retirar al jugador"));
     } finally {
       setDeletingStates(prev => ({ ...prev, [playerId]: false }));
     }
@@ -134,7 +139,6 @@ export function GlobalRosterManager({ teamId, initialPlayers, unassignedPlayers,
     setEditPlayerNumber(player.number != null ? String(player.number) : "");
     setEditPlayerPosition(player.position || "");
     setEditPlayerDob(player.date_of_birth ? new Date(player.date_of_birth + "T12:00:00") : undefined);
-    setShowEditDatePicker(false);
   };
 
   const handleSaveEdit = async (playerId: string) => {
@@ -153,24 +157,17 @@ export function GlobalRosterManager({ teamId, initialPlayers, unassignedPlayers,
       setEditingPlayerId(null);
       router.refresh();
       onRosterChanged?.();
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
-      alert(err.message || "Error al actualizar jugador");
+      alert(getErrorMessage(err, "Error al actualizar jugador"));
     } finally {
       setEditLoading(false);
     }
   };
 
-  // Filter unassigned global players based on search query
-  const filteredAvailablePlayers = unassignedPlayers
-    .filter((p) => p.name.toLowerCase().includes(playerSearchQuery.toLowerCase()));
-
   const isAdding = loadingState === "adding";
   const isSuccess = loadingState === "success";
 
-  const POSITIONS = ["Portero", "Defensa", "Mediocampista", "Delantero"];
-
-  const currentYear = new Date().getFullYear();
 
   // Sort players by dorsal number ascending, nulls at the end sorted by name
   const sortedPlayers = [...initialPlayers].sort((a, b) => {
@@ -182,378 +179,169 @@ export function GlobalRosterManager({ teamId, initialPlayers, unassignedPlayers,
     return a.name.localeCompare(b.name);
   });
 
-  return (
-    <div className="panel-premium mb-12">
-      {/* Decorative Top Accent */}
-      <div className="absolute top-0 left-0 w-full h-[3px] bg-gradient-to-r from-brand-gold via-brand-teal to-brand-sand" />
+  const visiblePlayers = sortedPlayers.filter((player) => player.name.toLocaleLowerCase().includes(rosterSearch.toLocaleLowerCase()));
 
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8 pb-4 border-b border-brand-navy/20">
-        <div>
-          <span className="text-[9px] text-brand-gold font-black uppercase tracking-[0.3em] block mb-1">
-            Plantilla Oficial
-          </span>
-          <h3 className="text-xl md:text-2xl font-black text-brand-sand uppercase tracking-tighter hero-title !not-italic">
-            Jugadores del Club
-          </h3>
+  return (
+    <section className={`${styles.workspace} py-8 sm:py-10`} aria-labelledby="roster-title">
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
+        <div className="flex items-baseline gap-3">
+          <h2 id="roster-title" className="text-2xl font-semibold">Plantilla</h2>
+          <span className="text-sm tabular-nums text-muted-foreground">{initialPlayers.length} jugadores</span>
         </div>
-        <div className="flex items-center gap-3 text-xs bg-brand-navy/10 px-4 py-2 border border-brand-navy/20 text-brand-sand">
-          <Users className="w-4 h-4 text-brand-gold" />
-          <span className="font-bold uppercase tracking-widest text-[10px]">
-            Total Club: {initialPlayers.length} Jugadores
-          </span>
-        </div>
+        <Button onClick={() => setShowSigning(!showSigning)} aria-expanded={showSigning} aria-controls="club-signing"
+          className="h-11 rounded-md bg-primary px-4 text-primary-foreground hover:bg-primary/90 lg:hidden">
+          {showSigning ? <X className="size-4" /> : <Plus className="size-4" />}
+          {showSigning ? "Cerrar fichajes" : "Añadir jugador"}
+        </Button>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        {/* List of players - column span 6 */}
-        <div className="lg:col-span-6 flex flex-col gap-3">
-          <h4 className="text-[10px] text-brand-aqua/60 font-black uppercase tracking-widest mb-2">
-            Nómina de Jugadores
-          </h4>
+      {errorMsg && <p role="alert" className="mb-5 rounded-md bg-red-400/10 p-3 text-sm text-red-300">{errorMsg}</p>}
 
-          <div className="flex flex-col gap-2 pr-2">
-            {sortedPlayers.map((player) => {
-              const isDeleting = deletingStates[player.id] || false;
-              const isEditing = editingPlayerId === player.id;
-
-              if (isEditing) {
-                return (
-                  <div 
-                    key={player.id} 
-                    className="flex flex-col gap-3 p-4 bg-[#001122]/90 border border-brand-teal/40 rounded-xl relative animate-fade-in"
-                  >
-                    <span className="text-[8px] text-brand-gold font-black uppercase tracking-widest">
-                      Editando Ficha de Jugador
-                    </span>
-
-                    <input 
-                      type="text"
-                      value={editPlayerName}
-                      onChange={(e) => setEditPlayerName(e.target.value)}
-                      placeholder="Nombre del jugador"
-                      className="input-premium !bg-black/40 !border-brand-teal/20 focus:!border-brand-teal !py-2 text-xs"
-                    />
-
-                    <div className="grid grid-cols-2 gap-3">
-                      <div className="flex flex-col gap-1">
-                        <label className="text-[8px] text-brand-aqua/50 uppercase tracking-widest font-bold">Dorsal</label>
-                        <input 
-                          type="number"
-                          value={editPlayerNumber}
-                          onChange={(e) => setEditPlayerNumber(e.target.value)}
-                          placeholder="Ej: 10"
-                          className="input-premium !bg-black/40 !border-brand-teal/20 focus:!border-brand-teal !py-2 text-xs"
-                        />
-                      </div>
-
-                      <div className="flex flex-col gap-1">
-                        <label className="text-[8px] text-brand-aqua/50 uppercase tracking-widest font-bold">Posición</label>
-                        <select
-                          value={editPlayerPosition}
-                          onChange={(e) => setEditPlayerPosition(e.target.value)}
-                          className="select-premium !bg-black/40 !border-brand-teal/20 focus:!border-brand-teal !py-2 text-xs"
-                        >
-                          <option value="">Posición...</option>
-                          {POSITIONS.map(pos => (
-                            <option key={pos} value={pos}>{pos}</option>
-                          ))}
-                        </select>
-                      </div>
+      <div className="grid min-w-0 grid-cols-1 items-start gap-8 lg:grid-cols-[minmax(0,1fr)_320px]">
+        <div className="order-2 min-w-0 lg:order-1">
+          <label htmlFor={searchId} className="sr-only">Buscar en plantilla</label>
+          <div className="relative mb-5">
+            <Search className="pointer-events-none absolute left-3 top-3.5 size-4 text-muted-foreground" />
+            <Input id={searchId} value={rosterSearch} onChange={(event) => setRosterSearch(event.target.value)}
+              placeholder="Buscar en plantilla" className={`${styles.control} pl-10`} />
+          </div>
+          <div className="overflow-hidden rounded-lg border border-border bg-background">
+          <Table className="table-fixed" aria-label="Plantilla del club">
+            <TableHeader className="bg-muted/60">
+              <TableRow className="hover:bg-transparent">
+                <TableHead scope="col" className="px-3 text-xs text-muted-foreground sm:px-4">Jugador</TableHead>
+                <TableHead scope="col" className="hidden w-32 text-xs text-muted-foreground sm:table-cell">Posición</TableHead>
+                <TableHead scope="col" className="w-14 text-center text-xs text-muted-foreground">Dorsal</TableHead>
+                <TableHead scope="col" className="w-14"><span className="sr-only">Acciones</span></TableHead>
+              </TableRow>
+            </TableHeader>
+          <TableBody>
+            {visiblePlayers.map((player) => (
+              <TableRow key={player.id} className="even:bg-white/[0.015] focus-within:bg-muted/50">
+                {editingPlayerId === player.id ? (
+                  <TableCell colSpan={4} className="whitespace-normal p-0">
+                  <form onSubmit={(event) => { event.preventDefault(); void handleSaveEdit(player.id); }} className="space-y-4 bg-card p-4">
+                    <h3 className="text-base font-semibold">Editar jugador</h3>
+                    <PlayerFields name={editPlayerName} onName={setEditPlayerName} number={editPlayerNumber} onNumber={setEditPlayerNumber}
+                      dob={editPlayerDob} onDob={setEditPlayerDob} position={editPlayerPosition} onPosition={setEditPlayerPosition} />
+                    <div className="flex justify-end gap-2">
+                      <Button type="button" variant="ghost" className="h-11" onClick={() => setEditingPlayerId(null)} disabled={editLoading}>Cancelar</Button>
+                      <Button type="submit" className="h-11" disabled={editLoading || !editPlayerName.trim()}>
+                        {editLoading ? <Loader2 className="size-4 animate-spin" /> : <Check className="size-4" />}Guardar
+                      </Button>
                     </div>
-
-                    {/* Date picker for edit mode */}
-                    <div className="flex flex-col gap-1 relative">
-                      <label className="text-[8px] text-brand-aqua/50 uppercase tracking-widest font-bold">Nacimiento</label>
-                      <button
-                        type="button"
-                        onClick={() => setShowEditDatePicker(!showEditDatePicker)}
-                        className="input-premium flex items-center justify-between text-left w-full !bg-black/40 !border-brand-teal/20 focus:!border-brand-teal !py-2 text-xs"
-                      >
-                        <span className={editPlayerDob ? "text-brand-sand" : "text-brand-aqua/30"}>
-                          {editPlayerDob ? format(editPlayerDob, "dd 'de' MMMM, yyyy", { locale: es }) : "Elegir Fecha..."}
-                        </span>
-                        <CalendarIcon size={12} className="text-brand-teal/60" />
-                      </button>
-
-                      {showEditDatePicker && (
-                        <div className="absolute left-0 bottom-full mb-2 z-50 p-1 bg-[#02060d] border border-[#00f0ff]/30 shadow-[0_10px_35px_rgba(0,0,0,0.9)] rounded-xl">
-                          <DatePicker
-                            selected={editPlayerDob}
-                            onChange={(date: Date | null) => {
-                              if (date) {
-                                setEditPlayerDob(date);
-                                setShowEditDatePicker(false);
-                              }
-                            }}
-                            locale="es"
-                            showMonthDropdown
-                            showYearDropdown
-                            dropdownMode="select"
-                            inline
-                          />
-                        </div>
-                      )}
-                    </div>
-
-                    <div className="flex gap-2 justify-end mt-2 pt-2 border-t border-brand-teal/10">
-                      <button
-                        onClick={() => setEditingPlayerId(null)}
-                        className="px-3 py-1.5 border border-brand-navy/40 text-brand-aqua/60 hover:text-white text-[10px] font-bold uppercase tracking-widest rounded-lg transition-colors"
-                      >
-                        Cancelar
-                      </button>
-                      <button
-                        onClick={() => handleSaveEdit(player.id)}
-                        disabled={editLoading || !editPlayerName.trim()}
-                        className="px-4 py-1.5 bg-brand-teal/20 hover:bg-brand-teal/30 border border-brand-teal/40 text-brand-teal text-[10px] font-bold uppercase tracking-widest rounded-lg transition-all flex items-center gap-1.5"
-                      >
-                        {editLoading ? (
-                          <Loader2 className="w-3 h-3 animate-spin" />
-                        ) : (
-                          <Check className="w-3 h-3" />
-                        )}
-                        Guardar
-                      </button>
+                  </form>
+                  </TableCell>
+                ) : (
+                  <>
+                  <TableCell className="whitespace-normal px-3 py-4 sm:px-4">
+                  <div className="flex min-w-0 items-center gap-3">
+                    <Avatar className={`${styles.playerAvatar} size-9`}><AvatarFallback className="text-xs font-medium">
+                      {player.name.split(/\s+/).map((part) => part[0]).slice(0, 2).join("").toLocaleUpperCase()}
+                    </AvatarFallback></Avatar>
+                    <div className="min-w-0 flex-1">
+                      <p className="break-words text-sm font-semibold">{player.name}</p>
+                      <p className="mt-1 text-xs text-muted-foreground sm:hidden">{player.position || "Sin posición"}</p>
                     </div>
                   </div>
-                );
-              }
-
-              return (
-                <div 
-                  key={player.id} 
-                  className="flex items-center justify-between p-4 bg-black/40 border border-brand-navy/20 hover:border-brand-teal/30 transition-colors"
-                >
-                  <div className="flex items-center gap-3 min-w-0">
-                    <div className="w-9 h-9 rounded-full bg-brand-navy/20 flex items-center justify-center border border-brand-navy/30 shrink-0">
-                      {player.number != null ? (
-                        <span className="text-[11px] font-black text-brand-gold tabular-nums">
-                          #{player.number}
-                        </span>
-                      ) : (
-                        <span className="text-[10px] font-black text-brand-gold uppercase">
-                          {player.name.slice(0, 2)}
-                        </span>
-                      )}
-                    </div>
-                    <div className="flex flex-col min-w-0">
-                      <span className="font-bold text-xs md:text-sm uppercase tracking-wider text-brand-sand truncate">
-                        {player.name}
-                      </span>
-                      {player.position && (
-                        <span className="text-[9px] text-brand-aqua/50 uppercase tracking-widest mt-0.5">
-                          {player.position}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-1 shrink-0">
-                    <button 
-                      onClick={() => startEditing(player)}
-                      className="text-brand-aqua/50 hover:text-[#00f0ff] hover:bg-[#00f0ff]/10 p-2 rounded transition-colors"
-                      title="Editar ficha"
-                    >
-                      <Edit2 className="w-3.5 h-3.5" />
-                    </button>
-                    <button 
-                      onClick={() => handleRemove(player.id)}
-                      disabled={isDeleting}
-                      className="text-red-400 hover:text-red-500 hover:bg-red-500/10 p-2 rounded transition-colors disabled:opacity-50"
-                      title="Remover del club"
-                    >
-                      {isDeleting ? (
-                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                      ) : (
-                        <Trash2 className="w-3.5 h-3.5" />
-                      )}
-                    </button>
-                  </div>
-                </div>
-              );
-            })}
-
-            {initialPlayers.length === 0 && (
-              <div className="p-6 py-12 text-center border border-dashed border-brand-teal/30 bg-[#050b14]/50 rounded-xl">
-                <Users className="w-8 h-8 text-brand-teal/40 mx-auto mb-4" />
-                <span className="text-[10px] text-white/50 uppercase tracking-widest font-black block leading-relaxed">
-                  El club no tiene jugadores registrados.<br/>¡Añade algunos a continuación!
-                </span>
-              </div>
-            )}
+                  </TableCell>
+                  <TableCell className="hidden whitespace-normal text-sm text-muted-foreground sm:table-cell">{player.position || "Sin posición"}</TableCell>
+                  <TableCell className="text-center font-mono text-sm tabular-nums text-muted-foreground">{player.number != null ? `#${player.number}` : "-"}</TableCell>
+                  <TableCell className="px-1">
+                    <Menu.Root>
+                      <Menu.Trigger render={<Button variant="ghost" size="icon" className="size-11 shrink-0 rounded-md text-muted-foreground" />}
+                        aria-label={`Acciones de ${player.name}`} title={`Acciones de ${player.name}`} disabled={deletingStates[player.id]}>
+                        {deletingStates[player.id] ? <Loader2 className="size-4 animate-spin" /> : <MoreHorizontal className="size-5" />}
+                      </Menu.Trigger>
+                      <Menu.Portal><Menu.Positioner align="end" sideOffset={4} className="z-50">
+                        <Menu.Popup className="min-w-52 rounded-md border border-border bg-popover p-1 text-sm text-popover-foreground shadow-lg outline-none">
+                          <Menu.Item onClick={() => startEditing(player)} className="flex min-h-11 cursor-default items-center gap-2 rounded-sm px-3 outline-none data-highlighted:bg-secondary"><Edit2 className="size-4" />Editar ficha</Menu.Item>
+                          <Menu.Item onClick={() => handleRemove(player.id)} className="flex min-h-11 cursor-default items-center gap-2 rounded-sm px-3 text-red-300 outline-none data-highlighted:bg-secondary"><Trash2 className="size-4" />Retirar de plantilla</Menu.Item>
+                        </Menu.Popup>
+                      </Menu.Positioner></Menu.Portal>
+                    </Menu.Root>
+                  </TableCell>
+                  </>
+                )}
+              </TableRow>
+            ))}
+          </TableBody>
+          </Table>
+          {!visiblePlayers.length && (
+            <div className="flex flex-col items-center py-14 text-center">
+              <Users className="mb-4 size-8 text-muted-foreground" />
+              <h3 className="text-base font-medium">{initialPlayers.length ? "Sin coincidencias" : "Tu plantilla empieza aquí"}</h3>
+              <p className="mt-2 text-sm text-muted-foreground">{initialPlayers.length ? "Prueba con otro nombre." : "Todavía no hay jugadores en este club."}</p>
+              {!initialPlayers.length && <Button variant="ghost" className="mt-4 h-11 lg:hidden" onClick={() => setShowSigning(true)}><Plus className="size-4" />Añadir jugador</Button>}
+            </div>
+          )}
           </div>
         </div>
 
-        {/* Add player form - column span 6 */}
-        <div className="lg:col-span-6 bg-[#050b14]/60 border border-brand-teal/20 p-6 flex flex-col gap-6 rounded-2xl">
-          <div className="flex border-b border-brand-navy/30">
-            <button 
-              onClick={() => setCurrentTab("existing")}
-              className={`flex-1 pb-3 text-[10px] font-black uppercase tracking-widest text-center transition-all ${
-                currentTab === "existing" 
-                  ? "border-b-2 border-brand-gold text-white" 
-                  : "text-brand-aqua/40 hover:text-brand-sand"
-              }`}
-            >
-              Fichar Existente
-            </button>
-            <button 
-              onClick={() => setCurrentTab("new")}
-              className={`flex-1 pb-3 text-[10px] font-black uppercase tracking-widest text-center transition-all ${
-                currentTab === "new" 
-                  ? "border-b-2 border-brand-gold text-white" 
-                  : "text-brand-aqua/40 hover:text-brand-sand"
-              }`}
-            >
-              Fichar Nuevo
-            </button>
-          </div>
-
-          {currentTab === "existing" ? (
-            <div className="flex flex-col gap-4">
-              <span className="text-[9px] text-brand-aqua/40 uppercase tracking-widest font-bold">
-                Buscar jugador libre en el sistema
-              </span>
-
-              {/* Search bar inside select */}
-              <div className="relative">
-                <Search className="absolute left-3 top-3 w-4 h-4 text-brand-aqua/30" />
-                <input 
-                  type="text"
-                  value={playerSearchQuery}
-                  onChange={(e) => setPlayerSearchQuery(e.target.value)}
-                  placeholder="Filtrar jugadores libres..."
-                  className="input-premium !pl-10 !bg-[#001122]/80 !border-brand-teal/30 focus:!border-brand-teal"
-                />
-              </div>
-
-              <select
-                value={selectedPlayerId}
-                onChange={(e) => setSelectedPlayerId(e.target.value)}
-                className="select-premium !bg-[#001122]/80 !border-brand-teal/30 focus:!border-brand-teal"
-              >
-                <option value="">Seleccionar Jugador...</option>
-                {filteredAvailablePlayers.map(p => (
-                  <option key={p.id} value={p.id}>{p.name}</option>
-                ))}
-              </select>
-
-              <button 
-                onClick={handleRegisterExisting}
-                disabled={!selectedPlayerId || isAdding}
-                className="w-full btn-premium-gold mt-2"
-              >
-                {isAdding ? (
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                ) : isSuccess ? (
-                  <Check className="w-4 h-4" />
-                ) : (
-                  <Plus className="w-4 h-4" />
-                )}
-                {isAdding ? "Contratando..." : isSuccess ? "¡Fichado!" : "Fichar en el Equipo"}
-              </button>
-            </div>
-          ) : (
-            <div className="flex flex-col gap-4">
-              <span className="text-[9px] text-brand-aqua/40 uppercase tracking-widest font-bold">
-                Dar de alta nuevo jugador
-              </span>
-
-              <input 
-                type="text"
-                value={newPlayerName}
-                onChange={(e) => setNewPlayerName(e.target.value)}
-                placeholder="Nombre completo del jugador *"
-                className="input-premium !bg-[#001122]/80 !border-brand-teal/30 focus:!border-brand-teal"
-              />
-
-              <div className="grid grid-cols-2 gap-4">
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-[9px] text-brand-aqua/50 uppercase tracking-widest font-bold">Dorsal #</label>
-                  <input 
-                    type="number"
-                    min="1"
-                    max="99"
-                    value={newPlayerNumber}
-                    onChange={(e) => setNewPlayerNumber(e.target.value)}
-                    placeholder="Ej: 10"
-                    className="input-premium !bg-[#001122]/80 !border-brand-teal/30 focus:!border-brand-teal !py-2"
-                  />
+        <aside id="club-signing" className={`${styles.signing} ${showSigning ? "block" : "hidden"} order-1 min-w-0 rounded-lg p-5 lg:order-2 lg:block`}>
+          <h3 className="text-lg font-semibold">Añadir jugador</h3>
+          <p className="mt-1 text-sm text-muted-foreground">Fichajes del club</p>
+          <Tabs value={currentTab} onValueChange={(value) => setCurrentTab(value as "existing" | "new")} className="mt-5 gap-5">
+            <TabsList className="h-11! w-full rounded-md bg-muted">
+              <TabsTrigger value="existing" className="h-10 text-sm">Existente</TabsTrigger>
+              <TabsTrigger value="new" className="h-10 text-sm">Nuevo jugador</TabsTrigger>
+            </TabsList>
+            <TabsContent value="existing">
+              <form onSubmit={(event) => { event.preventDefault(); void handleRegisterExisting(); }} className="space-y-5">
+                <div className={styles.field}>
+                  <label htmlFor="free-player">Jugador libre</label>
+                  <SearchableSelect id="free-player" options={unassignedPlayers.map((player) => ({ value: player.id, label: player.name }))}
+                    value={selectedPlayerId} onValueChange={setSelectedPlayerId} placeholder="Buscar por nombre..." disabled={isAdding || isSuccess} />
+                  <span className="text-xs">{unassignedPlayers.length ? `${unassignedPlayers.length} jugadores disponibles` : "No hay jugadores libres disponibles."}</span>
                 </div>
-                
-                {/* Premium Popover Library Date Selector */}
-                <div className="flex flex-col gap-1.5 relative">
-                  <label className="text-[9px] text-brand-aqua/50 uppercase tracking-widest font-bold">Nacimiento</label>
-                  <button
-                    type="button"
-                    onClick={() => setShowNewDatePicker(!showNewDatePicker)}
-                    className="input-premium flex items-center justify-between text-left w-full !bg-[#001122]/80 !border-brand-teal/30 focus:!border-brand-teal !py-2"
-                  >
-                    <span className={newPlayerDob ? "text-brand-sand font-mono text-xs" : "text-brand-aqua/30 text-xs"}>
-                      {newPlayerDob ? format(newPlayerDob, "dd 'de' MMMM, yyyy", { locale: es }) : "Nacimiento..."}
-                    </span>
-                    <CalendarIcon size={13} className="text-brand-teal/60" />
-                  </button>
+                <Button type="submit" disabled={!selectedPlayerId || isAdding || isSuccess} className="h-11 w-full rounded-md bg-primary text-sm font-semibold text-primary-foreground hover:bg-primary/90">
+                  {isAdding ? <Loader2 className="size-4 animate-spin" /> : isSuccess ? <Check className="size-4" /> : <Plus className="size-4" />}
+                  {isAdding ? "Fichando..." : isSuccess ? "Jugador fichado" : "Fichar jugador"}
+                </Button>
+              </form>
+            </TabsContent>
+            <TabsContent value="new">
+              <form onSubmit={(event) => { event.preventDefault(); void handleRegisterNew(); }} className="space-y-5">
+                <PlayerFields name={newPlayerName} onName={setNewPlayerName} number={newPlayerNumber} onNumber={setNewPlayerNumber}
+                  dob={newPlayerDob} onDob={setNewPlayerDob} position={newPlayerPosition} onPosition={setNewPlayerPosition} />
+                <Button type="submit" disabled={!newPlayerName.trim() || isAdding || isSuccess} className="h-11 w-full rounded-md bg-primary text-sm font-semibold text-primary-foreground hover:bg-primary/90">
+                  {isAdding ? <Loader2 className="size-4 animate-spin" /> : isSuccess ? <Check className="size-4" /> : <Plus className="size-4" />}
+                  {isAdding ? "Registrando..." : isSuccess ? "Jugador registrado" : "Crear y fichar"}
+                </Button>
+              </form>
+            </TabsContent>
+          </Tabs>
+          <p role="status" className="sr-only">{isAdding ? "Procesando fichaje" : isSuccess ? "Fichaje completado" : ""}</p>
+        </aside>
+      </div>
+    </section>
+  );
+}
 
-                  {showNewDatePicker && (
-                    <div className="absolute right-0 bottom-full mb-2 z-50 p-1 bg-[#02060d] border border-[#00f0ff]/30 shadow-[0_10px_35px_rgba(0,0,0,0.9)] rounded-xl">
-                      <DatePicker
-                        selected={newPlayerDob}
-                        onChange={(date: Date | null) => {
-                          if (date) {
-                            setNewPlayerDob(date);
-                            setShowNewDatePicker(false);
-                          }
-                        }}
-                        locale="es"
-                        showMonthDropdown
-                        showYearDropdown
-                        dropdownMode="select"
-                        inline
-                      />
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              <div className="flex flex-col gap-1.5">
-                <label className="text-[9px] text-brand-aqua/50 uppercase tracking-widest font-bold">Posición</label>
-                <select
-                  value={newPlayerPosition}
-                  onChange={(e) => setNewPlayerPosition(e.target.value)}
-                  className="select-premium !bg-[#001122]/80 !border-brand-teal/30 focus:!border-brand-teal"
-                >
-                  <option value="">Sin especificar</option>
-                  {POSITIONS.map(pos => (
-                    <option key={pos} value={pos}>{pos}</option>
-                  ))}
-                </select>
-              </div>
-
-              <button 
-                onClick={handleRegisterNew}
-                disabled={!newPlayerName.trim() || isAdding}
-                className="w-full btn-premium-gold mt-2"
-              >
-                {isAdding ? (
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                ) : isSuccess ? (
-                  <Check className="w-4 h-4" />
-                ) : (
-                  <Plus className="w-4 h-4" />
-                )}
-                {isAdding ? "Creando..." : isSuccess ? "¡Creado y Fichado!" : "Registrar y Fichar"}
-              </button>
-            </div>
-          )}
-
-          {/* Error Display */}
-          {errorMsg && (
-            <div className="mt-3 p-3 bg-red-500/10 border border-red-500/30 rounded-lg flex items-start gap-2">
-              <span className="text-red-400 text-[10px] font-bold uppercase tracking-widest leading-relaxed">{errorMsg}</span>
-            </div>
-          )}
-        </div>
+function PlayerFields({ name, onName, number, onNumber, dob, onDob, position, onPosition }: {
+  name: string; onName: (value: string) => void;
+  number: string; onNumber: (value: string) => void;
+  dob: Date | undefined; onDob: (value: Date | undefined) => void;
+  position: string; onPosition: (value: string) => void;
+}) {
+  const id = useId();
+  return (
+    <div className="space-y-4">
+      <label className={styles.field}>Nombre completo
+        <Input value={name} onChange={(event) => onName(event.target.value)} required placeholder="Nombre y apellido" className={styles.control} />
+      </label>
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-[80px_minmax(0,1fr)]">
+        <label className={styles.field}>Dorsal
+          <Input type="number" value={number} onChange={(event) => onNumber(event.target.value)} placeholder="10" className={styles.control} />
+        </label>
+        <label className={styles.field}>Nacimiento
+          <Input type="date" value={dob ? format(dob, "yyyy-MM-dd") : ""} onChange={(event) => onDob(event.target.value ? new Date(event.target.value + "T12:00:00") : undefined)} className={styles.control} />
+        </label>
+      </div>
+      <div className={styles.field}>
+        <label htmlFor={id}>Posición</label>
+        <SearchableSelect id={id} value={position} onValueChange={onPosition} placeholder="Sin especificar"
+          options={["", "Portero", "Defensa", "Mediocampista", "Delantero"].map((value) => ({ value, label: value || "Sin especificar" }))} />
       </div>
     </div>
   );

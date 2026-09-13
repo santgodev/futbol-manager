@@ -16,11 +16,14 @@ interface TeamRow {
   goals_for: number;
   goals_against: number;
   goal_difference: number;
+  volleyball_points_for?: number;
+  volleyball_points_against?: number;
   points: number;
 }
 
 interface PublicGroupStandingsProps {
   standings: TeamRow[];
+  sport?: string | null;
 }
 
 function safeRatio(a: number, b: number): string {
@@ -28,8 +31,9 @@ function safeRatio(a: number, b: number): string {
   return (a / b).toFixed(3);
 }
 
-export function PublicGroupStandings({ standings }: PublicGroupStandingsProps) {
+export function PublicGroupStandings({ standings, sport }: PublicGroupStandingsProps) {
   if (!standings || standings.length === 0) return null;
+  const isVolleyball = sport === "VOLLEYBALL" || sport === "BEACH_VOLLEYBALL";
 
   // Agrupar por group_name
   const grouped = standings.reduce((acc: Record<string, TeamRow[]>, team) => {
@@ -48,9 +52,19 @@ export function PublicGroupStandings({ standings }: PublicGroupStandingsProps) {
         {groupKeys.map((groupKey) => {
           const teams = [...grouped[groupKey]].sort((a, b) => {
             if (b.points !== a.points) return b.points - a.points;
-            const ratioA = a.lost === 0 ? 999 : a.won / a.lost;
-            const ratioB = b.lost === 0 ? 999 : b.won / b.lost;
-            if (ratioB !== ratioA) return ratioB - ratioA;
+            if (isVolleyball) {
+              const setRatioA = a.goals_against === 0 ? 999 : a.goals_for / a.goals_against;
+              const setRatioB = b.goals_against === 0 ? 999 : b.goals_for / b.goals_against;
+              if (setRatioB !== setRatioA) return setRatioB - setRatioA;
+              const pointsForA = a.volleyball_points_for ?? a.goals_for;
+              const pointsAgainstA = a.volleyball_points_against ?? a.goals_against;
+              const pointsForB = b.volleyball_points_for ?? b.goals_for;
+              const pointsAgainstB = b.volleyball_points_against ?? b.goals_against;
+              const pointRatioA = pointsAgainstA === 0 ? 999 : pointsForA / pointsAgainstA;
+              const pointRatioB = pointsAgainstB === 0 ? 999 : pointsForB / pointsAgainstB;
+              if (pointRatioB !== pointRatioA) return pointRatioB - pointRatioA;
+            }
+            if (b.goal_difference !== a.goal_difference) return b.goal_difference - a.goal_difference;
             return b.goals_for - a.goals_for;
           });
 
@@ -92,14 +106,14 @@ export function PublicGroupStandings({ standings }: PublicGroupStandingsProps) {
                       <th className="py-3 px-2 text-[9px] text-white/40 font-bold uppercase tracking-widest text-center" title="Partidos Perdidos">
                         PP
                       </th>
-                      <th className="py-3 px-2 text-[9px] text-white/40 font-bold uppercase tracking-widest text-center" title="Sets Favor:Contra">
-                        Sets (F:A)
+                      <th className="py-3 px-2 text-[9px] text-white/40 font-bold uppercase tracking-widest text-center" title={isVolleyball ? "Sets Favor:Contra" : "Goles Favor:Contra"}>
+                        {isVolleyball ? "Sets (F:A)" : "Goles (F:A)"}
                       </th>
-                      <th className="py-3 px-2 text-[9px] text-white/40 font-bold uppercase tracking-widest text-center" title="Ratio de Sets">
-                        Ratio S
+                      <th className="py-3 px-2 text-[9px] text-white/40 font-bold uppercase tracking-widest text-center" title={isVolleyball ? "Ratio de Sets" : "Diferencia de Goles"}>
+                        {isVolleyball ? "Ratio S" : "DG"}
                       </th>
-                      <th className="py-3 px-2 text-[9px] text-white/40 font-bold uppercase tracking-widest text-center" title="Puntos Favor:Contra">
-                        Puntos (F:A)
+                      <th className="py-3 px-2 text-[9px] text-white/40 font-bold uppercase tracking-widest text-center" title={isVolleyball ? "Puntos Favor:Contra" : "Marcador Favor:Contra"}>
+                        {isVolleyball ? "Puntos (F:A)" : "Marcador"}
                       </th>
                       <th className="py-3 px-2 text-[9px] text-white/40 font-bold uppercase tracking-widest text-center" title="Ratio de Puntos">
                         Ratio P
@@ -114,8 +128,10 @@ export function PublicGroupStandings({ standings }: PublicGroupStandingsProps) {
                       const isFirst = index === 0;
                       const isSecond = index === 1;
 
-                      const setRatio = safeRatio(team.won, team.lost);
-                      const goalRatio = safeRatio(team.goals_for, team.goals_against);
+                      const setRatio = safeRatio(team.goals_for, team.goals_against);
+                      const pointsFor = team.volleyball_points_for ?? team.goals_for;
+                      const pointsAgainst = team.volleyball_points_against ?? team.goals_against;
+                      const pointRatio = safeRatio(pointsFor, pointsAgainst);
 
                       return (
                         <tr
@@ -182,22 +198,22 @@ export function PublicGroupStandings({ standings }: PublicGroupStandingsProps) {
 
                           {/* Sets F:A */}
                           <td className="py-3 px-2 text-center text-[11px] font-mono text-white/60">
-                            {team.won}:{team.lost}
+                            {team.goals_for}:{team.goals_against}
                           </td>
 
                           {/* Ratio S */}
                           <td className="py-3 px-2 text-center text-[11px] font-mono text-white/60">
-                            {setRatio}
+                            {isVolleyball ? setRatio : team.goal_difference > 0 ? `+${team.goal_difference}` : team.goal_difference}
                           </td>
 
                           {/* Puntos F:A */}
                           <td className="py-3 px-2 text-center text-[11px] font-mono text-white/60">
-                            {team.goals_for}:{team.goals_against}
+                            {pointsFor}:{pointsAgainst}
                           </td>
 
                           {/* Ratio P */}
                           <td className="py-3 px-2 text-center text-[11px] font-mono text-white/60">
-                            {goalRatio}
+                            {pointRatio}
                           </td>
 
                           {/* Puntos */}

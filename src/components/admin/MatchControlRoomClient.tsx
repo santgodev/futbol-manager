@@ -4,7 +4,9 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
 import { LiveControlRoom } from "@/components/admin/LiveControlRoom";
+import { VolleyballControlRoom } from "@/components/admin/VolleyballControlRoom";
 import { Shield } from "@/components/ui/Shield";
+import { isVolleyballSport } from "@/utils/volleyball";
 
 export function MatchControlRoomClient({ id }: { id: string }) {
   const router = useRouter();
@@ -24,6 +26,20 @@ export function MatchControlRoomClient({ id }: { id: string }) {
         *,
         home_team:teams!matches_home_team_id_fkey(id, name, primary_color, logo_url),
         away_team:teams!matches_away_team_id_fkey(id, name, primary_color, logo_url),
+        tournament:tournaments!matches_tournament_id_fkey(
+          sport,
+          volleyball_best_of_sets,
+          volleyball_set_points,
+          volleyball_tiebreak_points
+        ),
+        match_sets(
+          id,
+          set_number,
+          home_points,
+          away_points,
+          status,
+          winner_team_id
+        ),
         match_events(
           id, type, minute, description, created_at, team_id,
           player:players!match_events_player_id_fkey(id, name, number)
@@ -40,6 +56,9 @@ export function MatchControlRoomClient({ id }: { id: string }) {
     // Sort events chronologically
     if (matchData.match_events) {
       matchData.match_events.sort((a: any, b: any) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+    }
+    if (matchData.match_sets) {
+      matchData.match_sets.sort((a: any, b: any) => a.set_number - b.set_number);
     }
     setMatch(matchData);
 
@@ -76,6 +95,15 @@ export function MatchControlRoomClient({ id }: { id: string }) {
   }
 
   if (!match) return null;
+
+  if (isVolleyballSport(match.tournament?.sport)) {
+    return (
+      <VolleyballControlRoom
+        match={match}
+        onUpdate={fetchAllData}
+      />
+    );
+  }
 
   return (
     <LiveControlRoom 

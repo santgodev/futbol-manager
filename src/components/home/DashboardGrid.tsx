@@ -7,7 +7,6 @@ import { FeaturedTournamentCard } from "./FeaturedTournamentCard";
 import { StandingsWidget } from "./StandingsWidget";
 import { ScorersWidget } from "./ScorersWidget";
 import { UpcomingMatchesWidget } from "./UpcomingMatchesWidget";
-import { CardsStatsWidget } from "./CardsStatsWidget";
 import { GlobalSearchResults } from "./GlobalSearchResults";
 import { createClient } from "@/utils/supabase/client";
 
@@ -18,9 +17,6 @@ export const DashboardGrid = ({ tournamentId }: { tournamentId?: string }) => {
     standings: any[];
     scorers: any[];
     upcomingMatches: any[];
-    yellowCards: number;
-    redCards: number;
-    cardEvents: any[];
   } | null>(null);
   
   const [loading, setLoading] = useState(true);
@@ -34,9 +30,6 @@ export const DashboardGrid = ({ tournamentId }: { tournamentId?: string }) => {
         let standings: any[] = [];
         let scorers: any[] = [];
         let upcomingMatches: any[] = [];
-        let yellowCards = 0;
-        let redCards = 0;
-        let cardEvents: any[] = [];
 
         if (tournamentId) {
           const { data: tData } = await supabase
@@ -86,23 +79,6 @@ export const DashboardGrid = ({ tournamentId }: { tournamentId?: string }) => {
             .order("match_time", { ascending: true })
             .limit(3);
           if (matchesData) upcomingMatches = matchesData;
-
-          const { data: cardsData } = await supabase
-            .from("match_events")
-            .select(`
-              type, minute,
-              player:players!match_events_player_id_fkey(name, number),
-              team:teams!match_events_team_id_fkey(name)
-            `)
-            .eq("tournament_id", activeTournament.id)
-            .in("type", ["YELLOW_CARD", "RED_CARD"])
-            .order("created_at", { ascending: false });
-            
-          if (cardsData) {
-            yellowCards = cardsData.filter((e: any) => e.type === "YELLOW_CARD").length;
-            redCards = cardsData.filter((e: any) => e.type === "RED_CARD").length;
-            cardEvents = cardsData as any[];
-          }
         }
 
         setData({
@@ -110,10 +86,7 @@ export const DashboardGrid = ({ tournamentId }: { tournamentId?: string }) => {
           globalTournaments: globalTournaments || [],
           standings,
           scorers,
-          upcomingMatches,
-          yellowCards,
-          redCards,
-          cardEvents
+          upcomingMatches
         });
       } catch (err) {
         console.error("Error fetching dashboard data:", err);
@@ -162,9 +135,6 @@ export const DashboardGrid = ({ tournamentId }: { tournamentId?: string }) => {
         <div className="lg:col-span-4 flex flex-col gap-4 order-1 lg:order-none">
           <div id="partidos" className="w-full scroll-mt-20">
             <UpcomingMatchesWidget matches={data.upcomingMatches} />
-          </div>
-          <div id="tarjetas" className="w-full scroll-mt-20">
-            <CardsStatsWidget yellowCards={data.yellowCards} redCards={data.redCards} cardEvents={data.cardEvents} />
           </div>
         </div>
       </div>

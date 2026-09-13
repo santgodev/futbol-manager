@@ -13,6 +13,7 @@ export interface IntegrityStatus {
   hasCalendarInconsistency: boolean;
   hasCriticalInconsistency: boolean;
   teamsWithNoMatches: any[];
+  problematicMatchIds: string[];
 }
 
 export interface EngineAnalysis {
@@ -141,6 +142,11 @@ export class CompetitionEngine {
       (format === 'GROUPS_AND_PLAYOFFS' && hasKnockoutMatches && !isGroupStageComplete) || 
       (format !== 'PLAYOFFS' && hasCalendarInconsistency && matchesPlayed > 0);
 
+    const problematicMatchIds: string[] = [];
+    if (format === 'GROUPS_AND_PLAYOFFS' && hasKnockoutMatches && !isGroupStageComplete) {
+      problematicMatchIds.push(...knockoutMatches.map((m: any) => m.id));
+    }
+
     let severity: IntegritySeverity = 'HEALTHY';
     let label = 'Calendario válido';
     let description = 'Todos los equipos inscritos tienen partidos y el fixture de fase de grupos cubre los enfrentamientos requeridos.';
@@ -174,7 +180,8 @@ export class CompetitionEngine {
       dotColor,
       hasCalendarInconsistency,
       hasCriticalInconsistency,
-      teamsWithNoMatches
+      teamsWithNoMatches,
+      problematicMatchIds
     };
 
     return {

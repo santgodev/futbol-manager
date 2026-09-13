@@ -38,8 +38,11 @@ export const TournamentHero = ({ tournament }: TournamentHeroProps) => {
   const status = getStatusConfig(tournament.status);
   const startDateLabel = formatDate(tournament.start_date);
 
-  const scrollTo = (id: string) => {
-    const el = document.getElementById(id);
+  const openTournamentTab = (tabId: "fixture" | "standings") => {
+    window.dispatchEvent(new CustomEvent("tournament-tab-change", { detail: { tabId } }));
+    window.history.replaceState(null, "", `#${tabId}`);
+
+    const el = document.getElementById("tournament-tabs");
     if (el) {
       const y = el.getBoundingClientRect().top + window.scrollY - 80;
       window.scrollTo({ top: y, behavior: "smooth" });
@@ -131,17 +134,18 @@ export const TournamentHero = ({ tournament }: TournamentHeroProps) => {
           className="flex gap-3 mt-2"
         >
           <button
-            onClick={() => scrollTo("posiciones")}
+            onClick={() => openTournamentTab("standings")}
             className="inline-flex items-center gap-2 px-5 py-2.5 text-[13px] font-semibold text-white bg-[#0a84ff] rounded-full hover:bg-[#2493ff] transition-all shadow-[0_2px_16px_rgba(10,132,255,0.3)]"
           >
             <Trophy className="w-3.5 h-3.5" />
             Ver Tabla
           </button>
           <button
-            onClick={() => scrollTo("partidos")}
+            onClick={() => openTournamentTab("fixture")}
             className="inline-flex items-center gap-2 px-5 py-2.5 text-[13px] font-semibold text-[#a7b0ba] border border-[#202830] rounded-full hover:bg-[#0a0f14] hover:text-white transition-all"
           >
-            ⚽ Partidos
+            <Calendar className="w-3.5 h-3.5" />
+            Partidos
           </button>
         </motion.div>
 

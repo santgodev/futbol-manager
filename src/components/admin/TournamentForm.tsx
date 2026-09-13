@@ -61,6 +61,9 @@ export function TournamentForm() {
   const [sport, setSport] = useState<SportType>("FOOTBALL");
   const [format, setFormat] = useState<FormatType>("GROUPS_AND_PLAYOFFS");
   const [isDoubleRound, setIsDoubleRound] = useState(false);
+  const [volleyballBestOfSets, setVolleyballBestOfSets] = useState(5);
+  const [volleyballSetPoints, setVolleyballSetPoints] = useState(25);
+  const [volleyballTiebreakPoints, setVolleyballTiebreakPoints] = useState(15);
   const [categories, setCategories] = useState<CategoryDraft[]>([]);
   const [status, setStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
   const [errorMessage, setErrorMessage] = useState("");
@@ -99,6 +102,9 @@ export function TournamentForm() {
         format,
         sport,
         is_double_round: format === "PLAYOFFS" ? false : isDoubleRound,
+        volleyball_best_of_sets: volleyballBestOfSets,
+        volleyball_set_points: volleyballSetPoints,
+        volleyball_tiebreak_points: volleyballTiebreakPoints,
         registration_status: "OPEN",
         categories: categories
           .filter((c) => c.name.trim())
@@ -211,6 +217,45 @@ export function TournamentForm() {
             >
               <div className={`w-4 h-4 rounded-full bg-[#02060d] transition-all ${isDoubleRound ? "translate-x-6" : "translate-x-0"}`} />
             </button>
+          </div>
+        )}
+
+        {(sport === "VOLLEYBALL" || sport === "BEACH_VOLLEYBALL") && (
+          <div className="bg-[#02060d] border border-[#00f0ff]/20 rounded-xl p-4 grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div className="flex flex-col gap-2">
+              <label className="text-[9px] text-brand-aqua/50 uppercase tracking-widest font-bold">Formato de Sets</label>
+              <select
+                value={volleyballBestOfSets}
+                onChange={(e) => setVolleyballBestOfSets(parseInt(e.target.value))}
+                className="input-premium !p-3 text-sm"
+              >
+                <option value={1}>Mejor de 1 (Set Único)</option>
+                <option value={3}>Mejor de 3</option>
+                <option value={5}>Mejor de 5</option>
+              </select>
+            </div>
+            <div className="flex flex-col gap-2">
+              <label className="text-[9px] text-brand-aqua/50 uppercase tracking-widest font-bold">Set Regular</label>
+              <input
+                type="number"
+                value={volleyballSetPoints}
+                onChange={(e) => setVolleyballSetPoints(parseInt(e.target.value) || 25)}
+                min="15"
+                max="35"
+                className="input-premium !p-3 text-sm"
+              />
+            </div>
+            <div className="flex flex-col gap-2">
+              <label className="text-[9px] text-brand-aqua/50 uppercase tracking-widest font-bold">Tie-break</label>
+              <input
+                type="number"
+                value={volleyballTiebreakPoints}
+                onChange={(e) => setVolleyballTiebreakPoints(parseInt(e.target.value) || 15)}
+                min="7"
+                max="25"
+                className="input-premium !p-3 text-sm"
+              />
+            </div>
           </div>
         )}
 

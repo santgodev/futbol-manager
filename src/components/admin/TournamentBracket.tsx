@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Trophy, Shield } from "lucide-react";
+import { formatVolleyballSets } from "@/utils/volleyball";
 
 interface Match {
   id: string;
@@ -20,6 +21,7 @@ interface Match {
   home_team_id: string | null;
   away_team_id: string | null;
   cup_name?: string | null;
+  match_sets?: any[] | null;
 }
 
 const STAGE_ORDER = ["ROUND_16", "QUARTERFINAL", "SEMIFINAL", "FINAL"];
@@ -195,6 +197,11 @@ function BracketMatchCard({ match }: { match: Match }) {
             isFinished && !isAwayWinner
           )}
         </div>
+        {formatVolleyballSets(match.match_sets) && (
+          <div className="w-full text-[8px] text-center bg-brand-teal/10 text-brand-teal py-1 uppercase tracking-widest font-mono font-bold border-t border-[#0055cc]/10">
+            Sets: {formatVolleyballSets(match.match_sets)}
+          </div>
+        )}
         
         {/* Enlace al partido si el admin quiere ir a LiveControlRoom */}
         <Link 

@@ -1,9 +1,10 @@
 "use client";
 import { useState, useEffect } from "react";
-import { updateMatchSchedule } from "@/app/admin/actions";
-import { Calendar, CheckCircle2, Loader2, ChevronDown, ChevronUp } from "lucide-react";
+import { updateMatchSchedule, deleteMatch } from "@/app/admin/actions";
+import { Calendar, CheckCircle2, Loader2, ChevronDown, ChevronUp, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { formatVolleyballSets } from "@/utils/volleyball";
 
 const MONTHS = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
 const TIME_SLOTS = [
@@ -35,7 +36,7 @@ function buildDateStr(day: string, month: string, year: string) {
   return `${year}-${String(parseInt(month) + 1).padStart(2, "0")}-${day.padStart(2, "0")}`;
 }
 
-export function MatchEditor({ match, tournamentId }: { match: any, tournamentId: string }) {
+export function MatchEditor({ match, tournamentId, venues = [], isHighlighted = false, onUpdate }: { match: any, tournamentId: string, venues?: any[], isHighlighted?: boolean, onUpdate?: () => void }) {
   const [isOpen, setIsOpen] = useState(false);
   
   const initDate = parseDateStr(match.match_date ?? "");
@@ -43,6 +44,8 @@ export function MatchEditor({ match, tournamentId }: { match: any, tournamentId:
   const [selMonth, setSelMonth] = useState(initDate.month);
   const [selYear, setSelYear] = useState(initDate.year);
   const [selTime, setSelTime] = useState(match.match_time ? match.match_time.slice(0, 5) : "18:00");
+  const [venueId, setVenueId] = useState(match.venue_id || "");
+  const [customVenue, setCustomVenue] = useState(match.venue || "");
 
   const matchDate = buildDateStr(selDay, selMonth, selYear);
   const matchTime = selTime;
@@ -55,8 +58,10 @@ export function MatchEditor({ match, tournamentId }: { match: any, tournamentId:
   const days = Array.from({ length: daysInMonth }, (_, i) => String(i + 1));
 
   const [status, setStatus] = useState<"idle" | "saving" | "success" | "error">("idle");
+  const [isDeleting, setIsDeleting] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const router = useRouter();
+  const activeVenues = venues.filter((venue) => venue.is_active !== false);
 
   useEffect(() => {
     if (status === "success") {
@@ -77,12 +82,27 @@ export function MatchEditor({ match, tournamentId }: { match: any, tournamentId:
     
     setStatus("saving");
     try {
-      await updateMatchSchedule(match.id, matchDate, matchTime, tournamentId);
+      await updateMatchSchedule(match.id, matchDate, matchTime, tournamentId, venueId || null, venueId ? null : customVenue);
       setStatus("success");
-      router.refresh();
+      if (onUpdate) onUpdate();
+      else router.refresh();
     } catch (err: any) {
       setStatus("error");
       setErrorMessage(err.message || "Error al guardar");
+    }
+  };
+
+  const handleDeleteMatch = async () => {
+    if (!confirm("¿Seguro que deseas eliminar este partido? Esta acción no se puede deshacer y puede afectar la tabla de posiciones si ya tenía resultados.")) return;
+    setIsDeleting(true);
+    setErrorMessage("");
+    try {
+      await deleteMatch(match.id, tournamentId);
+      if (onUpdate) onUpdate();
+      else router.refresh();
+    } catch (err: any) {
+      setErrorMessage(err.message || "Error al eliminar");
+      setIsDeleting(false);
     }
   };
 
@@ -119,9 +139,10 @@ export function MatchEditor({ match, tournamentId }: { match: any, tournamentId:
   };
 
   const currentStatus = getMatchStatus();
+  const setLine = formatVolleyballSets(match.match_sets);
 
   return (
-    <div className={`border border-brand-teal/30 shadow-[inset_0_0_15px_rgba(0,0,0,0.5)] rounded-2xl overflow-hidden transition-all ${isFinished ? 'opacity-70 border-brand-navy/30' : 'hover:border-brand-teal/50 hover:shadow-[0_0_20px_rgba(0,240,255,0.1)]'}`}>
+    <div id={`match-${match.id}`} className={`border shadow-[inset_0_0_15px_rgba(0,0,0,0.5)] rounded-2xl overflow-hidden transition-all duration-1000 ${isHighlighted ? 'border-red-500 shadow-[0_0_30px_rgba(239,68,68,0.6)] animate-[pulse_2s_ease-in-out_infinite]' : isFinished ? 'opacity-70 border-brand-navy/30' : 'border-brand-teal/30 hover:border-brand-teal/50 hover:shadow-[0_0_20px_rgba(0,240,255,0.1)]'}`}>
       {/* Main Row (Always Visible) */}
       <div 
         onClick={() => !isFinished && setIsOpen(!isOpen)}
@@ -148,6 +169,11 @@ export function MatchEditor({ match, tournamentId }: { match: any, tournamentId:
                   Sin Fecha
                 </span>
               )}
+              {match.venue && (
+                <span className="text-[8px] font-mono text-[#00f0ff]/70 bg-[#00f0ff]/10 border border-[#00f0ff]/20 px-2 py-0.5 rounded-full shrink-0">
+                  {match.venue}
+                </span>
+              )}
             </div>
             <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 mt-3 min-w-0">
               <span className="font-black text-sm sm:text-lg lg:text-xl text-brand-sand uppercase tracking-tight group-hover:text-white transition-colors truncate max-w-[40%] sm:max-w-none">
@@ -158,6 +184,11 @@ export function MatchEditor({ match, tournamentId }: { match: any, tournamentId:
                 {match.away_team?.name || 'TBD'}
               </span>
             </div>
+            {setLine && (
+              <span className="text-[9px] font-mono text-[#00f0ff]/55 uppercase tracking-widest mt-2">
+                Sets: {setLine}
+              </span>
+            )}
           </div>
         </div>
         
@@ -240,25 +271,71 @@ export function MatchEditor({ match, tournamentId }: { match: any, tournamentId:
               </select>
             </div>
 
-            <button 
-              onClick={handleUpdate} 
-              disabled={status === 'saving' || !matchDate || !matchTime}
-              className="w-full h-11 bg-[#00f0ff]/10 text-[#00f0ff] border border-[#00f0ff]/30 hover:bg-[#00f0ff]/20 font-black uppercase tracking-widest text-[10px] transition-all disabled:opacity-50 flex items-center justify-center gap-2 rounded-xl active:scale-[0.98]"
-            >
-              {status === 'saving' ? (
-                <><Loader2 size={14} className="animate-spin" /> Guardando...</>
-              ) : status === 'success' ? (
-                <><CheckCircle2 size={14} /> ¡Listo!</>
+            <div className="flex flex-col gap-1.5">
+              <label className="text-[9px] uppercase tracking-widest text-[#00f0ff]/50 font-bold">Cancha</label>
+              {activeVenues.length > 0 ? (
+                <select
+                  value={venueId}
+                  onChange={(e) => {
+                    setVenueId(e.target.value);
+                    if (e.target.value) setCustomVenue("");
+                    setStatus("idle");
+                    setErrorMessage("");
+                  }}
+                  className="w-full bg-[#000814] border border-[#00f0ff]/20 focus:border-[#00f0ff]/60 px-3 py-2.5 text-white text-sm outline-none rounded-lg appearance-none cursor-pointer"
+                >
+                  <option value="" className="bg-[#001122]">Sin cancha fija</option>
+                  {activeVenues.map((venue) => (
+                    <option key={venue.id} value={venue.id} className="bg-[#001122]">
+                      {venue.name}
+                    </option>
+                  ))}
+                </select>
               ) : (
-                'Confirmar Fecha y Hora'
+                <input
+                  value={customVenue}
+                  onChange={(e) => {
+                    setCustomVenue(e.target.value);
+                    setStatus("idle");
+                    setErrorMessage("");
+                  }}
+                  placeholder="Cancha / sede..."
+                  className="w-full bg-[#000814] border border-[#00f0ff]/20 focus:border-[#00f0ff]/60 px-3 py-2.5 text-white text-sm outline-none rounded-lg"
+                />
               )}
-            </button>
+            </div>
+
+            <div className="flex gap-3 mt-2">
+              <button 
+                onClick={handleDeleteMatch} 
+                disabled={isDeleting || status === 'saving'}
+                className="w-11 h-11 shrink-0 bg-red-500/10 text-red-500 border border-red-500/30 hover:bg-red-500/20 font-black flex items-center justify-center rounded-xl active:scale-[0.98] transition-all disabled:opacity-50"
+                title="Eliminar partido"
+              >
+                {isDeleting ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />}
+              </button>
+              
+              <button 
+                onClick={handleUpdate} 
+                disabled={status === 'saving' || isDeleting || !matchDate || !matchTime}
+                className="flex-1 h-11 bg-[#00f0ff]/10 text-[#00f0ff] border border-[#00f0ff]/30 hover:bg-[#00f0ff]/20 font-black uppercase tracking-widest text-[10px] transition-all disabled:opacity-50 flex items-center justify-center gap-2 rounded-xl active:scale-[0.98]"
+              >
+                {status === 'saving' ? (
+                  <><Loader2 size={14} className="animate-spin" /> Guardando...</>
+                ) : status === 'success' ? (
+                  <><CheckCircle2 size={14} /> ¡Listo!</>
+                ) : (
+                  'Confirmar Fecha y Hora'
+                )}
+              </button>
+            </div>
             
             {errorMessage && (
               <p className="text-[10px] text-red-400 bg-red-500/10 border border-red-500/30 px-3 py-2 rounded-lg">
                 {errorMessage}
               </p>
             )}
+
           </div>
         </div>
       )}

@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from "react";
 import { Search, MapPin, Clock, ChevronDown, ChevronUp } from "lucide-react";
+import { formatVolleyballSets, type VolleyballSet } from "@/utils/volleyball";
 
 interface Match {
   id: string;
@@ -17,6 +18,7 @@ interface Match {
   group_name?: string | null;
   venue?: string | null;
   bracket_order?: number | null;
+  match_sets?: VolleyballSet[] | null;
 }
 
 interface FixtureTabProps {
@@ -211,6 +213,7 @@ export function FixtureTab({ matches }: FixtureTabProps) {
                         (match.status || "").toUpperCase() === "FINALIZADO";
                       const homeScore = match.home_score;
                       const awayScore = match.away_score;
+                      const setLine = formatVolleyballSets(match.match_sets);
                       const homeWon =
                         homeScore !== null &&
                         awayScore !== null &&
@@ -305,6 +308,11 @@ export function FixtureTab({ matches }: FixtureTabProps) {
                                   {match.away_team?.name || "TBD"}
                                 </span>
                               </div>
+                              {setLine && (
+                                <span className="text-[10px] font-mono text-[#00f0ff]/55 uppercase tracking-wider">
+                                  Sets: {setLine}
+                                </span>
+                              )}
                             </div>
                           </td>
 

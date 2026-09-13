@@ -167,7 +167,8 @@ export function TournamentDetailsClient({ id }: { id: string }) {
     dotColor: integrityDot,
     hasCalendarInconsistency,
     hasCriticalInconsistency,
-    teamsWithNoMatches
+    teamsWithNoMatches,
+    problematicMatchIds = []
   } = integrity;
 
   // For visual filtering UI only
@@ -180,12 +181,37 @@ export function TournamentDetailsClient({ id }: { id: string }) {
     ? activeMatches
     : activeMatches.filter((m: any) => m.is_knockout || m.round_number === selectedRound);
 
+  const getStatusLabel = (status: string) => {
+    if (status === "DRAFT") return "PRÓXIMAMENTE";
+    if (status === "REGISTRATION") return "INSCRIPCIONES";
+    if (status === "IN_PROGRESS") return "EN CURSO";
+    if (status === "FINISHED") return "FINALIZADO";
+    return status;
+  };
+
   const statusColor = (status: string) => {
-    if (status?.includes("CURSO"))    return "bg-emerald-500/20 text-emerald-400 border-emerald-500/40";
-    if (status?.includes("INSCRI"))   return "bg-blue-500/20 text-blue-400 border-blue-500/40";
-    if (status?.includes("FINALIZ"))  return "bg-gray-500/20 text-gray-400 border-gray-500/40";
+    const s = getStatusLabel(status);
+    if (s.includes("CURSO"))    return "bg-emerald-500/20 text-emerald-400 border-emerald-500/40";
+    if (s.includes("INSCRI"))   return "bg-blue-500/20 text-blue-400 border-blue-500/40";
+    if (s.includes("FINALIZ"))  return "bg-gray-500/20 text-gray-400 border-gray-500/40";
     return "bg-amber-500/20 text-amber-400 border-amber-500/40"; // Próximamente
   };
+
+  const getSportLabel = (sport: string) => {
+    if (!sport) return "FÚTBOL";
+    if (sport === "FOOTBALL") return "FÚTBOL";
+    if (sport === "BASKETBALL") return "BALONCESTO";
+    if (sport === "VOLLEYBALL") return "VOLEIBOL";
+    if (sport === "BEACH_VOLLEYBALL") return "VOLEIBOL PLAYA";
+    if (sport === "FUTBOL_7") return "FÚTBOL 7";
+    if (sport === "FUTBOL_11") return "FÚTBOL 11";
+    if (sport === "FUTBOL_5") return "FÚTBOL SALA";
+    return sport.replace(/_/g, " ");
+  };
+
+  const isVolleyballTournament = tournament?.sport === "VOLLEYBALL" || tournament?.sport === "BEACH_VOLLEYBALL";
+  const sportLabel = getSportLabel(tournament.sport);
+  const sportIcon = isVolleyballTournament ? "🏐" : "⚽";
 
   return (
     <div className="p-4 md:p-10 max-w-6xl mx-auto">
@@ -215,14 +241,21 @@ export function TournamentDetailsClient({ id }: { id: string }) {
 
           {/* Info */}
           <div className="flex-1 min-w-0">
+            <div className="mb-1 flex items-center gap-2">
+               <span className="text-lg drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]">{sportIcon}</span>
+               <span className="text-[#00f0ff] font-black tracking-[0.2em] uppercase text-[10px] md:text-xs text-shadow-glow">
+                 Torneo de {sportLabel}
+               </span>
+            </div>
             <div className="flex flex-wrap items-center gap-2 mb-2">
               <h1 className="text-2xl md:text-4xl font-black tracking-tighter text-white hero-title !not-italic truncate" style={{ textShadow: "0 0 20px rgba(0,240,255,0.3)" }}>
                 {tournament.name}
               </h1>
             </div>
             <div className="flex flex-wrap gap-2 mb-3">
-              <span className={`text-[9px] font-bold uppercase tracking-widest px-3 py-1 rounded-full border ${statusColor(tournament.status)}`}>
-                {tournament.status}
+
+              <span className={`text-[9px] font-bold flex items-center uppercase tracking-widest px-3 py-1 rounded-full border ${statusColor(tournament.status)}`}>
+                {getStatusLabel(tournament.status)}
               </span>
               <span className="text-[9px] font-bold uppercase tracking-widest px-3 py-1 rounded-full border border-[#00f0ff]/30 bg-[#00f0ff]/10 text-[#00f0ff]">
                 {CompetitionEngine.getFormatLabel(format, isDoubleRound)}
@@ -299,9 +332,21 @@ export function TournamentDetailsClient({ id }: { id: string }) {
             <span className="text-sm font-black uppercase tracking-wider block">{integrityLabel}</span>
           </div>
         </div>
-        <p className="text-xs text-white/70 max-w-xl leading-relaxed md:border-l md:border-white/10 md:pl-4">
-          {integrityDesc}
-        </p>
+        <div className="flex-1 max-w-xl md:border-l md:border-white/10 md:pl-4 flex flex-col items-start gap-2">
+          <p className="text-xs text-white/70 leading-relaxed">
+            {integrityDesc}
+          </p>
+          {integritySeverity === "CRITICAL" && (
+            <button
+              onClick={() => {
+                document.getElementById('gestor-partidos')?.scrollIntoView({ behavior: 'smooth' });
+              }}
+              className="mt-1 px-3 py-1.5 bg-red-500/20 text-red-400 border border-red-500/30 rounded text-[10px] font-bold uppercase tracking-wider hover:bg-red-500/30 transition-colors"
+            >
+              Ir a Gestor de Partidos a Eliminar
+            </button>
+          )}
+        </div>
       </div>
 
       {/* ── TAB SECTIONS ── */}
@@ -350,7 +395,7 @@ export function TournamentDetailsClient({ id }: { id: string }) {
               availableTeams={availableTeams || []}
               currentTeams={activeTeams}
               onUpdate={fetchAllData}
-              isDisabled={integritySeverity === "CRITICAL" || activeMatches.length > 0}
+              isDisabled={integritySeverity === "CRITICAL"}
             />
           </div>
         </section>
@@ -370,7 +415,7 @@ export function TournamentDetailsClient({ id }: { id: string }) {
               categoryId={activeCategoryId}
               currentTeams={activeTeams}
               onUpdate={fetchAllData}
-              isDisabled={integritySeverity === "CRITICAL" || activeMatches.length > 0}
+              isDisabled={integritySeverity === "CRITICAL"}
             />
           </div>
         </section>
@@ -419,7 +464,7 @@ export function TournamentDetailsClient({ id }: { id: string }) {
 
         {/* ── SECCIÓN 3: Editor de Marcadores ── */}
         {/* ── SECCIÓN 3: Editor de Marcadores ── */}
-        <section className="relative rounded-2xl border border-[#00f0ff]/10 w-full max-w-full min-w-0" style={{ background: "rgba(0,17,51,0.6)", backdropFilter: "blur(16px)" }}>
+        <section id="gestor-partidos" className="relative rounded-2xl border border-[#00f0ff]/10 w-full max-w-full min-w-0" style={{ background: "rgba(0,17,51,0.6)", backdropFilter: "blur(16px)" }}>
           <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#00f0ff]/40 to-transparent" />
           <div className="flex flex-col sm:flex-row sm:items-center gap-3 px-4 sm:px-6 py-4 border-b border-[#00f0ff]/10">
             <div className="flex items-center gap-3 shrink-0">
@@ -540,7 +585,7 @@ export function TournamentDetailsClient({ id }: { id: string }) {
                       </div>
                       <div className="flex flex-col gap-4 w-full min-w-0">
                         {pending.map((match: any) => (
-                          <MatchEditor key={match.id} match={match} tournamentId={id} />
+                          <MatchEditor key={match.id} match={match} tournamentId={id} isHighlighted={problematicMatchIds.includes(match.id)} onUpdate={fetchAllData} />
                         ))}
                       </div>
                     </div>
@@ -569,7 +614,7 @@ export function TournamentDetailsClient({ id }: { id: string }) {
                       {showFinishedMatches && (
                         <div className="flex flex-col gap-4 opacity-70 animate-fade-in">
                           {finished.map((match: any) => (
-                            <MatchEditor key={match.id} match={match} tournamentId={id} />
+                            <MatchEditor key={match.id} match={match} tournamentId={id} isHighlighted={problematicMatchIds.includes(match.id)} onUpdate={fetchAllData} />
                           ))}
                         </div>
                       )}

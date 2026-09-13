@@ -56,7 +56,15 @@ export function TournamentClientWrapper({ slug }: { slug: string }) {
           .select(`
             *,
             home_team:teams!matches_home_team_id_fkey(name, logo_url),
-            away_team:teams!matches_away_team_id_fkey(name, logo_url)
+            away_team:teams!matches_away_team_id_fkey(name, logo_url),
+            match_sets(
+              id,
+              set_number,
+              home_points,
+              away_points,
+              status,
+              winner_team_id
+            )
           `)
           .eq("tournament_id", tournament.id)
           .order("match_date", { ascending: true })
@@ -83,6 +91,8 @@ export function TournamentClientWrapper({ slug }: { slug: string }) {
           goals_for: st.goals_for || 0,
           goals_against: st.goals_against || 0,
           goal_difference: st.goal_difference || 0,
+          volleyball_points_for: st.volleyball_points_for || 0,
+          volleyball_points_against: st.volleyball_points_against || 0,
           points: st.points || 0,
         }));
 

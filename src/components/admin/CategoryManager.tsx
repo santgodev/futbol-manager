@@ -2,16 +2,17 @@
 
 import { useState } from "react";
 import {
-  Plus, Trash2, Pencil, Check, X, ChevronDown,
-  Users, Tag, AlertTriangle, Loader2
-} from "lucide-react";
-import {
   createCategory,
   updateCategoryData,
   deleteCategory,
   addTeamToCategory,
   removeTeamFromCategory,
+  bulkCreateAndEnrollTeams,
 } from "@/app/admin/actions";
+import {
+  Plus, Trash2, Pencil, Check, X, ChevronDown, ChevronRight,
+  Users, Tag, AlertTriangle, Loader2, FileText
+} from "lucide-react";
 
 interface Category {
   id: string;
@@ -92,18 +93,22 @@ export function CategoryManager({
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
-  // Inline edit state
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editName, setEditName] = useState("");
   const [editGender, setEditGender] = useState("MIXED");
   const [editMinAge, setEditMinAge] = useState("0");
   const [editMaxAge, setEditMaxAge] = useState("");
 
-  // Enroll team state (per category)
+  const [expandedCategories, setExpandedCategories] = useState<string[]>([]);
+
   const [enrollCategoryId, setEnrollCategoryId] = useState<string | null>(null);
-  const [selectedTeamId, setSelectedTeamId] = useState("");
+  const [selectedTeamIds, setSelectedTeamIds] = useState<string[]>([]);
   const [enrolling, setEnrolling] = useState(false);
   const [enrollError, setEnrollError] = useState("");
+  
+  // Bulk enroll state
+  const [bulkEnrollCategoryId, setBulkEnrollCategoryId] = useState<string | null>(null);
+  const [bulkText, setBulkText] = useState("");
 
   // Preset quick-add
   const [addingPreset, setAddingPreset] = useState<string | null>(null);
@@ -187,13 +192,31 @@ export function CategoryManager({
   };
 
   const handleEnroll = async () => {
-    if (!enrollCategoryId || !selectedTeamId) return;
+    if (!enrollCategoryId || selectedTeamIds.length === 0) return;
     setEnrolling(true);
     setEnrollError("");
     try {
-      await addTeamToCategory(tournamentId, selectedTeamId, enrollCategoryId);
-      setSelectedTeamId("");
+      await Promise.all(
+        selectedTeamIds.map(teamId => addTeamToCategory(tournamentId, teamId, enrollCategoryId))
+      );
+      setSelectedTeamIds([]);
       setEnrollCategoryId(null);
+      onUpdate();
+    } catch (e: any) {
+      setEnrollError(e.message);
+    } finally {
+      setEnrolling(false);
+    }
+  };
+
+  const handleBulkEnroll = async () => {
+    if (!bulkEnrollCategoryId || !bulkText.trim()) return;
+    setEnrolling(true);
+    setEnrollError("");
+    try {
+      await bulkCreateAndEnrollTeams(tournamentId, bulkEnrollCategoryId, bulkText);
+      setBulkEnrollCategoryId(null);
+      setBulkText("");
       onUpdate();
     } catch (e: any) {
       setEnrollError(e.message);
@@ -209,6 +232,12 @@ export function CategoryManager({
     } catch (e: any) {
       setError(e.message);
     }
+  };
+
+  const toggleCategory = (catId: string) => {
+    setExpandedCategories(prev => 
+      prev.includes(catId) ? prev.filter(id => id !== catId) : [...prev, catId]
+    );
   };
 
   // Teams enrolled in a specific category
@@ -281,15 +310,22 @@ export function CategoryManager({
           const catTeams = teamsInCategory(cat.id);
           const avail = availableForCategory(cat.id);
           const showEnroll = enrollCategoryId === cat.id;
+          const isExpanded = expandedCategories.includes(cat.id) || showEnroll || isEditing;
 
           return (
             <div
               key={cat.id}
-              className="rounded-2xl border border-[#0055cc]/25 overflow-hidden"
+              className="rounded-2xl border border-[#0055cc]/25 overflow-hidden transition-all duration-300"
               style={{ background: "rgba(0,17,51,0.6)", backdropFilter: "blur(12px)" }}
             >
               {/* Category header */}
-              <div className="flex items-center gap-3 px-5 py-3.5 border-b border-[#0055cc]/15">
+              <div 
+                className={`flex items-center gap-3 px-5 py-3.5 cursor-pointer hover:bg-[#0055cc]/10 transition-colors ${isExpanded ? 'border-b border-[#0055cc]/15' : ''}`}
+                onClick={() => { if (!isEditing) toggleCategory(cat.id); }}
+              >
+                <div className={`text-[#00f0ff]/50 transition-transform duration-300 ${isExpanded ? 'rotate-90' : ''}`}>
+                  <ChevronRight size={16} />
+                </div>
                 {isEditing ? (
                   <>
                     <input
@@ -324,52 +360,52 @@ export function CategoryManager({
                       placeholder="Max" min="0" max="99"
                       className="w-12 bg-[#0a1526] border border-white/10 rounded text-[10px] text-white/60 px-2 py-1.5 text-center focus:outline-none"
                     />
-                    <button
-                      onClick={() => saveEdit(cat.id)}
-                      disabled={saving}
-                      className="p-1.5 rounded-lg text-emerald-400 hover:bg-emerald-500/10 transition-all"
-                    >
-                      {saving ? <Loader2 size={13} className="animate-spin" /> : <Check size={13} />}
-                    </button>
-                    <button
-                      onClick={() => setEditingId(null)}
-                      className="p-1.5 rounded-lg text-white/30 hover:text-white/60 transition-all"
-                    >
-                      <X size={13} />
-                    </button>
-                  </>
-                ) : (
-                  <>
-                    <div className="flex items-center gap-2 flex-1 min-w-0">
-                      <span className="text-sm font-black uppercase tracking-wider text-white truncate">
-                        {cat.name}
-                      </span>
-                      {genderBadge(cat.gender)}
-                      {(cat.min_age || cat.max_age) && (
-                        <span className="text-[9px] font-mono text-white/35">
-                          {cat.min_age ?? 0}–{cat.max_age ?? "∞"} años
+                      <button
+                        onClick={(e) => { e.stopPropagation(); saveEdit(cat.id); }}
+                        disabled={saving}
+                        className="p-1.5 rounded-lg text-emerald-400 hover:bg-emerald-500/10 transition-all"
+                      >
+                        {saving ? <Loader2 size={13} className="animate-spin" /> : <Check size={13} />}
+                      </button>
+                      <button
+                        onClick={(e) => { e.stopPropagation(); setEditingId(null); }}
+                        className="p-1.5 rounded-lg text-white/30 hover:text-white/60 transition-all"
+                      >
+                        <X size={13} />
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <div className="flex items-center gap-2 flex-1 min-w-0">
+                        <span className="text-sm font-black uppercase tracking-wider text-white truncate">
+                          {cat.name}
                         </span>
-                      )}
-                    </div>
-                    <span className="text-[10px] text-[#00f0ff]/60 font-bold shrink-0">
-                      {catTeams.length} equipo{catTeams.length !== 1 ? "s" : ""}
-                    </span>
-                    {!isDisabled && (
-                      <>
-                        <button
-                          onClick={() => startEdit(cat)}
-                          className="p-1.5 rounded-lg text-white/25 hover:text-[#00f0ff] hover:bg-[#00f0ff]/10 transition-all"
-                          title="Editar categoría"
-                        >
-                          <Pencil size={12} />
-                        </button>
-                        <button
-                          onClick={() => handleDelete(cat.id, cat.name)}
-                          className="p-1.5 rounded-lg text-white/25 hover:text-red-400 hover:bg-red-500/10 transition-all"
-                          title="Eliminar categoría"
-                        >
-                          <Trash2 size={12} />
-                        </button>
+                        {genderBadge(cat.gender)}
+                        {(cat.min_age || cat.max_age) && (
+                          <span className="text-[9px] font-mono text-white/35">
+                            {cat.min_age ?? 0}–{cat.max_age ?? "∞"} años
+                          </span>
+                        )}
+                      </div>
+                      <span className="text-[10px] text-[#00f0ff]/60 font-bold shrink-0">
+                        {catTeams.length} equipo{catTeams.length !== 1 ? "s" : ""}
+                      </span>
+                      {!isDisabled && (
+                        <>
+                          <button
+                            onClick={(e) => { e.stopPropagation(); startEdit(cat); }}
+                            className="p-1.5 rounded-lg text-white/25 hover:text-[#00f0ff] hover:bg-[#00f0ff]/10 transition-all"
+                            title="Editar categoría"
+                          >
+                            <Pencil size={12} />
+                          </button>
+                          <button
+                            onClick={(e) => { e.stopPropagation(); handleDelete(cat.id, cat.name); }}
+                            className="p-1.5 rounded-lg text-white/25 hover:text-red-400 hover:bg-red-500/10 transition-all"
+                            title="Eliminar categoría"
+                          >
+                            <Trash2 size={12} />
+                          </button>
                       </>
                     )}
                   </>
@@ -377,10 +413,11 @@ export function CategoryManager({
               </div>
 
               {/* Teams enrolled in this category */}
-              <div className="px-5 py-3 space-y-1.5">
-                {catTeams.length === 0 ? (
-                  <p className="text-[10px] text-white/25 italic py-1">Sin equipos inscritos en esta categoría.</p>
-                ) : (
+              {isExpanded && (
+                <div className="px-5 py-3 space-y-1.5 animate-in fade-in slide-in-from-top-2">
+                  {catTeams.length === 0 ? (
+                    <p className="text-[10px] text-white/25 italic py-1">Sin equipos inscritos en esta categoría.</p>
+                  ) : (
                   catTeams.map((tt) => (
                     <div key={tt.id} className="flex items-center justify-between gap-2 py-1.5 px-3 rounded-xl bg-white/[0.03] border border-white/5">
                       <div className="flex items-center gap-2 min-w-0">
@@ -410,47 +447,69 @@ export function CategoryManager({
                 {/* Enroll team in this category */}
                 {!isDisabled && (
                   showEnroll ? (
-                    <div className="flex items-center gap-2 mt-2 pt-2 border-t border-white/5">
-                      <div className="relative flex-1">
-                        <select
-                          value={selectedTeamId}
-                          onChange={(e) => setSelectedTeamId(e.target.value)}
-                          className="w-full appearance-none bg-[#0a1526] border border-[#00f0ff]/20 rounded-lg text-[11px] text-white/70 px-3 py-2 pr-7 focus:outline-none focus:border-[#00f0ff]/50"
-                        >
-                          <option value="">— Seleccionar equipo —</option>
-                          {avail.map((t) => (
-                            <option key={t.id} value={t.id}>{t.name}</option>
-                          ))}
-                        </select>
-                        <ChevronDown size={10} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-white/30 pointer-events-none" />
+                    <div className="flex flex-col gap-3 mt-2 pt-2 border-t border-white/5">
+                      <p className="text-[10px] text-white/50">Selecciona los equipos a inscribir:</p>
+                      <div className="flex flex-wrap gap-2 max-h-40 overflow-y-auto custom-scrollbar p-1">
+                        {avail.length === 0 ? (
+                          <span className="text-[10px] text-white/30 italic">No hay más equipos disponibles en el torneo.</span>
+                        ) : (
+                          avail.map(team => {
+                            const isSelected = selectedTeamIds.includes(team.id);
+                            return (
+                              <button
+                                key={team.id}
+                                onClick={() => {
+                                  setSelectedTeamIds(prev => prev.includes(team.id) ? prev.filter(id => id !== team.id) : [...prev, team.id]);
+                                }}
+                                disabled={enrolling}
+                                className={`flex items-center gap-2 px-2.5 py-1.5 rounded-lg border text-[10px] font-bold transition-all ${
+                                  isSelected 
+                                    ? "bg-[#00f0ff]/10 border-[#00f0ff]/50 text-[#00f0ff]" 
+                                    : "bg-white/5 border-white/10 text-white/60 hover:bg-white/10"
+                                }`}
+                              >
+                                <div className={`w-3 h-3 rounded-sm flex items-center justify-center border transition-colors ${isSelected ? "bg-[#00f0ff] border-[#00f0ff]" : "border-white/30"}`}>
+                                  {isSelected && <Check size={10} className="text-black" />}
+                                </div>
+                                {team.name}
+                              </button>
+                            );
+                          })
+                        )}
                       </div>
-                      <button
-                        onClick={handleEnroll}
-                        disabled={!selectedTeamId || enrolling}
-                        className="px-3 py-2 rounded-lg bg-[#00f0ff]/15 border border-[#00f0ff]/30 text-[#00f0ff] text-[10px] font-bold uppercase tracking-wider hover:bg-[#00f0ff]/25 disabled:opacity-40 transition-all shrink-0"
-                      >
-                        {enrolling ? <Loader2 size={11} className="animate-spin" /> : "Inscribir"}
-                      </button>
-                      <button
-                        onClick={() => { setEnrollCategoryId(null); setEnrollError(""); setSelectedTeamId(""); }}
-                        className="p-2 rounded-lg text-white/25 hover:text-white/60 transition-all shrink-0"
-                      >
-                        <X size={12} />
-                      </button>
+                      <div className="flex justify-end gap-2 mt-1">
+                        <button
+                          onClick={() => { setEnrollCategoryId(null); setEnrollError(""); setSelectedTeamIds([]); }}
+                          className="px-3 py-1.5 rounded-lg text-white/40 hover:text-white/70 transition-all text-[10px] font-bold uppercase tracking-wider"
+                        >
+                          Cancelar
+                        </button>
+                        <button
+                          onClick={handleEnroll}
+                          disabled={selectedTeamIds.length === 0 || enrolling}
+                          className="px-3 py-1.5 rounded-lg bg-[#00f0ff]/15 border border-[#00f0ff]/30 text-[#00f0ff] text-[10px] font-bold uppercase tracking-wider hover:bg-[#00f0ff]/25 disabled:opacity-40 transition-all flex items-center gap-1.5"
+                        >
+                          {enrolling ? <Loader2 size={11} className="animate-spin" /> : <Plus size={11} />}
+                          Inscribir ({selectedTeamIds.length})
+                        </button>
+                      </div>
                     </div>
                   ) : (
-                    <button
-                      onClick={() => { setEnrollCategoryId(cat.id); setEnrollError(""); }}
-                      className="mt-1.5 flex items-center gap-1.5 text-[10px] text-[#00f0ff]/50 hover:text-[#00f0ff] font-bold uppercase tracking-wider transition-all"
-                    >
-                      <Plus size={11} /> Agregar equipo a esta categoría
-                    </button>
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 mt-2 pt-2 border-t border-transparent">
+                      <button
+                        onClick={() => { setEnrollCategoryId(cat.id); setEnrollError(""); setBulkEnrollCategoryId(null); setSelectedTeamIds([]); }}
+                        className="flex items-center gap-1.5 text-[10px] text-[#00f0ff]/50 hover:text-[#00f0ff] font-bold uppercase tracking-wider transition-all"
+                      >
+                        <Plus size={11} /> Seleccionar equipos
+                      </button>
+                    </div>
                   )
                 )}
-                {enrollError && enrollCategoryId === cat.id && (
+                {enrollError && (enrollCategoryId === cat.id || bulkEnrollCategoryId === cat.id) && (
                   <p className="text-red-400 text-[10px] mt-1">{enrollError}</p>
                 )}
               </div>
+              )}
             </div>
           );
         })}
