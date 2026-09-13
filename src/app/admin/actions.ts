@@ -174,6 +174,9 @@ export async function createTournament(tournamentData: {
   sport?: string;
   is_double_round?: boolean;
   registration_status?: string;
+  volleyball_best_of_sets?: number;
+  volleyball_set_points?: number;
+  volleyball_tiebreak_points?: number;
   categories?: {
     name: string;
     gender?: string;
@@ -1110,14 +1113,18 @@ export async function generateKnockoutBracket(tournamentId: string, categoryId: 
   return { success: true };
 }
 
-export async function updateMatchSchedule(matchId: string, matchDate: string, matchTime: string, tournamentId: string) {
+export async function updateMatchSchedule(matchId: string, matchDate: string, matchTime: string, tournamentId: string, venueId?: string | null, customVenue?: string | null) {
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error("No autorizado");
 
+  const updateData: any = { match_date: matchDate, match_time: matchTime };
+  if (venueId !== undefined) updateData.venue_id = venueId;
+  if (customVenue !== undefined) updateData.custom_venue = customVenue;
+
   const { error } = await supabase
     .from("matches")
-    .update({ match_date: matchDate, match_time: matchTime })
+    .update(updateData)
     .eq("id", matchId);
 
   if (error) throw new Error("Error agendando partido: " + error.message);
@@ -1516,4 +1523,40 @@ export async function bulkCreateAndEnrollTeams(
   }
 
   return { success: true, count: addedCount };
+}
+
+export async function createTournamentVenue(venueData: {
+  tournament_id: string;
+  name: string;
+  address?: string;
+  surface?: string;
+  court_type?: string;
+}) {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error("No autorizado");
+
+  const { data, error } = await supabase
+    .from("tournament_venues")
+    .insert({ ...venueData, created_by: user.id })
+    .select()
+    .single();
+
+  if (error) throw new Error("Error creando cancha: " + error.message);
+  return { success: true, venue: data };
+}
+
+export async function deleteTournamentVenue(venueId: string, tournamentId: string) {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error("No autorizado");
+
+  const { error } = await supabase
+    .from("tournament_venues")
+    .update({ is_active: false })
+    .eq("id", venueId)
+    .eq("tournament_id", tournamentId);
+
+  if (error) throw new Error("Error eliminando cancha: " + error.message);
+  return { success: true };
 }

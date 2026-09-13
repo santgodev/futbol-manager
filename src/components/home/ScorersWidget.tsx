@@ -5,7 +5,7 @@ import { Medal, Goal, Search } from "lucide-react";
 import Image from "next/image";
 import { PlayerProfileModal } from "./PlayerProfileModal";
 
-export const ScorersWidget = ({ scorers = [], tournamentId }: { scorers?: any[], tournamentId?: string }) => {
+export const ScorersWidget = ({ scorers = [], tournamentId, sport }: { scorers?: any[], tournamentId?: string, sport?: string | null }) => {
   const [selectedPlayer, setSelectedPlayer] = useState<any | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
@@ -29,7 +29,7 @@ export const ScorersWidget = ({ scorers = [], tournamentId }: { scorers?: any[],
             <Medal className="text-[#f59e0b]" size={16} />
           </div>
           <h3 className="text-xs font-bold uppercase tracking-widest text-slate-200">
-            Goleadores
+            {sport === "VOLLEYBALL" || sport === "BEACH_VOLLEYBALL" ? "Anotadores" : "Goleadores"}
           </h3>
         </div>
         <div className="flex items-center gap-2">
@@ -70,7 +70,7 @@ export const ScorersWidget = ({ scorers = [], tournamentId }: { scorers?: any[],
       <div className="flex flex-col gap-3 flex-1 relative z-10">
         {filteredScorers.length === 0 ? (
           <div className="py-8 flex items-center justify-center text-[10px] uppercase tracking-widest text-slate-500 font-bold border border-dashed border-[#2D3342] rounded-xl">
-            Aún no hay goleadores
+            {sport === "VOLLEYBALL" || sport === "BEACH_VOLLEYBALL" ? "Aún no hay anotadores" : "Aún no hay goleadores"}
           </div>
         ) : (
           filteredScorers.map((scorer, idx) => {

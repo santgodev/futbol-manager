@@ -10,8 +10,8 @@ import Image from "next/image";
 export function LiveControlRoom({ match, onUpdate }: { match: any, homePlayers?: any[], awayPlayers?: any[], onUpdate?: () => void }) {
   const router = useRouter();
   
-  const [homeScore, setHomeScore] = useState(match.home_score || 0);
-  const [awayScore, setAwayScore] = useState(match.away_score || 0);
+  const [homeScore, setHomeScore] = useState<number>(match.home_score || 0);
+  const [awayScore, setAwayScore] = useState<number>(match.away_score || 0);
   
   const [playerName, setPlayerName] = useState("");
   const [activeModal, setActiveModal] = useState<{
@@ -72,9 +72,9 @@ export function LiveControlRoom({ match, onUpdate }: { match: any, homePlayers?:
 
       if (activeModal.type === 'GOAL') {
         if (activeModal.teamId === match.home_team_id) {
-          setHomeScore(s => s + 1);
+          setHomeScore((s: number) => s + 1);
         } else {
-          setAwayScore(s => s + 1);
+          setAwayScore((s: number) => s + 1);
         }
       }
 
@@ -137,7 +137,7 @@ export function LiveControlRoom({ match, onUpdate }: { match: any, homePlayers?:
               
               <div className="flex items-center gap-3 bg-[#001122]/60 border border-[#00f0ff]/20 rounded-2xl p-2 shadow-[inset_0_0_20px_rgba(0,0,0,0.5)]">
                 <button 
-                  onClick={() => setHomeScore(s => Math.max(0, s - 1))}
+                  onClick={() => setHomeScore((s: number) => Math.max(0, s - 1))}
                   className="w-10 h-10 md:w-12 md:h-12 flex items-center justify-center rounded-xl bg-white/5 hover:bg-white/10 text-white/50 hover:text-white text-xl font-black transition-colors"
                 >
                   -
@@ -184,7 +184,7 @@ export function LiveControlRoom({ match, onUpdate }: { match: any, homePlayers?:
               
               <div className="flex items-center gap-3 bg-[#001122]/60 border border-[#00f0ff]/20 rounded-2xl p-2 shadow-[inset_0_0_20px_rgba(0,0,0,0.5)]">
                 <button 
-                  onClick={() => setAwayScore(s => Math.max(0, s - 1))}
+                  onClick={() => setAwayScore((s: number) => Math.max(0, s - 1))}
                   className="w-10 h-10 md:w-12 md:h-12 flex items-center justify-center rounded-xl bg-white/5 hover:bg-white/10 text-white/50 hover:text-white text-xl font-black transition-colors"
                 >
                   -

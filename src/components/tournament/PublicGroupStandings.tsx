@@ -109,15 +109,16 @@ export function PublicGroupStandings({ standings, sport }: PublicGroupStandingsP
                       <th className="py-3 px-2 text-[9px] text-white/40 font-bold uppercase tracking-widest text-center" title={isVolleyball ? "Sets Favor:Contra" : "Goles Favor:Contra"}>
                         {isVolleyball ? "Sets (F:A)" : "Goles (F:A)"}
                       </th>
-                      <th className="py-3 px-2 text-[9px] text-white/40 font-bold uppercase tracking-widest text-center" title={isVolleyball ? "Ratio de Sets" : "Diferencia de Goles"}>
-                        {isVolleyball ? "Ratio S" : "DG"}
-                      </th>
-                      <th className="py-3 px-2 text-[9px] text-white/40 font-bold uppercase tracking-widest text-center" title={isVolleyball ? "Puntos Favor:Contra" : "Marcador Favor:Contra"}>
-                        {isVolleyball ? "Puntos (F:A)" : "Marcador"}
-                      </th>
-                      <th className="py-3 px-2 text-[9px] text-white/40 font-bold uppercase tracking-widest text-center" title="Ratio de Puntos">
-                        Ratio P
-                      </th>
+                      {!isVolleyball && (
+                        <th className="py-3 px-2 text-[9px] text-white/40 font-bold uppercase tracking-widest text-center" title="Diferencia de Goles">
+                          DG
+                        </th>
+                      )}
+                      {isVolleyball && (
+                        <th className="py-3 px-2 text-[9px] text-white/40 font-bold uppercase tracking-widest text-center" title="Puntos Favor:Contra">
+                          Puntos (F:A)
+                        </th>
+                      )}
                       <th className="py-3 px-3 text-[10px] text-[#00f0ff] font-black uppercase tracking-widest text-center">
                         Puntos
                       </th>
@@ -197,24 +198,19 @@ export function PublicGroupStandings({ standings, sport }: PublicGroupStandingsP
                           </td>
 
                           {/* Sets F:A */}
-                          <td className="py-3 px-2 text-center text-[11px] font-mono text-white/60">
+                          <td className="py-3 px-2 text-center text-[11px] font-mono text-white/70">
                             {team.goals_for}:{team.goals_against}
                           </td>
-
-                          {/* Ratio S */}
-                          <td className="py-3 px-2 text-center text-[11px] font-mono text-white/60">
-                            {isVolleyball ? setRatio : team.goal_difference > 0 ? `+${team.goal_difference}` : team.goal_difference}
-                          </td>
-
-                          {/* Puntos F:A */}
-                          <td className="py-3 px-2 text-center text-[11px] font-mono text-white/60">
-                            {pointsFor}:{pointsAgainst}
-                          </td>
-
-                          {/* Ratio P */}
-                          <td className="py-3 px-2 text-center text-[11px] font-mono text-white/60">
-                            {pointRatio}
-                          </td>
+                          {!isVolleyball && (
+                            <td className="py-3 px-2 text-center text-[11px] font-mono text-[#00f0ff]">
+                              {team.goal_difference > 0 ? `+${team.goal_difference}` : team.goal_difference}
+                            </td>
+                          )}
+                          {isVolleyball && (
+                            <td className="py-3 px-2 text-center text-[11px] font-mono text-white/70">
+                              {pointsFor}:{pointsAgainst}
+                            </td>
+                          )}
 
                           {/* Puntos */}
                           <td className="py-3 px-3 text-center">

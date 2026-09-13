@@ -17,7 +17,7 @@ function rankBg(rank: number) {
   return "border-l-[3px] border-transparent";
 }
 
-export const StandingsWidget = ({ standings = [], tournamentId }: { standings?: any[], tournamentId?: string }) => {
+export const StandingsWidget = ({ standings = [], tournamentId, sport }: { standings?: any[], tournamentId?: string, sport?: string | null }) => {
   const [selectedTeam, setSelectedTeam] = useState<any | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
@@ -94,7 +94,9 @@ export const StandingsWidget = ({ standings = [], tournamentId }: { standings?: 
                 <th className="text-[10px] font-bold text-slate-400 uppercase tracking-widest pb-3 pl-2">Equipo</th>
                 {/* PJ and DG hidden on mobile */}
                 <th className="text-[10px] font-bold text-slate-400 uppercase tracking-widest pb-3 text-center hidden md:table-cell" title="Partidos Jugados">PJ</th>
-                <th className="text-[10px] font-bold text-slate-400 uppercase tracking-widest pb-3 text-center hidden md:table-cell" title="Diferencia de Goles">DG</th>
+                <th className="text-[10px] font-bold text-slate-400 uppercase tracking-widest pb-3 text-center hidden md:table-cell" title={sport === "VOLLEYBALL" || sport === "BEACH_VOLLEYBALL" ? "Ratio de Sets" : "Diferencia de Goles"}>
+                  {sport === "VOLLEYBALL" || sport === "BEACH_VOLLEYBALL" ? "Ratio S" : "DG"}
+                </th>
                 <th className="text-[10px] font-black text-slate-200 uppercase tracking-widest pb-3 text-center" title="Puntos">PTS</th>
                 {/* Expand toggle only on mobile */}
                 <th className="w-6 md:hidden" />
@@ -129,11 +131,14 @@ export const StandingsWidget = ({ standings = [], tournamentId }: { standings?: 
                         </div>
                       </td>
                       {/* PJ and DG — hidden on mobile */}
-                      <td className="py-3 text-center text-xs text-slate-400 font-medium hidden md:table-cell">{team.played}</td>
-                      <td className="py-3 text-center text-xs text-slate-400 font-medium hidden md:table-cell">
-                        {team.goal_difference > 0 ? `+${team.goal_difference}` : team.goal_difference}
+                      <td className="py-3 text-xs font-mono text-slate-400 text-center hidden md:table-cell">{team.played}</td>
+                      <td className="py-3 text-xs font-mono text-slate-400 text-center hidden md:table-cell">
+                        {sport === "VOLLEYBALL" || sport === "BEACH_VOLLEYBALL" 
+                          ? (team.played === 0 ? "0.00" : team.goals_against === 0 ? "MAX" : (team.goals_for / team.goals_against).toFixed(2))
+                          : (team.goal_difference > 0 ? `+${team.goal_difference}` : team.goal_difference)
+                        }
                       </td>
-                      <td className="py-3 text-center text-xs font-black text-slate-200 group-hover:text-[#0088ff] transition-colors">
+                      <td className="py-3 text-[13px] font-black text-slate-200 text-center group-hover:text-[#0088ff] transition-colors">
                         {team.points}
                       </td>
                       {/* Search Icon — mobile only */}

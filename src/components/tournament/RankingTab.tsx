@@ -28,7 +28,7 @@ interface RankingTabProps {
 }
 
 function safeRatio(a: number, b: number): string {
-  if (b === 0) return a > 0 ? "999.000" : "0.000";
+  if (b === 0) return a > 0 ? "MAX" : "0.000";
   return (a / b).toFixed(3);
 }
 
@@ -125,15 +125,16 @@ export function RankingTab({ standings, sport }: RankingTabProps) {
               <th className="py-3 px-2 text-[9px] text-white/40 font-bold uppercase tracking-widest text-center" title={isVolleyball ? "Sets Favor:Contra" : "Goles Favor:Contra"}>
                 {isVolleyball ? "Sets (F:A)" : "Goles (F:A)"}
               </th>
-              <th className="py-3 px-2 text-[9px] text-white/40 font-bold uppercase tracking-widest text-center" title={isVolleyball ? "Ratio de Sets" : "Diferencia de Goles"}>
-                {isVolleyball ? "Ratio S" : "DG"}
-              </th>
-              <th className="py-3 px-2 text-[9px] text-white/40 font-bold uppercase tracking-widest text-center" title={isVolleyball ? "Puntos Favor:Contra" : "Marcador Favor:Contra"}>
-                {isVolleyball ? "Puntos (F:A)" : "Marcador"}
-              </th>
-              <th className="py-3 px-2 text-[9px] text-white/40 font-bold uppercase tracking-widest text-center" title="Ratio de Puntos">
-                Ratio P
-              </th>
+              {!isVolleyball && (
+                <th className="py-3 px-2 text-[9px] text-white/40 font-bold uppercase tracking-widest text-center" title="Diferencia de Goles">
+                  DG
+                </th>
+              )}
+              {isVolleyball && (
+                <th className="py-3 px-2 text-[9px] text-white/40 font-bold uppercase tracking-widest text-center" title="Puntos Favor:Contra">
+                  Puntos (F:A)
+                </th>
+              )}
               <th className="py-3 px-2 text-[9px] text-white/40 font-bold uppercase tracking-widest text-center" title="Posición en su grupo">
                 Pos. Origen
               </th>
@@ -237,21 +238,19 @@ export function RankingTab({ standings, sport }: RankingTabProps) {
                   <td className="py-3 px-2 text-center text-[11px] font-mono text-white/60">
                     {team.goals_for}:{team.goals_against}
                   </td>
+                  
+                  {!isVolleyball && (
+                    <td className="py-3 px-2 text-center text-[11px] font-mono text-[#00f0ff]">
+                      {team.goal_difference > 0 ? `+${team.goal_difference}` : team.goal_difference}
+                    </td>
+                  )}
+                  {isVolleyball && (
+                    <td className="py-3 px-2 text-center text-[11px] font-mono text-white/60">
+                      {pointsFor}:{pointsAgainst}
+                    </td>
+                  )}
 
-                  {/* Ratio S */}
-                  <td className="py-3 px-2 text-center text-[11px] font-mono text-white/60">
-                    {isVolleyball ? setRatio : team.goal_difference > 0 ? `+${team.goal_difference}` : team.goal_difference}
-                  </td>
 
-                  {/* Puntos F:A */}
-                  <td className="py-3 px-2 text-center text-[11px] font-mono text-white/60">
-                    {pointsFor}:{pointsAgainst}
-                  </td>
-
-                  {/* Ratio P */}
-                  <td className="py-3 px-2 text-center text-[11px] font-mono text-white/60">
-                    {pointRatio}
-                  </td>
 
                   {/* Pos. Origen */}
                   <td className="py-3 px-2 text-center">

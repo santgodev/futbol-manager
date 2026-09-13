@@ -23,7 +23,7 @@ export function TournamentClientWrapper({ slug }: { slug: string }) {
         // 1. Fetch tournament
         const { data: tournament, error: tournamentError } = await supabase
           .from("tournaments")
-          .select(`*, tournament_teams (count)`)
+          .select(`*, tournament_teams (team_id, category_id, group_name)`)
           .eq("slug", slug)
           .single();
 
@@ -33,7 +33,7 @@ export function TournamentClientWrapper({ slug }: { slug: string }) {
           return;
         }
 
-        const teams_count = Number(tournament.tournament_teams?.[0]?.count || 0);
+        const teams_count = tournament.tournament_teams?.length || 0;
         const tournamentProps = { ...tournament, teams_count };
 
         // 2. Fetch rules
@@ -96,11 +96,17 @@ export function TournamentClientWrapper({ slug }: { slug: string }) {
           points: st.points || 0,
         }));
 
+        const mappedMatches = (matches || []).map((m: any) => {
+          if (m.group_name) return m;
+          const tt = tournament.tournament_teams?.find((t: any) => t.team_id === m.home_team_id);
+          return { ...m, group_name: tt?.group_name || null };
+        });
+
         setData({
           tournament: tournamentProps,
           rules: rules || [],
           categories: categories || [],
-          matches: matches || [],
+          matches: mappedMatches,
           standings: mappedStandings,
         });
       } catch (err) {

@@ -123,16 +123,22 @@ export const DashboardGrid = ({ tournamentId }: { tournamentId?: string }) => {
     );
   }
 
+  const isVolleyball = data.activeTournament?.sport === "VOLLEYBALL" || data.activeTournament?.sport === "BEACH_VOLLEYBALL";
+
   return (
     <section id="dashboard" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6 mb-6 scroll-mt-20">
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-stretch">
-        <div id="posiciones" className="lg:col-span-4 min-h-[410px] scroll-mt-20 order-2 lg:order-none">
-          <StandingsWidget standings={data.standings} tournamentId={data.activeTournament?.id} />
+        <div id="posiciones" className={`${isVolleyball ? "lg:col-span-6" : "lg:col-span-4"} min-h-[410px] scroll-mt-20 order-2 lg:order-none`}>
+          <StandingsWidget standings={data.standings} tournamentId={data.activeTournament?.id} sport={data.activeTournament?.sport} />
         </div>
-        <div id="goleador" className={`lg:col-span-4 ${data.scorers.length > 0 ? "min-h-[410px]" : ""} scroll-mt-20 order-3 lg:order-none`}>
-          <ScorersWidget scorers={data.scorers} tournamentId={data.activeTournament?.id} />
-        </div>
-        <div className="lg:col-span-4 flex flex-col gap-4 order-1 lg:order-none">
+        
+        {!isVolleyball && (
+          <div id="goleador" className={`lg:col-span-4 ${data.scorers.length > 0 ? "min-h-[410px]" : ""} scroll-mt-20 order-3 lg:order-none`}>
+            <ScorersWidget scorers={data.scorers} tournamentId={data.activeTournament?.id} sport={data.activeTournament?.sport} />
+          </div>
+        )}
+
+        <div className={`${isVolleyball ? "lg:col-span-6" : "lg:col-span-4"} flex flex-col gap-4 order-1 lg:order-none`}>
           <div id="partidos" className="w-full scroll-mt-20">
             <UpcomingMatchesWidget matches={data.upcomingMatches} />
           </div>

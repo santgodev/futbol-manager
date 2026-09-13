@@ -14,6 +14,7 @@ function getStatusConfig(status: string) {
       return { label: "En curso",      dot: "bg-[#22c55e]", color: "text-[#22c55e]", border: "border-[#22c55e]/30", bg: "bg-[#22c55e]/10" };
     case "REGISTRATION":
       return { label: "Inscripciones", dot: "bg-[#22c55e]", color: "text-[#22c55e]", border: "border-[#22c55e]/30", bg: "bg-[#22c55e]/10" };
+    case "DRAFT":
     case "UPCOMING":
       return { label: "Próximamente",  dot: "bg-[#f59e0b]", color: "text-[#f59e0b]", border: "border-[#f59e0b]/30", bg: "bg-[#f59e0b]/10" };
     case "FINISHED":

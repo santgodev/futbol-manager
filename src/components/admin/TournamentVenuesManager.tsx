@@ -68,7 +68,7 @@ export function TournamentVenuesManager({ tournamentId, venues, onUpdate }: Tour
     setError("");
 
     try {
-      await deleteTournamentVenue(venueId);
+      await deleteTournamentVenue(venueId, tournamentId);
       onUpdate?.();
     } catch (err: any) {
       setError(err.message || "Error quitando la cancha.");
