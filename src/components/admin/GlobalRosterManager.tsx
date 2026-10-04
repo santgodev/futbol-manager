@@ -16,8 +16,14 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { SearchableSelect } from "@/components/ui/searchable-select";
-import { format } from "date-fns";
 import styles from "./club-workspace.module.css";
+
+function formatDate(d: Date): string {
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
 
 function getErrorMessage(error: unknown, fallback: string) {
   return error instanceof Error ? error.message : fallback;
@@ -92,7 +98,7 @@ export function GlobalRosterManager({ teamId, initialPlayers, unassignedPlayers,
     setLoadingState("adding");
     try {
       const jerseyNum = newPlayerNumber ? parseInt(newPlayerNumber, 10) : null;
-      const dobStr = newPlayerDob ? format(newPlayerDob, "yyyy-MM-dd") : null;
+      const dobStr = newPlayerDob ? formatDate(newPlayerDob) : null;
       await createGlobalPlayer(
         newPlayerName.trim(),
         teamId,
@@ -146,7 +152,7 @@ export function GlobalRosterManager({ teamId, initialPlayers, unassignedPlayers,
     setEditLoading(true);
     try {
       const jerseyNum = editPlayerNumber ? parseInt(editPlayerNumber, 10) : null;
-      const dobStr = editPlayerDob ? format(editPlayerDob, "yyyy-MM-dd") : null;
+      const dobStr = editPlayerDob ? formatDate(editPlayerDob) : null;
       await updateGlobalPlayer(
         playerId,
         editPlayerName.trim(),
@@ -335,7 +341,7 @@ function PlayerFields({ name, onName, number, onNumber, dob, onDob, position, on
           <Input type="number" value={number} onChange={(event) => onNumber(event.target.value)} placeholder="10" className={styles.control} />
         </label>
         <label className={styles.field}>Nacimiento
-          <Input type="date" value={dob ? format(dob, "yyyy-MM-dd") : ""} onChange={(event) => onDob(event.target.value ? new Date(event.target.value + "T12:00:00") : undefined)} className={styles.control} />
+          <Input type="date" value={dob ? formatDate(dob) : ""} onChange={(event) => onDob(event.target.value ? new Date(event.target.value + "T12:00:00") : undefined)} className={styles.control} />
         </label>
       </div>
       <div className={styles.field}>

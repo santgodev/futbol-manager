@@ -1,4 +1,6 @@
-import { createClient } from "@/utils/supabase/client";
+"use server";
+
+import { createClient } from "@/utils/supabase/server";
 
 export async function login(formData: FormData) {
   const email = formData.get("email") as string;
@@ -8,15 +10,15 @@ export async function login(formData: FormData) {
     return { error: "Email y contraseña son obligatorios" };
   }
 
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const { error } = await supabase.auth.signInWithPassword({
-    email,
+    email: email.trim(),
     password,
   });
 
   if (error) {
-    return { error: "Credenciales inválidas" };
+    return { error: "Credenciales inválidas: verifique su correo y contraseña." };
   }
 
   return { success: true };

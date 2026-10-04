@@ -1,5 +1,7 @@
 import { createClient } from "@/utils/supabase/client";
 
+export * from "./pegasight-actions";
+
 export async function signOut() {
   const supabase = createClient();
   await supabase.auth.signOut();
@@ -197,6 +199,15 @@ export async function createTournament(tournamentData: {
     .replace(/^-+|-+$/g, '');
 
   const { categories, ...restData } = tournamentData;
+
+  // Obtener perfil para adscribir superadmin_id automáticamente si el creador es SUPERADMINISTRADOR
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", user.id)
+    .single();
+
+  const isSuperadmin = profile?.role === "SUPERADMINISTRADOR";
   
   const { data, error } = await supabase
     .from("tournaments")
@@ -204,7 +215,8 @@ export async function createTournament(tournamentData: {
       status: 'PRÓXIMAMENTE',
       ...restData,
       slug,
-      created_by: user.id
+      created_by: user.id,
+      superadmin_id: isSuperadmin ? user.id : (restData as any).superadmin_id || null
     })
     .select()
     .single();
@@ -1560,3 +1572,7 @@ export async function deleteTournamentVenue(venueId: string, tournamentId: strin
   if (error) throw new Error("Error eliminando cancha: " + error.message);
   return { success: true };
 }
+
+// Re-exportar todas las acciones del sistema PEGASIGHT
+export * from "./pegasight-actions";
+
