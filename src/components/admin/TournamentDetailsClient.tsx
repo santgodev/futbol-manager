@@ -332,7 +332,7 @@ export function TournamentDetailsClient({ id }: { id: string }) {
       {categories.length > 0 && (
         <div className="mb-8 overflow-x-auto custom-scrollbar pb-2">
           <div className="flex items-center gap-2">
-            <span className="text-[9px] uppercase tracking-widest text-[#00f0ff]/50 font-bold mr-2 shrink-0">Filtrar por Categoría:</span>
+            <span className="text-[9px] uppercase tracking-widest text-[#00f0ff]/50 font-bold mr-2 shrink-0">Categoría:</span>
             {categories.map(cat => (
               <button
                 key={cat.id}
@@ -355,7 +355,7 @@ export function TournamentDetailsClient({ id }: { id: string }) {
         <div className="flex items-center gap-3">
           <span className={`w-2.5 h-2.5 rounded-full shrink-0 ${integrityDot}`} />
           <div>
-            <span className="text-[10px] uppercase tracking-widest font-black text-white/40 block">Estado de Integridad del Torneo</span>
+            <span className="text-[10px] uppercase tracking-widest font-black text-white/40 block">Estado del calendario</span>
             <span className="text-sm font-black uppercase tracking-wider block">{integrityLabel}</span>
           </div>
         </div>
@@ -370,7 +370,7 @@ export function TournamentDetailsClient({ id }: { id: string }) {
               }}
               className="mt-1 px-3 py-1.5 bg-red-500/20 text-red-400 border border-red-500/30 rounded text-[10px] font-bold uppercase tracking-wider hover:bg-red-500/30 transition-colors"
             >
-              Ir a Gestor de Partidos a Eliminar
+              Ver partidos a corregir
             </button>
           )}
         </div>
@@ -387,7 +387,7 @@ export function TournamentDetailsClient({ id }: { id: string }) {
               <div className="p-1.5 rounded-lg border border-[#0055cc]/30" style={{ background: "rgba(0,34,102,0.5)" }}>
                 <Shield size={14} className="text-[#00f0ff]" />
               </div>
-              <h2 className="text-xs font-black uppercase tracking-[0.2em] text-white">Administradores del Torneo</h2>
+              <h2 className="text-xs font-black uppercase tracking-[0.2em] text-white">Administradores</h2>
             </div>
             <div className="p-6">
               <TournamentAdminManager tournamentId={id} />
@@ -403,7 +403,7 @@ export function TournamentDetailsClient({ id }: { id: string }) {
               <div className="p-1.5 rounded-lg border border-purple-500/30" style={{ background: "rgba(88,28,135,0.3)" }}>
                 <Users size={14} className="text-purple-400" />
               </div>
-              <h2 className="text-xs font-black uppercase tracking-[0.2em] text-white">Usuarios de Resultados (Anotadores)</h2>
+              <h2 className="text-xs font-black uppercase tracking-[0.2em] text-white">Anotadores</h2>
             </div>
             <div className="p-6">
               <TournamentResultUserManager tournamentId={id} />
@@ -442,9 +442,9 @@ export function TournamentDetailsClient({ id }: { id: string }) {
             <div className="p-1.5 rounded-lg border border-[#0055cc]/30" style={{ background: "rgba(0,34,102,0.5)" }}>
               <Users size={14} className="text-[#00f0ff]" />
             </div>
-            <h2 className="text-xs font-black uppercase tracking-[0.2em] text-white">Inscripción de Equipos</h2>
+            <h2 className="text-xs font-black uppercase tracking-[0.2em] text-white">Equipos del Torneo</h2>
             <span className="ml-auto text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full border border-[#00f0ff]/20 bg-[#00f0ff]/10 text-[#00f0ff]">
-              {teamsCount} Inscritos
+              {teamsCount} equipos
             </span>
           </div>
           <div className="p-6">
@@ -466,7 +466,7 @@ export function TournamentDetailsClient({ id }: { id: string }) {
             <div className="p-1.5 rounded-lg border border-[#0055cc]/30" style={{ background: "rgba(0,34,102,0.5)" }}>
               <Trophy size={14} className="text-[#00f0ff]" />
             </div>
-            <h2 className="text-xs font-black uppercase tracking-[0.2em] text-white">Gestión de Grupos</h2>
+            <h2 className="text-xs font-black uppercase tracking-[0.2em] text-white">Grupos</h2>
           </div>
           <div className="p-6">
             <TournamentGroupManager
@@ -487,15 +487,15 @@ export function TournamentDetailsClient({ id }: { id: string }) {
               <div className="p-1.5 rounded-lg border border-[#0055cc]/30" style={{ background: "rgba(0,34,102,0.5)" }}>
                 <Calendar size={14} className="text-[#00f0ff]" />
               </div>
-              <h2 className="text-xs font-black uppercase tracking-[0.2em] text-white">Programar Nuevo Partido</h2>
+              <h2 className="text-xs font-black uppercase tracking-[0.2em] text-white">Agregar Partido</h2>
             </div>
             <div className="p-6">
               {integritySeverity === "CRITICAL" ? (
                 <div className="py-8 text-center flex flex-col items-center gap-3">
                   <AlertTriangle className="w-10 h-10 text-red-500 animate-pulse" />
-                  <span className="text-red-400 text-xs font-black uppercase tracking-[0.2em]">Programación Bloqueada 🔒</span>
+                  <span className="text-red-400 text-xs font-black uppercase tracking-[0.2em]">Partidos Bloqueados 🔒</span>
                   <p className="text-white/40 text-xs max-w-sm leading-relaxed mx-auto">
-                    No puedes programar partidos ni generar fixtures mientras el torneo tenga inconsistencias críticas de integridad. Resuelve las inconsistencias del calendario para continuar.
+                    No puedes agregar partidos mientras haya un problema en el calendario. Corrígelo para continuar.
                   </p>
                 </div>
               ) : (
@@ -569,7 +569,7 @@ export function TournamentDetailsClient({ id }: { id: string }) {
                     <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mb-2">
                       <div className="flex items-center gap-2">
                         <span className="w-1.5 h-1.5 rounded-full bg-[#00f0ff] animate-pulse" />
-                        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#00f0ff]">Progreso Fase de Grupos</span>
+                        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#00f0ff]">Avance de Grupos</span>
                       </div>
                       <span className="text-[10px] sm:text-xs font-mono font-bold text-white/90">
                         {groupMatchesPlayed} / {requiredGroupMatches} <span className="text-white/40">partidos requeridos</span> ({Math.min(100, Math.round((groupMatchesPlayed / requiredGroupMatches) * 100))}%)
@@ -601,7 +601,7 @@ export function TournamentDetailsClient({ id }: { id: string }) {
                 {/* ── Round Selector (Jornadas Tabs) ── */}
                 {uniqueRounds.length > 0 && (
                   <div className="mb-2 w-full overflow-hidden">
-                    <span className="text-[9px] uppercase tracking-widest font-black text-[#00f0ff]/50 block mb-2 font-mono">Filtrar por Jornada</span>
+                    <span className="text-[9px] uppercase tracking-widest font-black text-[#00f0ff]/50 block mb-2 font-mono">Jornada</span>
                     <div className="flex gap-2 overflow-x-auto pb-2 custom-scrollbar w-full">
                       <button
                         onClick={() => setSelectedRound("ALL")}
@@ -638,7 +638,7 @@ export function TournamentDetailsClient({ id }: { id: string }) {
                       <div className="flex items-center gap-3 mb-4 w-full">
                         <span className="w-2 h-2 rounded-full bg-brand-teal animate-pulse shadow-[0_0_6px_rgba(0,240,255,0.8)] shrink-0" />
                         <span className="text-[10px] font-black uppercase tracking-[0.2em] text-brand-teal shrink-0">
-                          Partidos Pendientes
+                          Por jugar
                         </span>
                         <div className="flex-1 h-px bg-brand-teal/10 min-w-0" />
                       </div>
@@ -722,7 +722,7 @@ export function TournamentDetailsClient({ id }: { id: string }) {
               <div className="p-1.5 rounded-lg border border-brand-gold/20" style={{ background: "rgba(255,184,0,0.1)" }}>
                 <Trophy size={14} className="text-brand-gold" />
               </div>
-              <h2 className="text-xs font-black uppercase tracking-[0.2em] text-white">Top Goleadores</h2>
+              <h2 className="text-xs font-black uppercase tracking-[0.2em] text-white">Goleadores</h2>
             </div>
             <div className="p-6">
               <TournamentTopScorers scorers={activeScorers || []} tournamentId={id} />

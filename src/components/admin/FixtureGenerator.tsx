@@ -71,7 +71,7 @@ export function FixtureGenerator({
           }`}
       >
         <Calendar size={16} />
-        {hasGroupMatches ? "✅ Calendario Ya Creado" : "Crear Calendario Automático"}
+        {hasGroupMatches ? "✅ Calendario creado" : "Crear calendario automático"}
       </button>
 
       {/* Modal via Portal — oscurece toda la pantalla */}

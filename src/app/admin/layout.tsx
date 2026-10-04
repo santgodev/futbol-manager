@@ -13,6 +13,11 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
   const [profile, setProfile] = useState<UserProfileWithMemberships | null>(null);
   const [loading, setLoading] = useState(true);
 
+  const handleSignOut = async () => {
+    await createClient().auth.signOut();
+    router.replace("/");
+  };
+
   useEffect(() => {
     const checkUser = async () => {
       const supabase = createClient();
@@ -111,11 +116,13 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
             <span className="text-xs font-bold truncate text-white/90">{profile?.full_name || profile?.email || "Usuario"}</span>
             <span className="text-[10px] text-white/40 truncate">{profile?.email ?? ""}</span>
           </div>
-          <form action="/auth/signout" method="post">
-            <button className="w-full flex items-center justify-center gap-2 text-[10px] text-red-400 border border-red-500/20 bg-red-500/5 py-2.5 rounded-lg hover:bg-red-500/15 hover:text-red-300 hover:border-red-500/40 transition-all uppercase tracking-widest font-bold">
-              Cerrar Sesión
-            </button>
-          </form>
+          <button
+            type="button"
+            onClick={handleSignOut}
+            className="w-full flex items-center justify-center gap-2 text-[10px] text-red-400 border border-red-500/20 bg-red-500/5 py-2.5 rounded-lg hover:bg-red-500/15 hover:text-red-300 hover:border-red-500/40 transition-all uppercase tracking-widest font-bold"
+          >
+            Cerrar Sesión
+          </button>
         </div>
       </aside>
 
@@ -134,11 +141,13 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
             <span className={`text-[9px] font-bold px-2 py-0.5 rounded border uppercase tracking-wider ${badge.color}`}>
               {badge.label}
             </span>
-            <form action="/auth/signout" method="post">
-              <button className="text-[10px] text-red-400 border border-red-500/20 bg-red-500/5 px-2.5 py-1.5 rounded-lg hover:bg-red-500/15 transition-colors uppercase tracking-widest font-bold">
-                Salir
-              </button>
-            </form>
+            <button
+              type="button"
+              onClick={handleSignOut}
+              className="text-[10px] text-red-400 border border-red-500/20 bg-red-500/5 px-2.5 py-1.5 rounded-lg hover:bg-red-500/15 transition-colors uppercase tracking-widest font-bold"
+            >
+              Salir
+            </button>
           </div>
         </header>
 

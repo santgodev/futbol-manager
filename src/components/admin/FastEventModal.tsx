@@ -20,6 +20,10 @@ export function FastEventModal({ isOpen, onClose, onSubmit, teamName, eventType 
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (eventType === "GOAL" && !playerName.trim()) {
+      setError("Debes ingresar el nombre del jugador que anotó el gol.");
+      return;
+    }
     setIsSubmitting(true);
     setError("");
     try {
@@ -85,7 +89,7 @@ export function FastEventModal({ isOpen, onClose, onSubmit, teamName, eventType 
 
           <div>
             <label className="block text-sm font-medium text-zinc-300 mb-2">
-              Nombre del Jugador <span className="text-zinc-500 font-normal">(Opcional)</span>
+              Nombre del Jugador {eventType === "GOAL" ? <span className="text-brand-primary">*</span> : <span className="text-zinc-500 font-normal">(Opcional)</span>}
             </label>
             <input
               type="text"
@@ -93,10 +97,13 @@ export function FastEventModal({ isOpen, onClose, onSubmit, teamName, eventType 
               onChange={(e) => setPlayerName(e.target.value)}
               placeholder="Ej. Juan Pérez"
               autoFocus
+              required={eventType === "GOAL"}
               className="w-full bg-[#0F172A] border border-[#1E293B] rounded-lg px-4 py-2.5 text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary/30 transition-all shadow-sm"
             />
             <p className="text-[11px] text-zinc-500 mt-2">
-              Si ingresas un nombre, se creará el jugador automáticamente y se le asignará el evento. Si lo dejas vacío, el evento se asignará al equipo sin un jugador específico.
+              {eventType === "GOAL" 
+                ? "Ingresa el nombre del jugador que anotó. Se creará automáticamente si no existe."
+                : "Si ingresas un nombre, se creará el jugador automáticamente y se le asignará el evento. Si lo dejas vacío, el evento se asignará al equipo sin un jugador específico."}
             </p>
           </div>
 

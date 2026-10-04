@@ -64,6 +64,15 @@ export function TournamentClientWrapper({ slug }: { slug: string }) {
               away_points,
               status,
               winner_team_id
+            ),
+            match_events(
+              id,
+              type,
+              player_id,
+              team_id,
+              minute,
+              description,
+              player:players(name)
             )
           `)
           .eq("tournament_id", tournament.id)

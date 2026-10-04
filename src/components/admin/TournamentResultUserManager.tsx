@@ -177,10 +177,10 @@ export function TournamentResultUserManager({ tournamentId }: TournamentResultUs
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <p className="text-xs text-white/60 leading-relaxed">
-            Asigna personal autorizado para capturar y enviar marcadores oficiales de los partidos de este torneo.
+            Personas que registran los resultados de los partidos.
           </p>
           <span className="inline-block mt-1 text-[11px] font-bold uppercase tracking-wider text-purple-400">
-            {members.length} {members.length === 1 ? "Anotador Asignado" : "Anotadores Asignados"}
+            {members.length} {members.length === 1 ? "Anotador" : "Anotadores"}
           </span>
         </div>
 
@@ -216,7 +216,7 @@ export function TournamentResultUserManager({ tournamentId }: TournamentResultUs
             ) : (
               <>
                 <UserPlus size={15} />
-                Vincular Anotador
+                Agregar Anotador
               </>
             )}
           </button>
@@ -254,7 +254,7 @@ export function TournamentResultUserManager({ tournamentId }: TournamentResultUs
               </div>
               <div>
                 <h3 className="text-sm font-black uppercase tracking-wider text-white">
-                  Vincular Usuario de Resultados al Torneo
+                  Agregar Anotador
                 </h3>
                 <p className="text-[11px] text-white/50">
                   Selecciona un anotador registrado o crea una nueva cuenta de capturista
@@ -282,7 +282,7 @@ export function TournamentResultUserManager({ tournamentId }: TournamentResultUs
               }`}
             >
               <Link2 size={14} />
-              Vincular Existente
+              Usuario existente
             </button>
 
             <button
@@ -369,7 +369,7 @@ export function TournamentResultUserManager({ tournamentId }: TournamentResultUs
                   ) : (
                     <>
                       <Link2 size={14} />
-                      Vincular a este Torneo
+                      Agregar al torneo
                     </>
                   )}
                 </button>
@@ -459,7 +459,7 @@ export function TournamentResultUserManager({ tournamentId }: TournamentResultUs
                   ) : (
                     <>
                       <UserPlus size={14} />
-                      Crear y Vincular
+                      Crear y agregar
                     </>
                   )}
                 </button>
@@ -474,7 +474,7 @@ export function TournamentResultUserManager({ tournamentId }: TournamentResultUs
         {loading ? (
           <div className="p-8 text-center text-white/40 text-xs uppercase tracking-widest flex items-center justify-center gap-3">
             <RefreshCw size={16} className="animate-spin text-purple-400" />
-            Cargando anotadores del torneo...
+            Cargando anotadores...
           </div>
         ) : members.length === 0 ? (
           <div className="p-8 text-center rounded-2xl border border-dashed border-white/10 bg-black/20 flex flex-col items-center justify-center gap-3">
@@ -483,10 +483,10 @@ export function TournamentResultUserManager({ tournamentId }: TournamentResultUs
             </div>
             <div className="max-w-md">
               <span className="text-xs font-bold uppercase tracking-wider text-white/70 block mb-1">
-                Sin Anotadores Asignados
+                Sin anotadores
               </span>
               <p className="text-[11px] text-white/40">
-                Este torneo no tiene usuarios de resultados vinculados. Haz clic en 'Vincular Anotador' para autorizar a un capturista.
+                Nadie puede registrar resultados aún. Toca 'Agregar Anotador' para empezar.
               </p>
             </div>
             <button
@@ -495,7 +495,7 @@ export function TournamentResultUserManager({ tournamentId }: TournamentResultUs
               className="mt-2 inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-purple-500/15 border border-purple-500/30 text-purple-300 font-bold text-xs uppercase tracking-wider hover:bg-purple-500/25 transition-all"
             >
               <UserPlus size={14} />
-              Vincular Primer Anotador
+              Agregar primer anotador
             </button>
           </div>
         ) : (

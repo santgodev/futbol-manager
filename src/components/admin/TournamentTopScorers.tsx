@@ -20,7 +20,7 @@ export function TournamentTopScorers({ scorers, tournamentId }: { scorers: any[]
           Aún no hay goles registrados
         </span>
         <p className="text-white/25 text-xs max-w-xs leading-relaxed mx-auto">
-          Ingresa al <span className="text-[#00f0ff] font-bold">Control Room</span> de cualquier partido en vivo para añadir goles y eventos en tiempo real.
+          Entra a <span className="text-[#00f0ff] font-bold">Registrar Resultado</span> en cualquier partido para anotar goles.
         </p>
       </div>
     );

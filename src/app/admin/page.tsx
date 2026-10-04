@@ -25,11 +25,13 @@ import {
   type UserProfileWithMemberships 
 } from "./pegasight-actions";
 import { RoleHierarchyAccordion } from "@/components/admin/RoleHierarchyAccordion";
+import { tournamentStatusLabel } from "@/utils/labels";
 
-function statusColor(status: string) {
-  if (status?.includes("CURSO"))  return "text-emerald-400 border-emerald-500/40 bg-emerald-500/10";
-  if (status?.includes("INSCRI")) return "text-blue-400 border-blue-500/40 bg-blue-500/10";
-  if (status?.includes("FINALIZ")) return "text-white/30 border-white/10 bg-white/5";
+function statusColor(rawStatus: string) {
+  const status = tournamentStatusLabel(rawStatus).toUpperCase();
+  if (status.includes("CURSO"))  return "text-emerald-400 border-emerald-500/40 bg-emerald-500/10";
+  if (status.includes("INSCRI")) return "text-blue-400 border-blue-500/40 bg-blue-500/10";
+  if (status.includes("TERMIN")) return "text-white/30 border-white/10 bg-white/5";
   return "text-amber-400 border-amber-500/40 bg-amber-500/10";
 }
 
@@ -139,7 +141,7 @@ export default function AdminDashboard() {
       <div className="p-4 md:p-8 max-w-7xl mx-auto flex items-center justify-center min-h-[50vh]">
         <div className="flex flex-col items-center gap-3">
           <Shield className="w-10 h-12 text-[#00f0ff] animate-pulse drop-shadow-[0_0_15px_rgba(0,240,255,0.5)]" />
-          <span className="text-xs uppercase tracking-[0.2em] text-[#00f0ff]/70 font-mono">Cargando jerarquía del sistema...</span>
+          <span className="text-xs uppercase tracking-[0.2em] text-[#00f0ff]/70 font-mono">Cargando...</span>
         </div>
       </div>
     );
@@ -178,13 +180,13 @@ export default function AdminDashboard() {
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
             <div>
               <p className="text-[10px] text-purple-400 uppercase tracking-[0.35em] font-bold font-mono mb-2">
-                ⚡ Panel del Anotador
+                👋 Bienvenido
               </p>
               <h1 className="text-3xl md:text-5xl font-black tracking-tighter text-white hero-title !not-italic leading-none mb-2">
-                CAPTURA DE <span className="text-[#00f0ff]">RESULTADOS</span>
+                REGISTRAR <span className="text-[#00f0ff]">RESULTADOS</span>
               </h1>
               <p className="text-white/40 text-xs uppercase tracking-widest">
-                Bienvenido, {profile?.full_name || profile?.email}. Registra marcadores oficiales de tus torneos asignados.
+                Hola, {profile?.full_name || profile?.email}. Aquí registras los marcadores de tus torneos.
               </p>
             </div>
             <div className="flex items-center gap-3">
@@ -192,7 +194,7 @@ export default function AdminDashboard() {
                 href="/admin/submit-result"
                 className="inline-flex items-center gap-2 px-6 py-3 rounded-xl text-xs font-black uppercase tracking-widest transition-all bg-gradient-to-r from-purple-500 to-[#00f0ff] text-black shadow-[0_0_20px_rgba(0,240,255,0.3)] hover:scale-[1.02] active:scale-95"
               >
-                <Edit3 size={16} /> Registrar Marcador
+                <Edit3 size={16} /> Registrar Resultado
               </Link>
             </div>
           </div>
@@ -203,14 +205,14 @@ export default function AdminDashboard() {
           <div className="p-5 md:p-6 rounded-2xl border border-amber-500/20 bg-[#001133]/60 backdrop-blur-md">
             <div className="flex items-center gap-2 mb-2 text-amber-400">
               <Clock size={16} />
-              <span className="text-[10px] font-bold uppercase tracking-widest">Por Registrar / Corregir</span>
+              <span className="text-[10px] font-bold uppercase tracking-widest">Por registrar</span>
             </div>
             <span className="text-3xl md:text-4xl font-black text-white">{pendingSubmission.length}</span>
           </div>
           <div className="p-5 md:p-6 rounded-2xl border border-blue-500/20 bg-[#001133]/60 backdrop-blur-md">
             <div className="flex items-center gap-2 mb-2 text-blue-400">
               <Clock size={16} />
-              <span className="text-[10px] font-bold uppercase tracking-widest">En Revisión</span>
+              <span className="text-[10px] font-bold uppercase tracking-widest">En revisión</span>
             </div>
             <span className="text-3xl md:text-4xl font-black text-white">{reviewedSubmission.length}</span>
           </div>
@@ -235,7 +237,7 @@ export default function AdminDashboard() {
               }`}
             >
               <FolderTree size={14} />
-              Por Torneo (Desplegable)
+              Por torneo
             </button>
             <button
               onClick={() => setViewMode("grid")}
@@ -246,7 +248,7 @@ export default function AdminDashboard() {
               }`}
             >
               <LayoutGrid size={14} />
-              Lista Rápida
+              Lista rápida
             </button>
           </div>
           <Link href="/admin/my-matches" className="text-[10px] text-[#00f0ff] uppercase tracking-wider font-bold hover:underline">
@@ -289,7 +291,7 @@ export default function AdminDashboard() {
                       href="/admin/submit-result"
                       className="text-[10px] font-bold text-[#00f0ff] uppercase tracking-wider hover:underline"
                     >
-                      {isRejected ? "Corregir Marcador" : res ? "Ver Detalle" : "Registrar"}
+                      {isRejected ? "Corregir" : res ? "Ver detalle" : "Registrar"}
                     </Link>
                   </div>
                 </div>
@@ -311,17 +313,17 @@ export default function AdminDashboard() {
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div>
             <p className="text-[10px] text-[#00f0ff]/80 uppercase tracking-[0.35em] font-bold font-mono mb-2">
-              ⚡ Control Center
+              👋 Bienvenido
             </p>
             <h1 className="text-4xl md:text-6xl font-black tracking-tighter text-white hero-title !not-italic leading-none mb-3"
               style={{ textShadow: "0 0 40px rgba(0,240,255,0.2)" }}>
-              PANEL DE<br />
-              <span className="text-[#00f0ff]">CONTROL</span>
+              INICIO<br />
+              <span className="text-[#00f0ff]">DEL PANEL</span>
             </h1>
             <p className="text-white/40 text-xs uppercase tracking-widest">
-              {isGeneralAdmin && "Vista Jerárquica Global: Superadministradores ➔ Torneos ➔ Admins y Anotadores"}
-              {isSuperadmin && "Gestión de Torneos Supervisados ➔ Administradores y Anotadores"}
-              {isTournamentAdmin && "Gestión de Torneos Asignados ➔ Anotadores y Aprobación de Marcadores"}
+              {isGeneralAdmin && "Responsables, torneos, administradores y anotadores"}
+              {isSuperadmin && "Tus torneos, administradores y anotadores"}
+              {isTournamentAdmin && "Tus torneos, anotadores y resultados por aprobar"}
             </p>
           </div>
 
@@ -363,7 +365,7 @@ export default function AdminDashboard() {
                   href="/admin/tournament-admins"
                   className="inline-flex items-center gap-2 px-5 py-3 rounded-xl text-xs font-bold uppercase tracking-wider bg-amber-500/15 border border-amber-500/30 text-amber-300 hover:bg-amber-500/25 transition-all"
                 >
-                  <Shield className="w-3.5 h-4" /> Admins Torneo
+                  <Shield className="w-3.5 h-4" /> Administradores
                 </Link>
                 <Link
                   href="/admin/result-users"
@@ -375,7 +377,7 @@ export default function AdminDashboard() {
                   href="/admin/pending-results"
                   className="inline-flex items-center gap-2 px-4 py-3 rounded-xl text-xs font-bold uppercase tracking-wider bg-white/5 border border-white/10 text-white/80 hover:bg-white/10 transition-all"
                 >
-                  <Clock size={15} /> Marcadores {pendingCount > 0 && `(${pendingCount})`}
+                  <Clock size={15} /> Por aprobar {pendingCount > 0 && `(${pendingCount})`}
                 </Link>
               </>
             )}
@@ -387,13 +389,13 @@ export default function AdminDashboard() {
                   href="/admin/pending-results"
                   className="inline-flex items-center gap-2 px-5 py-3 rounded-xl text-xs font-bold uppercase tracking-wider bg-amber-500/15 border border-amber-500/30 text-amber-300 hover:bg-amber-500/25 transition-all"
                 >
-                  <Clock size={15} /> Resultados Pendientes {pendingCount > 0 && `(${pendingCount})`}
+                  <Clock size={15} /> Por aprobar {pendingCount > 0 && `(${pendingCount})`}
                 </Link>
                 <Link
                   href="/admin/result-users"
                   className="inline-flex items-center gap-2 px-5 py-3 rounded-xl text-xs font-bold uppercase tracking-wider bg-white/5 border border-white/10 text-white/80 hover:bg-white/10 transition-all"
                 >
-                  <UserPlus size={15} /> Usuarios Resultados
+                  <UserPlus size={15} /> Anotadores
                 </Link>
               </>
             )}
@@ -405,7 +407,7 @@ export default function AdminDashboard() {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6">
         {isGeneralAdmin ? [
           { label: "Superadmins", value: hierarchyData?.superadmins?.length || 0, icon: ShieldCheck, color: "#10b981" },
-          { label: "Torneos Totales", value: tournaments?.length || 0, icon: Trophy, color: "#00f0ff" },
+          { label: "Torneos", value: tournaments?.length || 0, icon: Trophy, color: "#00f0ff" },
           { label: "Equipos", value: totalTeams, icon: Users, color: "#0088ff" },
           { label: "Partidos", value: totalMatches, icon: Calendar, color: "#a855f7" },
         ].map((stat) => {
@@ -424,10 +426,10 @@ export default function AdminDashboard() {
             </div>
           );
         }) : isSuperadmin ? [
-          { label: "Torneos Supervisados", value: tournaments?.length || 0, icon: Trophy, color: "#10b981" },
+          { label: "Mis Torneos", value: tournaments?.length || 0, icon: Trophy, color: "#10b981" },
           { label: "Equipos", value: totalTeams, icon: Users, color: "#0088ff" },
           { label: "Partidos", value: totalMatches, icon: Calendar, color: "#00f0ff" },
-          { label: "Marcadores Pendientes", value: pendingCount, icon: Clock, color: "#f59e0b" },
+          { label: "Por aprobar", value: pendingCount, icon: Clock, color: "#f59e0b" },
         ].map((stat) => {
           const Icon = stat.icon;
           return (
@@ -478,7 +480,7 @@ export default function AdminDashboard() {
             }`}
           >
             <FolderTree size={15} />
-            Estructura Jerárquica Desplegable
+            Por responsable
           </button>
           <button
             onClick={() => setViewMode("grid")}
@@ -489,7 +491,7 @@ export default function AdminDashboard() {
             }`}
           >
             <LayoutGrid size={15} />
-            Vista Cuadrícula
+            Lista de torneos
           </button>
         </div>
 
@@ -509,7 +511,7 @@ export default function AdminDashboard() {
         <section className="space-y-4">
           <div className="flex items-center justify-between">
             <h2 className="text-xs font-black uppercase tracking-[0.2em] text-white">
-              {isTournamentAdmin ? "Tus Torneos Asignados" : "Torneos Registrados"}
+              {isTournamentAdmin ? "Tus torneos" : "Torneos"}
             </h2>
             <Link
               href="/admin/tournaments"
@@ -539,7 +541,7 @@ export default function AdminDashboard() {
                     </span>
                     <div className="flex items-center gap-2 mt-0.5">
                       <span className={`text-[9px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full border ${statusColor(tournament.status)}`}>
-                        {tournament.status}
+                        {tournamentStatusLabel(tournament.status)}
                       </span>
                       {tournament.location && (
                         <span className="text-[10px] text-white/30 uppercase tracking-widest truncate">
@@ -569,7 +571,7 @@ export default function AdminDashboard() {
                 style={{ background: "rgba(0,17,51,0.4)" }}>
                 <Shield className="w-12 h-16 text-[#00f0ff]/20" />
                 <span className="text-white/40 text-xs uppercase tracking-widest">
-                  {isTournamentAdmin ? "No tienes torneos asignados actualmente" : "No hay torneos registrados"}
+                  {isTournamentAdmin ? "Aún no tienes torneos" : "No hay torneos"}
                 </span>
                 {(isGeneralAdmin || isSuperadmin) && (
                   <Link href="/admin/tournaments/new" className="btn-premium-teal !py-2.5 !px-6">

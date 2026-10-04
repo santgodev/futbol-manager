@@ -94,20 +94,20 @@ export function TournamentEnrollmentManager({ tournamentId, categoryId, availabl
   return (
     <div className="flex flex-col gap-6">
       <h3 className="text-sm font-bold uppercase tracking-widest text-brand-sand">
-        Equipos Inscritos ({currentTeams.length})
+        Equipos en el torneo ({currentTeams.length})
       </h3>
 
       {/* Panel de Inscripción */}
       <div className="flex flex-col gap-4 bg-[#02060d]/50 p-4 rounded-xl border border-brand-navy/30">
         <div className="flex items-center justify-between gap-4 border-b border-brand-navy/30 pb-3">
           <div className="text-xs text-brand-aqua/50 uppercase tracking-widest font-bold">
-            Agregar Equipos al Torneo
+            Agregar equipos
           </div>
           <button
             onClick={() => setIsBulkMode(!isBulkMode)}
             className="text-[10px] font-bold uppercase tracking-widest text-brand-teal bg-brand-teal/10 hover:bg-brand-teal/20 px-3 py-1.5 rounded-md transition-colors"
           >
-            {isBulkMode ? "Modo Selección" : "Pegar Lista"}
+            {isBulkMode ? "Elegir de la lista" : "Pegar lista"}
           </button>
         </div>
 
@@ -130,7 +130,7 @@ export function TournamentEnrollmentManager({ tournamentId, categoryId, availabl
                 className="w-full sm:w-auto bg-gradient-to-r from-brand-teal to-brand-aqua text-brand-deep px-6 py-3 rounded-lg text-xs font-bold uppercase tracking-widest flex items-center justify-center gap-2 hover:shadow-[0_0_20px_rgba(0,240,255,0.4)] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {status === "adding" ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileText className="w-4 h-4" />}
-                {status === "success" ? "Inscritos" : "Inscribir Lista"}
+                {status === "success" ? "Agregados" : "Agregar lista"}
               </button>
             </div>
           </div>
@@ -177,13 +177,13 @@ export function TournamentEnrollmentManager({ tournamentId, categoryId, availabl
                   ) : (
                     <Plus className="w-4 h-4" />
                   )}
-                  {status === "success" ? "Inscritos" : `Inscribir Selección`}
+                  {status === "success" ? "Agregados" : `Agregar selección`}
                 </button>
               </div>
             </>
           ) : (
             <div className="bg-brand-navy/10 rounded p-4 text-xs text-brand-aqua/40 border border-brand-navy/30 uppercase tracking-wider font-semibold">
-              Todos los equipos existentes ya están inscritos. Usa "Pegar Lista" para agregar equipos nuevos rápidamente.
+              Todos los equipos ya están en el torneo. Usa "Pegar lista" para agregar equipos nuevos.
             </div>
           )
         )}

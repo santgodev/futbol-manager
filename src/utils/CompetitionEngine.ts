@@ -148,15 +148,15 @@ export class CompetitionEngine {
     }
 
     let severity: IntegritySeverity = 'HEALTHY';
-    let label = 'Calendario válido';
-    let description = 'Todos los equipos inscritos tienen partidos y el fixture de fase de grupos cubre los enfrentamientos requeridos.';
+    let label = 'Todo en orden';
+    let description = 'Todos los equipos tienen sus partidos programados.';
     let color = 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20';
     let dotColor = 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)]';
 
     if (hasCriticalInconsistency) {
       severity = 'CRITICAL';
-      label = 'Crítico: Integridad Corrupta';
-      description = 'El torneo presenta inconsistencias graves. Se han generado eliminatorias sin concluir grupos, o existen equipos sin partidos programados mientras el torneo ya está en marcha. Se han bloqueado las operaciones administrativas clave.';
+      label = 'Hay un problema';
+      description = 'Hay equipos sin partidos o se crearon las eliminatorias antes de terminar los grupos. Corrige el calendario para continuar.';
       color = 'text-red-400 bg-red-500/10 border-red-500/20';
       dotColor = 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.8)]';
     } else if (
@@ -164,10 +164,10 @@ export class CompetitionEngine {
       (format === 'GROUPS_AND_PLAYOFFS' && isGroupStageComplete && !hasKnockoutMatches)
     ) {
       severity = 'WARNING';
-      label = 'Advertencia: Calendario incompleto';
+      label = format === 'GROUPS_AND_PLAYOFFS' && isGroupStageComplete ? 'Grupos terminados' : 'Faltan partidos';
       description = format === 'GROUPS_AND_PLAYOFFS' && isGroupStageComplete
-        ? 'La fase de grupos ha finalizado con éxito. Listo para generar las eliminatorias de playoffs.'
-        : `Faltan partidos de fase de grupos por programar. Se requieren ${requiredGroupMatches} partidos para todos contra todos y actualmente hay ${groupMatchesCount} programados.`;
+        ? 'Ya puedes crear las eliminatorias.'
+        : `Faltan partidos por programar: hay ${groupMatchesCount} de ${requiredGroupMatches}.`;
       color = 'text-amber-400 bg-amber-500/10 border-amber-500/20';
       dotColor = 'bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.8)]';
     }

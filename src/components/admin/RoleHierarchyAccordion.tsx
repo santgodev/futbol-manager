@@ -26,6 +26,7 @@ import {
   approveMatchResultAction, 
   rejectMatchResultAction 
 } from "@/app/admin/pegasight-actions";
+import { tournamentStatusLabel, sportLabel } from "@/utils/labels";
 
 export function RoleHierarchyAccordion({ 
   data, 
@@ -107,10 +108,10 @@ export function RoleHierarchyAccordion({
           <div>
             <h2 className="text-sm font-black uppercase tracking-[0.2em] text-white flex items-center gap-2">
               <ShieldCheck className="w-4 h-4 text-[#00f0ff]" />
-              Estructura Jerárquica Desplegable
+              Responsables y torneos
             </h2>
             <p className="text-[11px] text-white/50">
-              Vista simplificada: Superadministradores ➔ Torneos adscritos ➔ Administradores y Anotadores
+              Cada responsable (superadmin) con sus torneos, administradores y anotadores
             </p>
           </div>
           <div className="flex items-center gap-3">
@@ -129,14 +130,14 @@ export function RoleHierarchyAccordion({
                 }}
                 className="px-3 py-1.5 rounded-lg border border-white/10 bg-white/5 text-[11px] font-bold text-white/70 hover:bg-white/10 hover:text-white transition-colors"
               >
-                {superadmins.every((s: any) => expandedSuperadmins[s.id]) ? "Contraer Todos" : "Expandir Todos"}
+                {superadmins.every((s: any) => expandedSuperadmins[s.id]) ? "Cerrar todo" : "Abrir todo"}
               </button>
             )}
             <Link
               href="/admin/superadmins"
               className="text-xs font-bold text-[#00f0ff] hover:underline flex items-center gap-1 uppercase tracking-wider"
             >
-              Gestionar Superadmins →
+              Ver superadmins →
             </Link>
           </div>
         </div>
@@ -175,7 +176,7 @@ export function RoleHierarchyAccordion({
                           ? "bg-emerald-500/15 border-emerald-500/30 text-emerald-300"
                           : "bg-red-500/15 border-red-500/30 text-red-300"
                       }`}>
-                        {sa.isActive ? "ACTIVO" : "INACTIVO"}
+                        {sa.isActive ? "Activo" : "Bloqueado"}
                       </span>
                     </div>
                     <span className="text-xs text-white/50 font-mono">{sa.email}</span>
@@ -185,10 +186,10 @@ export function RoleHierarchyAccordion({
                 <div className="flex items-center gap-4 text-xs">
                   <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-white/70 font-semibold">
                     <Trophy size={13} className="text-[#00f0ff]" />
-                    <span>{tourneys.length} {tourneys.length === 1 ? "Torneo adscrito" : "Torneos adscritos"}</span>
+                    <span>{tourneys.length} {tourneys.length === 1 ? "torneo" : "torneos"}</span>
                   </div>
                   <span className="text-[10px] text-[#00f0ff] font-bold uppercase tracking-widest hidden md:inline">
-                    {isExpanded ? "Contraer ▲" : "Desplegar ▼"}
+                    {isExpanded ? "Cerrar ▲" : "Abrir ▼"}
                   </span>
                 </div>
               </div>
@@ -198,7 +199,7 @@ export function RoleHierarchyAccordion({
                 <div className="border-t border-white/10 bg-black/30 p-4 md:p-6 space-y-3">
                   {tourneys.length === 0 ? (
                     <div className="p-6 text-center text-xs text-white/40 border border-dashed border-white/10 rounded-xl">
-                      Este Superadministrador no tiene torneos adscritos actualmente.
+                      Este superadmin aún no tiene torneos.
                     </div>
                   ) : (
                     tourneys.map((t: any) => {
@@ -226,20 +227,20 @@ export function RoleHierarchyAccordion({
                                 <div className="flex items-center gap-2">
                                   <span className="font-bold text-white text-xs md:text-sm">{t.name}</span>
                                   <span className="text-[9px] uppercase font-mono px-2 py-0.2 rounded bg-black/40 text-white/60 border border-white/10">
-                                    {t.sport === "VOLLEYBALL" ? "Voleibol" : "Fútbol"}
+                                    {sportLabel(t.sport)}
                                   </span>
                                   <span className="text-[9px] uppercase font-bold text-emerald-400">
-                                    {t.status}
+                                    {tournamentStatusLabel(t.status)}
                                   </span>
                                 </div>
                                 <div className="text-[10px] text-white/40 flex items-center gap-3 mt-0.5">
-                                  <span>{t.teamsCount} Equipos</span>
+                                  <span>{t.teamsCount} equipos</span>
                                   <span>•</span>
-                                  <span>{t.matchesCount} Partidos</span>
+                                  <span>{t.matchesCount} partidos</span>
                                   <span>•</span>
-                                  <span className="text-amber-300">{admins.length} Admins</span>
+                                  <span className="text-amber-300">{admins.length} admins</span>
                                   <span>•</span>
-                                  <span className="text-purple-300">{results.length} Anotadores</span>
+                                  <span className="text-purple-300">{results.length} anotadores</span>
                                 </div>
                               </div>
                             </div>
@@ -251,20 +252,20 @@ export function RoleHierarchyAccordion({
                                 disabled={actionLoading === `reassign-${t.id}`}
                                 onChange={(e) => handleReassignSuperadmin(t.id, e.target.value)}
                                 className="text-[10px] bg-black/60 border border-white/15 text-white/80 rounded px-2 py-1 focus:outline-none focus:border-[#00f0ff]"
-                                title="Cambiar Superadministrador adscrito"
+                                title="Cambiar de responsable"
                               >
                                 {allSuperadmins.map((s: any) => (
                                   <option key={s.id} value={s.id}>
-                                    Adscrito a: {s.name}
+                                    Responsable: {s.name}
                                   </option>
                                 ))}
-                                <option value="">Sin Superadmin</option>
+                                <option value="">Sin responsable</option>
                               </select>
 
                               <Link
                                 href={`/admin/tournaments/${t.id}`}
                                 className="p-1.5 text-white/60 hover:text-[#00f0ff] transition-colors"
-                                title="Abrir Torneo"
+                                title="Abrir torneo"
                               >
                                 <ExternalLink size={14} />
                               </Link>
@@ -279,17 +280,17 @@ export function RoleHierarchyAccordion({
                                 <div className="flex items-center justify-between pb-1 border-b border-white/10">
                                   <span className="text-[10px] font-black uppercase tracking-wider text-amber-400 flex items-center gap-1.5">
                                     <Shield size={12} />
-                                    Administradores del Torneo ({admins.length})
+                                    Administradores ({admins.length})
                                   </span>
                                   <Link
                                     href="/admin/tournament-admins"
                                     className="text-[10px] font-bold text-amber-400 hover:underline"
                                   >
-                                    + Asignar
+                                    + Agregar
                                   </Link>
                                 </div>
                                 {admins.length === 0 ? (
-                                  <span className="text-[11px] text-white/40 block py-1">Sin administradores vinculados.</span>
+                                  <span className="text-[11px] text-white/40 block py-1">Sin administradores.</span>
                                 ) : (
                                   admins.map((adm: any) => (
                                     <div key={adm.membershipId} className="flex items-center justify-between text-[11px] text-white/80 py-0.5">
@@ -305,17 +306,17 @@ export function RoleHierarchyAccordion({
                                 <div className="flex items-center justify-between pb-1 border-b border-white/10">
                                   <span className="text-[10px] font-black uppercase tracking-wider text-purple-400 flex items-center gap-1.5">
                                     <Users size={12} />
-                                    Usuarios de Resultados ({results.length})
+                                    Anotadores ({results.length})
                                   </span>
                                   <Link
                                     href="/admin/result-users"
                                     className="text-[10px] font-bold text-purple-400 hover:underline"
                                   >
-                                    + Invitar
+                                    + Agregar
                                   </Link>
                                 </div>
                                 {results.length === 0 ? (
-                                  <span className="text-[11px] text-white/40 block py-1">Sin anotadores asignados.</span>
+                                  <span className="text-[11px] text-white/40 block py-1">Sin anotadores.</span>
                                 ) : (
                                   results.map((res: any) => (
                                     <div key={res.membershipId} className="flex items-center justify-between text-[11px] text-white/80 py-0.5">
@@ -342,7 +343,7 @@ export function RoleHierarchyAccordion({
           <div className="rounded-2xl border border-dashed border-white/15 bg-[#0b1118]/60 p-4 space-y-3">
             <div className="flex items-center justify-between">
               <span className="text-xs font-bold uppercase tracking-wider text-white/70">
-                Torneos Directos de la Plataforma (Sin Superadmin asignado: {unassigned.length})
+                Torneos sin responsable ({unassigned.length})
               </span>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
@@ -350,7 +351,7 @@ export function RoleHierarchyAccordion({
                 <div key={t.id} className="p-3 rounded-xl border border-white/10 bg-black/40 flex items-center justify-between gap-2">
                   <div className="truncate">
                     <span className="font-bold text-white text-xs block truncate">{t.name}</span>
-                    <span className="text-[9px] text-white/40">{t.sport} • {t.status}</span>
+                    <span className="text-[9px] text-white/40">{sportLabel(t.sport)} • {tournamentStatusLabel(t.status)}</span>
                   </div>
                   <select
                     disabled={actionLoading === `reassign-${t.id}`}
@@ -358,7 +359,7 @@ export function RoleHierarchyAccordion({
                     className="text-[10px] bg-black border border-white/20 text-[#00f0ff] rounded px-2 py-1"
                     defaultValue=""
                   >
-                    <option value="" disabled>Adscribir a...</option>
+                    <option value="" disabled>Elegir responsable...</option>
                     {allSuperadmins.map((s: any) => (
                       <option key={s.id} value={s.id}>{s.name}</option>
                     ))}
@@ -384,25 +385,25 @@ export function RoleHierarchyAccordion({
           <div>
             <h2 className="text-sm font-black uppercase tracking-[0.2em] text-white flex items-center gap-2">
               <Trophy className="w-4 h-4 text-emerald-400" />
-              Torneos Supervisados Desplegables
+              Mis torneos
             </h2>
             <p className="text-[11px] text-white/50">
-              Despliega cada torneo para gestionar sus Administradores y Usuarios de Resultados
+              Abre cada torneo para ver sus administradores y anotadores
             </p>
           </div>
           <Link
             href="/admin/tournament-admins"
             className="text-xs font-bold text-emerald-400 hover:underline flex items-center gap-1 uppercase tracking-wider"
           >
-            + Administradores de Torneo
+            + Administradores
           </Link>
         </div>
 
         {tournaments.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-white/10 bg-[#0b1118]/50 p-8 text-center space-y-2">
             <Trophy className="w-8 h-8 text-white/20 mx-auto" />
-            <p className="text-sm font-semibold text-white/70">No tienes torneos inscritos o asignados a tu nombre.</p>
-            <p className="text-xs text-white/40">Los torneos asignados por el Administrador General o creados por ti aparecerán aquí.</p>
+            <p className="text-sm font-semibold text-white/70">Aún no tienes torneos.</p>
+            <p className="text-xs text-white/40">Los torneos que te asignen o que crees aparecerán aquí.</p>
           </div>
         ) : (
           tournaments.map((t: any) => {
@@ -430,20 +431,20 @@ export function RoleHierarchyAccordion({
                     <div className="flex items-center gap-2">
                       <span className="font-extrabold text-white text-sm md:text-base">{t.name}</span>
                       <span className="text-[9px] uppercase font-mono px-2 py-0.5 rounded bg-black/40 text-white/60 border border-white/10">
-                        {t.sport === "VOLLEYBALL" ? "Voleibol" : "Fútbol"}
+                        {sportLabel(t.sport)}
                       </span>
                       <span className="text-[9px] font-bold text-emerald-400 px-2 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/20">
-                        {t.status}
+                        {tournamentStatusLabel(t.status)}
                       </span>
                     </div>
                     <div className="text-xs text-white/50 flex items-center gap-3 mt-0.5">
-                      <span>{t.teamsCount} Equipos</span>
+                      <span>{t.teamsCount} equipos</span>
                       <span>•</span>
-                      <span>{t.matchesCount} Partidos</span>
+                      <span>{t.matchesCount} partidos</span>
                       <span>•</span>
-                      <span className="text-amber-300 font-semibold">{admins.length} Admins de Torneo</span>
+                      <span className="text-amber-300 font-semibold">{admins.length} administradores</span>
                       <span>•</span>
-                      <span className="text-purple-300 font-semibold">{results.length} Anotadores</span>
+                      <span className="text-purple-300 font-semibold">{results.length} anotadores</span>
                     </div>
                   </div>
                 </div>
@@ -454,10 +455,10 @@ export function RoleHierarchyAccordion({
                     onClick={(e) => e.stopPropagation()}
                     className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-white/10 bg-white/5 text-xs font-bold text-white hover:bg-white/10 transition-colors"
                   >
-                    Abrir Torneo <ExternalLink size={12} />
+                    Abrir <ExternalLink size={12} />
                   </Link>
                   <span className="text-[10px] text-emerald-400 font-bold uppercase tracking-widest hidden md:inline">
-                    {isExpanded ? "Contraer ▲" : "Desplegar ▼"}
+                    {isExpanded ? "Cerrar ▲" : "Abrir ▼"}
                   </span>
                 </div>
               </div>
@@ -469,17 +470,17 @@ export function RoleHierarchyAccordion({
                     <div className="flex items-center justify-between pb-2 border-b border-white/10">
                       <span className="text-xs font-black uppercase tracking-wider text-amber-400 flex items-center gap-2">
                         <Shield size={14} />
-                        Administradores del Torneo ({admins.length})
+                        Administradores ({admins.length})
                       </span>
                       <Link
                         href="/admin/tournament-admins"
                         className="text-[10px] font-bold text-amber-400 hover:underline uppercase"
                       >
-                        + Vincular Admin
+                        + Agregar
                       </Link>
                     </div>
                     {admins.length === 0 ? (
-                      <p className="text-xs text-white/40 py-2">No hay administradores asignados a este torneo.</p>
+                      <p className="text-xs text-white/40 py-2">Este torneo no tiene administradores.</p>
                     ) : (
                       admins.map((adm: any) => (
                         <div key={adm.membershipId} className="flex items-center justify-between text-xs text-white/80 py-1">
@@ -495,17 +496,17 @@ export function RoleHierarchyAccordion({
                     <div className="flex items-center justify-between pb-2 border-b border-white/10">
                       <span className="text-xs font-black uppercase tracking-wider text-purple-400 flex items-center gap-2">
                         <Users size={14} />
-                        Usuarios de Resultados ({results.length})
+                        Anotadores ({results.length})
                       </span>
                       <Link
                         href="/admin/result-users"
                         className="text-[10px] font-bold text-purple-400 hover:underline uppercase"
                       >
-                        + Invitar Anotador
+                        + Agregar
                       </Link>
                     </div>
                     {results.length === 0 ? (
-                      <p className="text-xs text-white/40 py-2">No hay anotadores asignados a este torneo.</p>
+                      <p className="text-xs text-white/40 py-2">Este torneo no tiene anotadores.</p>
                     ) : (
                       results.map((res: any) => (
                         <div key={res.membershipId} className="flex items-center justify-between text-xs text-white/80 py-1">
@@ -536,17 +537,17 @@ export function RoleHierarchyAccordion({
           <div>
             <h2 className="text-sm font-black uppercase tracking-[0.2em] text-white flex items-center gap-2">
               <Trophy className="w-4 h-4 text-amber-400" />
-              Tus Torneos Asignados
+              Tus torneos
             </h2>
             <p className="text-[11px] text-white/50">
-              Despliega cada torneo para revisar Anotadores autorizados y Marcadores pendientes de aprobación
+              Abre cada torneo para ver sus anotadores y aprobar resultados
             </p>
           </div>
           <Link
             href="/admin/pending-results"
             className="text-xs font-bold text-amber-400 hover:underline uppercase tracking-wider"
           >
-            Bandeja de Pendientes →
+            Por aprobar →
           </Link>
         </div>
 
@@ -575,15 +576,15 @@ export function RoleHierarchyAccordion({
                     <div className="flex items-center gap-2">
                       <span className="font-extrabold text-white text-sm md:text-base">{t.name}</span>
                       <span className="text-[9px] font-bold text-amber-400 px-2 py-0.5 rounded bg-amber-500/10 border border-amber-500/20">
-                        {t.status}
+                        {tournamentStatusLabel(t.status)}
                       </span>
                     </div>
                     <div className="text-xs text-white/50 flex items-center gap-3 mt-0.5">
-                      <span>{t.teamsCount} Equipos</span>
+                      <span>{t.teamsCount} equipos</span>
                       <span>•</span>
-                      <span>{t.matchesCount} Partidos</span>
+                      <span>{t.matchesCount} partidos</span>
                       <span>•</span>
-                      <span className="text-purple-300 font-semibold">{results.length} Anotadores</span>
+                      <span className="text-purple-300 font-semibold">{results.length} anotadores</span>
                       {pending.length > 0 && (
                         <>
                           <span>•</span>
@@ -605,23 +606,23 @@ export function RoleHierarchyAccordion({
                     Gestionar <ExternalLink size={12} />
                   </Link>
                   <span className="text-[10px] text-amber-400 font-bold uppercase tracking-widest hidden md:inline">
-                    {isExpanded ? "Contraer ▲" : "Desplegar ▼"}
+                    {isExpanded ? "Cerrar ▲" : "Abrir ▼"}
                   </span>
                 </div>
               </div>
 
               {isExpanded && (
                 <div className="border-t border-white/10 bg-black/40 p-4 md:p-6 space-y-4">
-                  {/* Marcadores Pendientes de Aprobación */}
+                  {/* Resultados por aprobar */}
                   <div className="p-4 rounded-xl border border-amber-500/30 bg-[#001122]/90 space-y-3">
                     <div className="flex items-center justify-between pb-2 border-b border-white/10">
                       <span className="text-xs font-black uppercase tracking-wider text-amber-400 flex items-center gap-2">
                         <Clock size={14} />
-                        Marcadores Pendientes de Aprobación ({pending.length})
+                        Resultados por aprobar ({pending.length})
                       </span>
                     </div>
                     {pending.length === 0 ? (
-                      <p className="text-xs text-white/40 py-1">No hay marcadores pendientes de revisión en este torneo.</p>
+                      <p className="text-xs text-white/40 py-1">No hay resultados por aprobar.</p>
                     ) : (
                       <div className="space-y-2">
                         {pending.map((res: any) => (
@@ -666,17 +667,17 @@ export function RoleHierarchyAccordion({
                     <div className="flex items-center justify-between pb-2 border-b border-white/10">
                       <span className="text-xs font-black uppercase tracking-wider text-purple-400 flex items-center gap-2">
                         <Users size={14} />
-                        Usuarios de Resultados Asignados ({results.length})
+                        Anotadores ({results.length})
                       </span>
                       <Link
                         href="/admin/result-users"
                         className="text-[10px] font-bold text-purple-400 hover:underline uppercase"
                       >
-                        + Invitar Anotador
+                        + Agregar
                       </Link>
                     </div>
                     {results.length === 0 ? (
-                      <p className="text-xs text-white/40 py-1">No hay anotadores asignados a este torneo.</p>
+                      <p className="text-xs text-white/40 py-1">Este torneo no tiene anotadores.</p>
                     ) : (
                       results.map((r: any) => (
                         <div key={r.membershipId} className="flex items-center justify-between text-xs text-white/80 py-1">
@@ -698,10 +699,10 @@ export function RoleHierarchyAccordion({
             <div className="bg-[#0b1118] border border-red-500/30 rounded-2xl max-w-md w-full p-6 space-y-4 shadow-2xl">
               <h3 className="text-sm font-black uppercase tracking-wider text-red-400 flex items-center gap-2">
                 <AlertCircle size={16} />
-                Rechazar Resultado y Solicitar Corrección
+                Rechazar resultado
               </h3>
               <p className="text-xs text-white/60">
-                Indica el motivo de corrección para que el anotador pueda corregir y reenviar el marcador.
+                Explica qué está mal para que el anotador lo corrija y lo envíe de nuevo.
               </p>
               <form onSubmit={handleReject} className="space-y-4">
                 <textarea
@@ -725,7 +726,7 @@ export function RoleHierarchyAccordion({
                     disabled={actionLoading === `reject-${rejectModalResultId}`}
                     className="px-4 py-2 rounded-xl text-xs font-bold uppercase bg-red-600 text-white hover:bg-red-500 transition-colors"
                   >
-                    Confirmar Rechazo
+                    Rechazar
                   </button>
                 </div>
               </form>
@@ -748,17 +749,17 @@ export function RoleHierarchyAccordion({
           <div>
             <h2 className="text-sm font-black uppercase tracking-[0.2em] text-white flex items-center gap-2">
               <Trophy className="w-4 h-4 text-purple-400" />
-              Tus Partidos Organizados por Torneo
+              Tus partidos
             </h2>
             <p className="text-[11px] text-white/50">
-              Despliega cada torneo para capturar resultados y verificar observaciones
+              Abre cada torneo para registrar resultados
             </p>
           </div>
           <Link
             href="/admin/my-submissions"
             className="text-xs font-bold text-purple-400 hover:underline uppercase tracking-wider"
           >
-            Historial de Envíos →
+            Mis envíos →
           </Link>
         </div>
 
@@ -788,7 +789,7 @@ export function RoleHierarchyAccordion({
                   </div>
                 </div>
                 <span className="text-[10px] text-purple-400 font-bold uppercase tracking-widest">
-                  {isExpanded ? "Contraer ▲" : "Desplegar ▼"}
+                  {isExpanded ? "Cerrar ▲" : "Abrir ▼"}
                 </span>
               </div>
 
@@ -824,7 +825,7 @@ export function RoleHierarchyAccordion({
                           </div>
                           {res?.rejection_reason && (
                             <p className="text-[11px] text-red-300 bg-red-950/20 border border-red-900/30 p-2 rounded-lg mt-2">
-                              Motivo del Administrador: {res.rejection_reason}
+                              Motivo del rechazo: {res.rejection_reason}
                             </p>
                           )}
                         </div>
@@ -833,7 +834,7 @@ export function RoleHierarchyAccordion({
                           href="/admin/submit-result"
                           className="px-4 py-2 rounded-xl bg-gradient-to-r from-purple-500 to-[#00f0ff] text-black font-extrabold text-xs uppercase tracking-wider text-center hover:scale-[1.02] transition-transform"
                         >
-                          {isRejected ? "Corregir Marcador" : res ? "Ver Detalle" : "Registrar"}
+                          {isRejected ? "Corregir" : res ? "Ver detalle" : "Registrar"}
                         </Link>
                       </div>
                     );

@@ -1,7 +1,9 @@
-"use server";
+// Funciona 100% en el navegador (compatible con exportación estática / Hostinger).
+// La seguridad la aplican Supabase (RLS) y las funciones RPC.
+import { createClient } from "@/utils/supabase/client";
 
-import { createClient } from "@/utils/supabase/server";
-import { revalidatePath } from "next/cache";
+// Sin servidor no hay caché que invalidar: las páginas recargan sus datos solas.
+const revalidatePath = (_path: string, _type?: string) => {};
 
 export type PlatformRole = "ADMINISTRADOR_GENERAL" | "SUPERADMINISTRADOR" | "ADMINISTRADOR_DEL_TORNEO" | "USUARIO_DE_RESULTADOS";
 

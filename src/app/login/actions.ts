@@ -1,6 +1,4 @@
-"use server";
-
-import { createClient } from "@/utils/supabase/server";
+import { createClient } from "@/utils/supabase/client";
 
 export async function login(formData: FormData) {
   const email = formData.get("email") as string;

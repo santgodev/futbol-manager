@@ -210,7 +210,7 @@ export function MatchEditor({ match, tournamentId, venues = [], isHighlighted = 
               className="flex items-center justify-center bg-brand-teal/10 border border-brand-teal/30 text-brand-teal px-4 py-2 text-[10px] font-bold uppercase tracking-widest hover:bg-brand-teal hover:text-brand-deep hover:shadow-[0_0_15px_rgba(0,240,255,0.4)] transition-all rounded-lg z-10"
               onClick={(e) => e.stopPropagation()}
             >
-              Control Room
+              Registrar Resultado
             </Link>
             {!isFinished && (
               <div className="text-brand-teal/50 p-1">

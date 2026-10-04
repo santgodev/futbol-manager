@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { Search, MapPin, Clock, ChevronDown, ChevronUp } from "lucide-react";
+import { Search, MapPin, Clock, ChevronDown, ChevronUp, X, Goal } from "lucide-react";
 import { formatVolleyballSets, type VolleyballSet } from "@/utils/volleyball";
 
 interface Match {
@@ -19,6 +19,9 @@ interface Match {
   venue?: string | null;
   bracket_order?: number | null;
   match_sets?: VolleyballSet[] | null;
+  match_events?: any[];
+  home_team_id?: string;
+  away_team_id?: string;
 }
 
 interface FixtureTabProps {
@@ -49,7 +52,7 @@ function statusBadge(status: string | null) {
   if (s === "FINISHED" || s === "FINALIZADO" || s === "RESULTADO_OFICIAL")
     return (
       <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/25 text-emerald-400 text-[10px] font-bold uppercase tracking-wider whitespace-nowrap">
-        Resultado oficial
+        Finalizado
       </span>
     );
   if (s === "LIVE" || s === "IN_PLAY" || s === "EN_JUEGO")
@@ -67,7 +70,7 @@ function statusBadge(status: string | null) {
 }
 
 function getRoundLabel(match: Match): string {
-  if (match.round_number != null) return `Ronda ${match.round_number}`;
+  if (match.round_number != null) return `Jornada ${match.round_number}`;
   if (match.match_date) return match.match_date;
   return "Sin fecha";
 }
@@ -75,6 +78,7 @@ function getRoundLabel(match: Match): string {
 export function FixtureTab({ matches }: FixtureTabProps) {
   const [search, setSearch] = useState("");
   const [collapsedRounds, setCollapsedRounds] = useState<Set<string>>(new Set());
+  const [selectedMatch, setSelectedMatch] = useState<Match | null>(null);
 
   const groupMatches = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -114,8 +118,8 @@ export function FixtureTab({ matches }: FixtureTabProps) {
   }, [matches, search]);
 
   const roundKeys = Object.keys(groupMatches).sort((a, b) => {
-    const numA = parseInt(a.replace("Ronda ", "")) || 0;
-    const numB = parseInt(b.replace("Ronda ", "")) || 0;
+    const numA = parseInt(a.replace("Jornada ", "")) || 0;
+    const numB = parseInt(b.replace("Jornada ", "")) || 0;
     if (numA && numB) return numA - numB;
     return a < b ? -1 : 1;
   });
@@ -199,7 +203,7 @@ export function FixtureTab({ matches }: FixtureTabProps) {
                         Grupo
                       </th>
                       <th className="py-2.5 px-3 text-[9px] text-[#00f0ff]/50 font-black uppercase tracking-widest text-left">
-                        Partido y Sets
+                        Resultado
                       </th>
                       <th className="py-2.5 px-4 text-[9px] text-[#00f0ff]/50 font-black uppercase tracking-widest text-right min-w-[130px]">
                         Estado
@@ -226,7 +230,8 @@ export function FixtureTab({ matches }: FixtureTabProps) {
                       return (
                         <tr
                           key={match.id}
-                          className="border-b border-white/5 last:border-0 hover:bg-white/[0.02] transition-colors"
+                          onClick={() => setSelectedMatch(match)}
+                          className="border-b border-white/5 last:border-0 hover:bg-white/[0.04] cursor-pointer transition-colors"
                         >
                           {/* Detalles: fecha, hora, cancha */}
                           <td className="py-3.5 px-4 align-top">
@@ -257,7 +262,7 @@ export function FixtureTab({ matches }: FixtureTabProps) {
                             )}
                           </td>
 
-                          {/* Partido y Sets */}
+                          {/* Resultado */}
                           <td className="py-3.5 px-3 align-middle">
                             <div className="flex flex-col gap-1.5 min-w-[260px]">
                               {/* Home row */}
@@ -330,6 +335,67 @@ export function FixtureTab({ matches }: FixtureTabProps) {
           </div>
         );
       })}
+
+      {/* Match Details Modal */}
+      {selectedMatch && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onClick={() => setSelectedMatch(null)}>
+          <div className="bg-[#050811] border border-[#00f0ff]/30 rounded-2xl p-6 shadow-[0_0_50px_rgba(0,0,0,0.5)] w-full max-w-md max-h-[80vh] overflow-y-auto custom-scrollbar" onClick={(e) => e.stopPropagation()}>
+            <div className="flex justify-between items-start mb-6">
+              <h3 className="text-white font-black uppercase tracking-wider text-sm flex items-center gap-2">
+                Resumen del Partido
+              </h3>
+              <button onClick={() => setSelectedMatch(null)} className="text-white/40 hover:text-white transition-colors">
+                <X size={20} />
+              </button>
+            </div>
+            
+            <div className="flex items-center justify-between mb-8 bg-white/5 rounded-xl p-4 border border-white/10">
+               <div className="flex-1 text-center font-black text-white uppercase text-sm truncate px-1 leading-tight">{selectedMatch.home_team?.name || "Local"}</div>
+               <div className="text-3xl font-black text-[#00f0ff] px-4 font-mono tracking-tighter">
+                 {selectedMatch.home_score !== null ? selectedMatch.home_score : '-'} 
+                 <span className="text-white/20 mx-1">:</span> 
+                 {selectedMatch.away_score !== null ? selectedMatch.away_score : '-'}
+               </div>
+               <div className="flex-1 text-center font-black text-white uppercase text-sm truncate px-1 leading-tight">{selectedMatch.away_team?.name || "Visitante"}</div>
+            </div>
+
+            <div className="space-y-4">
+              <h4 className="text-[10px] text-[#00f0ff] uppercase tracking-widest font-black border-b border-[#00f0ff]/20 pb-2">Goles y Eventos Registrados</h4>
+              {(!selectedMatch.match_events || selectedMatch.match_events.length === 0) ? (
+                <div className="text-center py-8 text-white/30 text-xs font-mono uppercase tracking-widest border border-dashed border-white/10 rounded-xl bg-white/5">
+                  No hay anotaciones registradas
+                </div>
+              ) : (
+                <div className="flex flex-col gap-2">
+                  {selectedMatch.match_events.map((ev: any) => {
+                     const isHome = ev.team_id === selectedMatch.home_team_id;
+                     const isAway = ev.team_id === selectedMatch.away_team_id;
+                     const teamName = isHome ? selectedMatch.home_team?.name : (isAway ? selectedMatch.away_team?.name : 'Equipo');
+                     
+                     let evName = "GOL";
+                     let evIcon = <Goal size={14} />;
+                     let colorClass = "text-emerald-400 border-emerald-500/30 bg-emerald-500/10";
+                     if (ev.type === 'YELLOW_CARD') { evName = "AMARILLA"; evIcon = <div className="w-2.5 h-3.5 bg-yellow-400 rounded-sm" />; colorClass = "text-yellow-400 border-yellow-500/30 bg-yellow-500/10"; }
+                     if (ev.type === 'RED_CARD') { evName = "ROJA"; evIcon = <div className="w-2.5 h-3.5 bg-red-500 rounded-sm" />; colorClass = "text-red-400 border-red-500/30 bg-red-500/10"; }
+                     
+                     return (
+                        <div key={ev.id} className={`flex items-center gap-3 p-3 rounded-xl border transition-all ${colorClass} ${isAway ? 'flex-row-reverse text-right' : ''}`}>
+                           <div className={`flex items-center justify-center`}>
+                             {evIcon}
+                           </div>
+                           <div className="flex-1">
+                              <div className="text-xs font-black text-white uppercase tracking-wider">{ev.player?.name || ev.description || 'Jugador Desconocido'}</div>
+                              <div className="text-[9px] text-white/40 uppercase tracking-widest font-bold mt-0.5">{teamName}</div>
+                           </div>
+                        </div>
+                     )
+                  })}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

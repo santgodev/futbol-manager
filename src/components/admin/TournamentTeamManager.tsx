@@ -96,12 +96,12 @@ export function TournamentGroupManager({ tournamentId, categoryId, currentTeams,
     <div className="flex flex-col gap-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <h3 className="text-sm font-bold uppercase tracking-widest text-brand-sand">
-          Distribución de Grupos
+          Equipos por grupo
         </h3>
 
         {currentTeams.length > 0 && (
           <div className="flex items-center gap-2 bg-[#02060d]/50 p-2 rounded-xl border border-brand-navy/30">
-            <span className="text-[10px] uppercase tracking-widest font-bold text-brand-aqua/60 px-2">Sorteo Automático</span>
+            <span className="text-[10px] uppercase tracking-widest font-bold text-brand-aqua/60 px-2">Sorteo automático</span>
             <input 
               type="number"
               min={2}
@@ -231,7 +231,7 @@ export function TournamentGroupManager({ tournamentId, categoryId, currentTeams,
           <div className="py-12 text-center flex flex-col items-center gap-4 border border-dashed border-brand-teal/30 bg-brand-teal/5 mt-4 rounded-xl relative overflow-hidden">
             <Shield size={32} className="text-brand-teal/40 drop-shadow-[0_0_10px_rgba(0,240,255,0.3)] relative z-10" />
             <span className="text-brand-teal/60 text-xs uppercase tracking-widest font-black relative z-10">
-              Usa el Sorteo Automático o Asignación Manual para organizar los equipos
+              Usa el sorteo automático o asígnalos a mano
             </span>
           </div>
         ) : null

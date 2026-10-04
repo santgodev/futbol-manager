@@ -1,0 +1,153 @@
+@font-face {
+  font-family: 'Impact Manrope';
+  src: url('/assets/fonts/manrope-normal-600.woff2') format('woff2');
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Impact Newsreader';
+  src: url('/assets/fonts/newsreader-italic-400.woff2') format('woff2');
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Impact Newsreader Normal';
+  src: url('/assets/fonts/newsreader-normal-400.woff2') format('woff2');
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+
+.impact-section {
+  position: relative;
+  isolation: isolate;
+  z-index: 10;
+  margin-top: -70px;
+  padding: 100px 0 120px;
+  border-radius: 48px 48px 0 0;
+  background: radial-gradient(ellipse at 49% 53%, #41473430, transparent 65%), #161716;
+  border-top: 1px solid #d7bd8326;
+}
+.impact-section__inner { max-width: 1280px; margin: auto; padding-inline: 32px; }
+.impact-heading { display: grid; grid-template-columns: 1.3fr 1fr; align-items: end; gap: 32px; margin-bottom: 64px; }
+.impact-heading__eyebrow { display: flex; align-items: center; gap: 12px; margin: 0 0 22px; color: #c9b98f; font-size: 10px; font-weight: 500; letter-spacing: .2em; text-transform: uppercase; }
+.impact-heading__eyebrow::before { content: ''; width: 30px; height: 1px; background: #c9b98f; }
+.impact-heading h2 { margin: 0; color: #f1eee5; font-family: 'Impact Manrope', sans-serif; font-size: clamp(38px, 4.5vw, 64px); font-weight: 600; line-height: 1.05; letter-spacing: -.065em; }
+.impact-heading h2 em { font-family: 'Impact Newsreader', Georgia, serif; font-weight: 400; color: #d7bd83; letter-spacing: -.04em; }
+.impact-heading__aside { max-width: 320px; justify-self: end; padding-bottom: 5px; }
+.impact-heading__aside p { margin: 0; color: #b9bcb2; font-size: 14px; font-weight: 300; line-height: 1.8; }
+.impact-heading__note { display: block; margin-top: 22px; color: #d4c5a6; font-family: 'Impact Newsreader', Georgia, serif; font-size: 21px; font-style: italic; }
+
+.impact-cards { display: grid; grid-template-columns: 1fr 1.08fr 1fr; align-items: start; gap: 30px; }
+.impact-card {
+  --panel: #1b1c1a;
+  --light: #a79578;
+  --accent: #e9d2a3;
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-width: 0;
+  color: #f8f3e8;
+  border: 1px solid color-mix(in srgb, var(--accent) 15%, transparent);
+  border-radius: 4px;
+  background-color: var(--panel);
+  transition: transform .4s cubic-bezier(.2,.65,.3,1), border-color .4s ease;
+  overflow: hidden;
+}
+.impact-card--stone { margin-top: 32px; --panel: #1e1e1c; }
+.impact-card--olive { margin-top: 72px; --panel: #1d201b; --accent: #d8ccaa; }
+.impact-card--graphite { margin-top: 0px; --panel: #1b1e1f; --accent: #c4d3ce; }
+
+.impact-card:hover {
+  border-color: color-mix(in srgb, var(--accent) 40%, transparent);
+  transform: translateY(-4px);
+}
+
+.impact-card__portrait { 
+  position: relative; 
+  width: 100%;
+  aspect-ratio: 4 / 3; 
+  border-bottom: 1px solid color-mix(in srgb, var(--accent) 15%, transparent);
+  overflow: hidden;
+  background: #111;
+}
+
+/* Remove giant numbers and circles completely */
+.impact-card__number, .impact-card__orbit { display: none; }
+
+.impact-card .impact-card__photo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform .6s cubic-bezier(.2,.65,.3,1);
+}
+
+.impact-card:hover .impact-card__photo {
+  transform: scale(1.03);
+}
+
+/* Per-card face framing */
+.impact-card--stone .impact-card__photo   { object-position: 50% 15%; }
+.impact-card--olive .impact-card__photo   { object-position: 50% 10%; }
+.impact-card--graphite .impact-card__photo { object-position: 50% 12%; }
+
+.impact-card__content { 
+  position: relative; 
+  padding: 32px 24px;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.impact-card__category { display: flex; align-items: center; gap: 8px; margin: 0 0 16px; color: var(--accent); font-family: 'Impact Newsreader', Georgia, serif; font-size: 11px; font-weight: 400; letter-spacing: .08em; text-transform: uppercase; }
+.impact-card__category::before { content: ''; width: 12px; height: 1px; background: currentColor; flex-shrink: 0; }
+.impact-card__invitation { margin: 0 0 8px; color: #ddd9cc; font-family: 'Impact Newsreader', Georgia, serif; font-size: 21px; font-style: italic; line-height: 1.15; }
+.impact-card__title { margin: 0 0 20px; color: #fffaf1; font-family: 'Impact Newsreader Normal', Georgia, serif; font-size: clamp(28px, 3vw, 38px); font-weight: 400; line-height: 1.05; letter-spacing: -0.01em; }
+.impact-card__description { margin: 0 0 32px; color: #a4a79c; font-size: 13px; line-height: 1.6; font-weight: 300; flex-grow: 1; }
+
+.impact-card__action { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: auto; padding-top: 20px; border-top: 1px solid color-mix(in srgb, var(--accent) 15%, transparent); color: var(--accent); font-size: 9px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; }
+.impact-card__arrow { display: grid; place-items: center; width: 32px; height: 32px; border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent); border-radius: 4px; flex-shrink: 0; transition: background .3s ease, color .3s ease; }
+.impact-card__arrow svg { transition: transform .3s ease; width: 14px; height: 14px; }
+.impact-card:hover .impact-card__arrow { background: var(--accent); color: var(--panel); }
+.impact-card:hover .impact-card__arrow svg { transform: translate(2px, -2px); }
+@media (hover: hover) and (pointer: fine) {
+  /* removed duplicated hover */
+}
+@media (min-width: 768px) and (max-width: 1023px) {
+  .impact-section__inner { padding-inline: 24px; }
+  .impact-cards { gap: 18px; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .impact-card__content { padding: 0 18px 22px; }
+  .impact-card__category { font-size: 7px; letter-spacing: .05em; gap: 6px; }
+  .impact-card__category::before { width: 10px; }
+  .impact-card__invitation { font-size: 19px; }
+  .impact-card__title { font-size: 25px; }
+  .impact-card__description { min-height: 6.6em; }
+  .impact-card__action { font-size: 8px; letter-spacing: .02em; }
+}
+@media (max-width: 767px) {
+  .impact-section { margin-top: -16px; padding: 64px 0 72px; border-radius: 32px 32px 0 0; }
+  .impact-section__inner { padding-inline: 24px; }
+  .impact-heading { grid-template-columns: 1fr; gap: 24px; margin-bottom: 40px; }
+  .impact-heading h2 { font-size: clamp(38px, 9vw, 54px); }
+  .impact-heading__aside { justify-self: start; max-width: 370px; }
+  .impact-heading__aside p { font-size: 13px; }
+  .impact-heading__note { margin-top: 12px; }
+  .impact-cards { grid-template-columns: minmax(0, 1fr); gap: 38px; max-width: 440px; margin-inline: auto; }
+  .impact-card--stone, .impact-card--graphite { margin-top: 0; }
+  .impact-card__number { font-size: 120px; }
+  .impact-card__title { font-size: clamp(28px, 8vw, 40px); }
+  .impact-card__invitation { font-size: 24px; }
+  .impact-card__category { font-size: 8px; }
+  .impact-card__description { min-height: 0; font-size: 13px; }
+  .impact-section__footnote { font-size: 8px; letter-spacing: .1em; gap: 14px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .impact-card, .impact-card::before, .impact-card::after, .impact-card__arrow, .impact-card__arrow svg { transition: none; }
+  .impact-card:hover, .impact-card:hover .impact-card__arrow svg { transform: none; }
+}

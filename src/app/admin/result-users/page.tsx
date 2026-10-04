@@ -239,11 +239,11 @@ export default function ResultUsersPage() {
           <div className="flex items-center gap-3 mb-1">
             <Users className="w-8 h-8 text-purple-400 drop-shadow-[0_0_12px_rgba(168,85,247,0.6)]" />
             <h1 className="text-2xl md:text-3xl font-extrabold tracking-wider uppercase text-white font-sans">
-              Usuarios de Resultados
+              Personal Anotador
             </h1>
           </div>
           <p className="text-xs md:text-sm text-white/50 tracking-wide">
-            Crea credenciales y asigna personal para la captura y reporte oficial de marcadores
+            Crea cuentas para que otras personas te ayuden a registrar los resultados de los partidos.
           </p>
         </div>
 
@@ -252,7 +252,7 @@ export default function ResultUsersPage() {
           className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-purple-500 to-indigo-600 text-white font-extrabold text-xs tracking-wider uppercase shadow-[0_0_20px_rgba(168,85,247,0.4)] hover:shadow-[0_0_25px_rgba(168,85,247,0.7)] hover:scale-[1.02] active:scale-[0.98] transition-all"
         >
           <UserPlus size={16} />
-          Nuevo Usuario de Resultados
+          + Nuevo Anotador
         </button>
       </div>
 
@@ -281,7 +281,7 @@ export default function ResultUsersPage() {
       <div className="bg-[#0b1118]/80 border border-white/10 rounded-2xl overflow-hidden backdrop-blur-md shadow-2xl">
         <div className="px-6 py-4 border-b border-white/10 flex items-center justify-between">
           <span className="text-[10px] uppercase font-bold tracking-[0.25em] text-purple-400">
-            Usuarios Registrados ({users.length})
+            Lista de Anotadores ({users.length})
           </span>
           <button
             onClick={loadData}
@@ -296,17 +296,17 @@ export default function ResultUsersPage() {
         {loading ? (
           <div className="p-12 flex flex-col items-center justify-center gap-3 text-white/40">
             <RefreshCw className="w-6 h-6 animate-spin text-purple-400" />
-            <span className="text-xs uppercase tracking-widest">Cargando personal de resultados...</span>
+            <span className="text-xs uppercase tracking-widest">Cargando anotadores...</span>
           </div>
         ) : users.length === 0 ? (
           <div className="p-12 text-center text-white/40 text-xs uppercase tracking-widest flex flex-col items-center justify-center gap-3">
             <Users className="w-8 h-8 text-white/20" />
-            <span>No hay usuarios de resultados registrados en tu ámbito todavía.</span>
+            <span>Aún no has creado a ningún anotador.</span>
             <button
               onClick={() => setIsCreateModalOpen(true)}
               className="mt-2 px-4 py-2 rounded-xl bg-purple-500/20 border border-purple-500/40 text-purple-300 font-bold text-xs uppercase tracking-wider hover:bg-purple-500/30 transition-all"
             >
-              Registrar Primer Anotador
+              Crear tu primer anotador
             </button>
           </div>
         ) : (
@@ -314,11 +314,11 @@ export default function ResultUsersPage() {
             <table className="w-full text-left text-xs">
               <thead className="bg-white/[0.02] text-white/40 font-bold uppercase tracking-widest text-[9px] border-b border-white/5">
                 <tr>
-                  <th className="py-3.5 px-6">Usuario</th>
-                  <th className="py-3.5 px-6">Correo</th>
-                  <th className="py-3.5 px-6">Torneos Asignados</th>
-                  <th className="py-3.5 px-6">Estado</th>
-                  <th className="py-3.5 px-6 text-right">Acciones</th>
+                  <th className="py-3.5 px-6">Nombre</th>
+                  <th className="py-3.5 px-6">Correo / Login</th>
+                  <th className="py-3.5 px-6">Torneos Permitidos</th>
+                  <th className="py-3.5 px-6">Acceso</th>
+                  <th className="py-3.5 px-6 text-right">Opciones</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/5">
@@ -334,7 +334,7 @@ export default function ResultUsersPage() {
                           </div>
                           <div>
                             <span className="font-bold text-white text-xs block">{user.full_name || "Sin nombre"}</span>
-                            <span className="text-[10px] text-purple-400/80 font-medium">ANOTADOR OFICIAL</span>
+                            <span className="text-[10px] text-purple-400/80 font-medium">Anotador Oficial</span>
                           </div>
                         </div>
                       </td>
@@ -344,7 +344,7 @@ export default function ResultUsersPage() {
                       <td className="py-4 px-6">
                         <div className="flex flex-wrap items-center gap-1.5">
                           {user.memberships.length === 0 ? (
-                            <span className="text-[10px] text-white/30 italic">Sin torneo asignado</span>
+                            <span className="text-[10px] text-white/30 italic">Ningún torneo permitido</span>
                           ) : (
                             user.memberships.map((m) => (
                               <span
@@ -369,7 +369,7 @@ export default function ResultUsersPage() {
                             className="inline-flex items-center gap-1 text-[9px] px-2 py-0.5 rounded bg-purple-500/10 text-purple-400 hover:bg-purple-500/20 border border-purple-500/20 transition-all uppercase tracking-wider font-bold"
                           >
                             <Link2 size={10} />
-                            + Asignar
+                            + Dar Acceso
                           </button>
                         </div>
                       </td>
@@ -377,12 +377,12 @@ export default function ResultUsersPage() {
                         {user.is_active ? (
                           <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
                             <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                            ACTIVO
+                            PERMITIDO
                           </span>
                         ) : (
                           <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold bg-red-500/10 text-red-400 border border-red-500/20">
                             <span className="w-1.5 h-1.5 rounded-full bg-red-400" />
-                            INACTIVO
+                            BLOQUEADO
                           </span>
                         )}
                       </td>
@@ -401,12 +401,12 @@ export default function ResultUsersPage() {
                           ) : user.is_active ? (
                             <>
                               <UserX size={12} />
-                              Desactivar
+                              Bloquear
                             </>
                           ) : (
                             <>
                               <UserCheck size={12} />
-                              Activar
+                              Desbloquear
                             </>
                           )}
                         </button>
@@ -431,9 +431,9 @@ export default function ResultUsersPage() {
                 </div>
                 <div>
                   <h3 className="text-base font-bold text-white uppercase tracking-wider">
-                    Nuevo Usuario de Resultados
+                    Crear Nuevo Anotador
                   </h3>
-                  <span className="text-[10px] text-white/50">Crea las credenciales y asigna un torneo</span>
+                  <span className="text-[10px] text-white/50">Crea la cuenta para que pueda registrar marcadores</span>
                 </div>
               </div>
               <button
@@ -502,7 +502,7 @@ export default function ResultUsersPage() {
 
               <div>
                 <label className="block text-[10px] font-bold uppercase tracking-wider text-white/60 mb-1.5">
-                  Asignar a Torneo Inicial (Opcional)
+                  Dar acceso a un Torneo (Opcional)
                 </label>
                 <div className="relative">
                   <Trophy size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/40" />
@@ -511,7 +511,7 @@ export default function ResultUsersPage() {
                     onChange={(e) => setFormTournamentId(e.target.value)}
                     className="w-full pl-9 pr-3 py-2 rounded-xl bg-black/40 border border-white/10 text-white text-xs focus:outline-none focus:border-purple-400 transition-colors appearance-none"
                   >
-                    <option value="">-- Sin torneo inicial (asignar después) --</option>
+                    <option value="">-- Puedes darle acceso después --</option>
                     {tournaments.map((t) => (
                       <option key={t.id} value={t.id} className="bg-[#0e1622] text-white">
                         {t.name}
@@ -560,7 +560,7 @@ export default function ResultUsersPage() {
                 </div>
                 <div>
                   <h3 className="text-base font-bold text-white uppercase tracking-wider">
-                    Vincular a Torneo
+                    Dar acceso a un Torneo
                   </h3>
                   <span className="text-[10px] text-white/50">{assignModalUser.full_name || assignModalUser.email}</span>
                 </div>
@@ -576,7 +576,7 @@ export default function ResultUsersPage() {
             <form onSubmit={handleAssignTournament} className="p-6 space-y-4">
               <div>
                 <label className="block text-[10px] font-bold uppercase tracking-wider text-white/60 mb-1.5">
-                  Selecciona el Torneo a Asignar
+                  ¿A qué torneo le quieres dar acceso?
                 </label>
                 <select
                   required
@@ -619,7 +619,7 @@ export default function ResultUsersPage() {
                       Asignando...
                     </>
                   ) : (
-                    "Confirmar Asignación"
+                    "Confirmar Acceso"
                   )}
                 </button>
               </div>

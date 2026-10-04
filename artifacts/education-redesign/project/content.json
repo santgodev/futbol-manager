@@ -1,0 +1,1306 @@
+{
+  "brand": "Preciado Formación y Soluciones",
+  "tagline": "Te ayudamos a crecer integralmente.",
+  "assets": {
+    "hero": "b60f8e173b0d",
+    "logo": "961738622a5c",
+    "sindy": "8594d48f2ec5",
+    "couple": "e85b33118fb6",
+    "leadership": "d89c82e15874",
+    "growth": "a91bf303c666",
+    "presentation": "f5b2193008ea"
+  },
+  "media": [
+    {
+      "id": "b760537f2333",
+      "source": "psicologia/wp-content/uploads/2024/08/cropped-Logo-de-color.webp",
+      "file": "images/b760537f2333.webp",
+      "small": "images/b760537f2333-small.webp",
+      "width": 200,
+      "height": 58,
+      "title": "cropped Logo de color"
+    },
+    {
+      "id": "60687c1b6459",
+      "source": "psicologia/wp-content/uploads/2024/08/cropped-logo1-1.webp",
+      "file": "images/60687c1b6459.webp",
+      "small": "images/60687c1b6459-small.webp",
+      "width": 512,
+      "height": 512,
+      "title": "cropped logo1 1"
+    },
+    {
+      "id": "a9d1baabc0f0",
+      "source": "psicologia/wp-content/uploads/2024/08/Logo-de-color.webp",
+      "file": "images/a9d1baabc0f0.webp",
+      "small": "images/a9d1baabc0f0-small.webp",
+      "width": 200,
+      "height": 71,
+      "title": "Logo de color"
+    },
+    {
+      "id": "8115ab2e9c3f",
+      "source": "psicologia/wp-content/uploads/2024/08/Presentacion-1900-556.png",
+      "file": "images/8115ab2e9c3f.webp",
+      "small": "images/8115ab2e9c3f-small.webp",
+      "width": 1600,
+      "height": 468,
+      "title": "Presentacion 1900 556"
+    },
+    {
+      "id": "b25577f28e32",
+      "source": "psicologia/wp-content/uploads/2024/08/Presentacion-935-507.png",
+      "file": "images/b25577f28e32.webp",
+      "small": "images/b25577f28e32-small.webp",
+      "width": 935,
+      "height": 507,
+      "title": "Presentacion 935 507"
+    },
+    {
+      "id": "f5b2193008ea",
+      "source": "psicologia/wp-content/uploads/2024/08/Presentacion-Sindy-Diaz-935-507.png",
+      "file": "images/f5b2193008ea.webp",
+      "small": "images/f5b2193008ea-small.webp",
+      "width": 935,
+      "height": 507,
+      "title": "Presentacion Sindy Diaz 935 507"
+    },
+    {
+      "id": "3805902bf443",
+      "source": "psicologia/wp-content/uploads/2024/08/Presentacion-Sindy-Diaz-_-1900-x-556.png",
+      "file": "images/3805902bf443.webp",
+      "small": "images/3805902bf443-small.webp",
+      "width": 1600,
+      "height": 468,
+      "title": "Presentacion Sindy Diaz   1900 x 556"
+    },
+    {
+      "id": "b73d0e9d766d",
+      "source": "psicologia/wp-content/uploads/2024/08/Presentacion-Sindy-Diaz-_-Redes-Sociales.png",
+      "file": "images/b73d0e9d766d.webp",
+      "small": "images/b73d0e9d766d-small.webp",
+      "width": 1080,
+      "height": 1080,
+      "title": "Presentacion Sindy Diaz   Redes Sociales"
+    },
+    {
+      "id": "ccc48ef7403f",
+      "source": "psicologia/wp-content/uploads/2024/08/Presentacion_-Redes.png",
+      "file": "images/ccc48ef7403f.webp",
+      "small": "images/ccc48ef7403f-small.webp",
+      "width": 1080,
+      "height": 1080,
+      "title": "Presentacion  Redes"
+    },
+    {
+      "id": "9df99267b2ba",
+      "source": "psicologia/wp-content/uploads/2024/08/Terapia-Comportamental_-1900-556.png",
+      "file": "images/9df99267b2ba.webp",
+      "small": "images/9df99267b2ba-small.webp",
+      "width": 1600,
+      "height": 468,
+      "title": "Terapia Comportamental  1900 556"
+    },
+    {
+      "id": "0cee391096bf",
+      "source": "psicologia/wp-content/uploads/2024/08/Terapia-Comportamental_-935-507-.png",
+      "file": "images/0cee391096bf.webp",
+      "small": "images/0cee391096bf-small.webp",
+      "width": 935,
+      "height": 507,
+      "title": "Terapia Comportamental  935 507"
+    },
+    {
+      "id": "ad8a78f6e4e9",
+      "source": "psicologia/wp-content/uploads/2024/08/Terapia-Comportamental_-Redes.png",
+      "file": "images/ad8a78f6e4e9.webp",
+      "small": "images/ad8a78f6e4e9-small.webp",
+      "width": 1080,
+      "height": 1080,
+      "title": "Terapia Comportamental  Redes"
+    },
+    {
+      "id": "ac85de834e54",
+      "source": "psicologia/wp-content/uploads/2024/08/Terapia-de-parejas-_-1900-556.png",
+      "file": "images/ac85de834e54.webp",
+      "small": "images/ac85de834e54-small.webp",
+      "width": 1600,
+      "height": 468,
+      "title": "Terapia de parejas   1900 556"
+    },
+    {
+      "id": "a5be3351a20a",
+      "source": "psicologia/wp-content/uploads/2024/08/Terapia-de-parejas-_-935-507-.png",
+      "file": "images/a5be3351a20a.webp",
+      "small": "images/a5be3351a20a-small.webp",
+      "width": 935,
+      "height": 507,
+      "title": "Terapia de parejas   935 507"
+    },
+    {
+      "id": "4d00e14fdf87",
+      "source": "psicologia/wp-content/uploads/2024/08/Terapia-de-parejas-_-Redes.png",
+      "file": "images/4d00e14fdf87.webp",
+      "small": "images/4d00e14fdf87-small.webp",
+      "width": 1080,
+      "height": 1080,
+      "title": "Terapia de parejas   Redes"
+    },
+    {
+      "id": "b1c86ddf0ee4",
+      "source": "psicologia/wp-content/uploads/2024/08/Terapia-familiar-_-1900-556.png",
+      "file": "images/b1c86ddf0ee4.webp",
+      "small": "images/b1c86ddf0ee4-small.webp",
+      "width": 1600,
+      "height": 468,
+      "title": "Terapia familiar   1900 556"
+    },
+    {
+      "id": "0d2885874c58",
+      "source": "psicologia/wp-content/uploads/2024/08/Terapia-familiar-_-935-507.png",
+      "file": "images/0d2885874c58.webp",
+      "small": "images/0d2885874c58-small.webp",
+      "width": 935,
+      "height": 507,
+      "title": "Terapia familiar   935 507"
+    },
+    {
+      "id": "28deda031ddf",
+      "source": "psicologia/wp-content/uploads/2024/08/Terapia-familiar-_-redes.png",
+      "file": "images/28deda031ddf.webp",
+      "small": "images/28deda031ddf-small.webp",
+      "width": 1080,
+      "height": 1080,
+      "title": "Terapia familiar   redes"
+    },
+    {
+      "id": "c2fc994a702d",
+      "source": "psicologia/wp-content/uploads/2024/08/Terapia-individual-_-1900-556.png",
+      "file": "images/c2fc994a702d.webp",
+      "small": "images/c2fc994a702d-small.webp",
+      "width": 1600,
+      "height": 468,
+      "title": "Terapia individual   1900 556"
+    },
+    {
+      "id": "4714b6f7bfcf",
+      "source": "psicologia/wp-content/uploads/2024/08/Terapia-individual-_-935-507-.png",
+      "file": "images/4714b6f7bfcf.webp",
+      "small": "images/4714b6f7bfcf-small.webp",
+      "width": 935,
+      "height": 507,
+      "title": "Terapia individual   935 507"
+    },
+    {
+      "id": "a28027db5834",
+      "source": "psicologia/wp-content/uploads/2024/08/Terapia-individual-_-Redes.png",
+      "file": "images/a28027db5834.webp",
+      "small": "images/a28027db5834-small.webp",
+      "width": 1080,
+      "height": 1080,
+      "title": "Terapia individual   Redes"
+    },
+    {
+      "id": "1bc47be09400",
+      "source": "psicologia/wp-content/uploads/2026/02/Copia-de-Presentacion-Sindy-Diaz-_-Psicologa.-Tu-Historia.png",
+      "file": "images/1bc47be09400.webp",
+      "small": "images/1bc47be09400-small.webp",
+      "width": 1012,
+      "height": 1800,
+      "title": "Copia de Presentacion Sindy Diaz   Psicologa. Tu Historia"
+    },
+    {
+      "id": "03f7d67c907f",
+      "source": "psicologia/wp-content/uploads/2026/02/Presentacion-Sindy-Diaz-.png",
+      "file": "images/03f7d67c907f.webp",
+      "small": "images/03f7d67c907f-small.webp",
+      "width": 935,
+      "height": 507,
+      "title": "Presentacion Sindy Diaz"
+    },
+    {
+      "id": "c3c1c3fd5496",
+      "source": "psicologia/wp-content/uploads/elementor/screenshots/Elementor-post-screenshot_19_2024-08-20-01-51-35_315185cb.png",
+      "file": "images/c3c1c3fd5496.webp",
+      "small": "images/c3c1c3fd5496-small.webp",
+      "width": 1200,
+      "height": 284,
+      "title": "Elementor post screenshot 19 2024 08 20 01 51 35 315185cb"
+    },
+    {
+      "id": "142c8054d07e",
+      "source": "psicologia/wp-content/uploads/elementor/thumbs/Terapia-individual-_-Redes-qsyq0gxkvio7dpq9fntc4e5jpccxulj5to3si3pbp0.png",
+      "file": "images/142c8054d07e.webp",
+      "small": "images/142c8054d07e-small.webp",
+      "width": 50,
+      "height": 50,
+      "title": "Terapia individual   Redes qsyq0gxkvio7dpq9fntc4e5jpccxulj5to3si3pbp0"
+    },
+    {
+      "id": "f9be4d1483b5",
+      "source": "wp-content/uploads/2024/04/2-scaled-e1712680694436.jpg",
+      "file": "images/f9be4d1483b5.webp",
+      "small": "images/f9be4d1483b5-small.webp",
+      "width": 1600,
+      "height": 940,
+      "title": "2 scaled e1712680694436"
+    },
+    {
+      "id": "ea5b5aacfbf4",
+      "source": "wp-content/uploads/2024/04/2-scaled.jpg",
+      "file": "images/ea5b5aacfbf4.webp",
+      "small": "images/ea5b5aacfbf4-small.webp",
+      "width": 1600,
+      "height": 593,
+      "title": "2 scaled"
+    },
+    {
+      "id": "368046b3cfe8",
+      "source": "wp-content/uploads/2024/04/2.jpg",
+      "file": "images/368046b3cfe8.webp",
+      "small": "images/368046b3cfe8-small.webp",
+      "width": 1600,
+      "height": 592,
+      "title": "2"
+    },
+    {
+      "id": "818950b9dc94",
+      "source": "wp-content/uploads/2024/04/2149535893.jpg",
+      "file": "images/818950b9dc94.webp",
+      "small": "images/818950b9dc94-small.webp",
+      "width": 667,
+      "height": 1000,
+      "title": "2149535893"
+    },
+    {
+      "id": "419e1d07fd94",
+      "source": "wp-content/uploads/2024/04/285463345_566341284932980_5684007464827501196_n-scaled.jpg",
+      "file": "images/419e1d07fd94.webp",
+      "small": "images/419e1d07fd94-small.webp",
+      "width": 1600,
+      "height": 593,
+      "title": "285463345 566341284932980 5684007464827501196 n scaled"
+    },
+    {
+      "id": "a3eb0048dbf3",
+      "source": "wp-content/uploads/2024/04/285463345_566341284932980_5684007464827501196_n.jpg",
+      "file": "images/a3eb0048dbf3.webp",
+      "small": "images/a3eb0048dbf3-small.webp",
+      "width": 1600,
+      "height": 592,
+      "title": "285463345 566341284932980 5684007464827501196 n"
+    },
+    {
+      "id": "b60f8e173b0d",
+      "source": "wp-content/uploads/2024/04/beautiful-sensitive-hands-concept-scaled.jpg",
+      "file": "images/b60f8e173b0d.webp",
+      "small": "images/b60f8e173b0d-small.webp",
+      "width": 1200,
+      "height": 1800,
+      "title": "beautiful sensitive hands concept scaled"
+    },
+    {
+      "id": "da8f6d5d20d1",
+      "source": "wp-content/uploads/2024/04/beautiful-sensitive-hands-concept.jpg",
+      "file": "images/da8f6d5d20d1.webp",
+      "small": "images/da8f6d5d20d1-small.webp",
+      "width": 1200,
+      "height": 1800,
+      "title": "beautiful sensitive hands concept"
+    },
+    {
+      "id": "da3b800de8f7",
+      "source": "wp-content/uploads/2024/04/cropped-logo1-1.png",
+      "file": "images/da3b800de8f7.webp",
+      "small": "images/da3b800de8f7-small.webp",
+      "width": 512,
+      "height": 512,
+      "title": "cropped logo1 1"
+    },
+    {
+      "id": "55ae2dc0fdfd",
+      "source": "wp-content/uploads/2024/04/cropped-logo1.png",
+      "file": "images/55ae2dc0fdfd.webp",
+      "small": "images/55ae2dc0fdfd-small.webp",
+      "width": 512,
+      "height": 512,
+      "title": "cropped logo1"
+    },
+    {
+      "id": "961738622a5c",
+      "source": "wp-content/uploads/2024/04/Logo-de-color.png",
+      "file": "images/961738622a5c.webp",
+      "small": "images/961738622a5c-small.webp",
+      "width": 200,
+      "height": 71,
+      "title": "Logo de color"
+    },
+    {
+      "id": "347e4e120c66",
+      "source": "wp-content/uploads/2024/04/logo1.png",
+      "file": "images/347e4e120c66.webp",
+      "small": "images/347e4e120c66-small.webp",
+      "width": 1080,
+      "height": 1080,
+      "title": "logo1"
+    },
+    {
+      "id": "d89d5d84444b",
+      "source": "wp-content/uploads/2024/05/AdobeStock_663645799-scaled.jpeg",
+      "file": "images/d89d5d84444b.webp",
+      "small": "images/d89d5d84444b-small.webp",
+      "width": 1600,
+      "height": 708,
+      "title": "AdobeStock 663645799 scaled"
+    },
+    {
+      "id": "21b4956d9813",
+      "source": "wp-content/uploads/2024/05/AdobeStock_663645799.jpeg",
+      "file": "images/21b4956d9813.webp",
+      "small": "images/21b4956d9813-small.webp",
+      "width": 1600,
+      "height": 707,
+      "title": "AdobeStock 663645799"
+    },
+    {
+      "id": "21ad6a7666eb",
+      "source": "wp-content/uploads/2024/05/AMOR.jpg",
+      "file": "images/21ad6a7666eb.webp",
+      "small": "images/21ad6a7666eb-small.webp",
+      "width": 1080,
+      "height": 1080,
+      "title": "AMOR"
+    },
+    {
+      "id": "88d4893107b3",
+      "source": "wp-content/uploads/2024/05/apre.jpg",
+      "file": "images/88d4893107b3.webp",
+      "small": "images/88d4893107b3-small.webp",
+      "width": 1080,
+      "height": 1080,
+      "title": "apre"
+    },
+    {
+      "id": "33469c385c66",
+      "source": "wp-content/uploads/2024/05/apre2.jpg",
+      "file": "images/33469c385c66.webp",
+      "small": "images/33469c385c66-small.webp",
+      "width": 1080,
+      "height": 1080,
+      "title": "apre2"
+    },
+    {
+      "id": "5647b0f8ea91",
+      "source": "wp-content/uploads/2024/05/fe.jpg",
+      "file": "images/5647b0f8ea91.webp",
+      "small": "images/5647b0f8ea91-small.webp",
+      "width": 1080,
+      "height": 1080,
+      "title": "fe"
+    },
+    {
+      "id": "06b27cb38010",
+      "source": "wp-content/uploads/2024/05/fe2.jpg",
+      "file": "images/06b27cb38010.webp",
+      "small": "images/06b27cb38010-small.webp",
+      "width": 1080,
+      "height": 1080,
+      "title": "fe2"
+    },
+    {
+      "id": "f60f77f872b8",
+      "source": "wp-content/uploads/2024/05/fe3.jpg",
+      "file": "images/f60f77f872b8.webp",
+      "small": "images/f60f77f872b8-small.webp",
+      "width": 1080,
+      "height": 1080,
+      "title": "fe3"
+    },
+    {
+      "id": "21ccadc64d61",
+      "source": "wp-content/uploads/2024/05/FS-Story-e1714962583951.jpg",
+      "file": "images/21ccadc64d61.webp",
+      "small": "images/21ccadc64d61-small.webp",
+      "width": 1080,
+      "height": 1628,
+      "title": "FS Story e1714962583951"
+    },
+    {
+      "id": "68293e133448",
+      "source": "wp-content/uploads/2024/05/FS-Story.jpg",
+      "file": "images/68293e133448.webp",
+      "small": "images/68293e133448-small.webp",
+      "width": 1012,
+      "height": 1800,
+      "title": "FS Story"
+    },
+    {
+      "id": "0fd02dae007d",
+      "source": "wp-content/uploads/2024/05/Imagen1.jpg",
+      "file": "images/0fd02dae007d.webp",
+      "small": "images/0fd02dae007d-small.webp",
+      "width": 841,
+      "height": 561,
+      "title": "Imagen1"
+    },
+    {
+      "id": "8594d48f2ec5",
+      "source": "wp-content/uploads/2024/05/Imagen2-e1714935765528.jpg",
+      "file": "images/8594d48f2ec5.webp",
+      "small": "images/8594d48f2ec5-small.webp",
+      "width": 508,
+      "height": 419,
+      "title": "Imagen2 e1714935765528"
+    },
+    {
+      "id": "d660f9f4f461",
+      "source": "wp-content/uploads/2024/05/Imagen2.jpg",
+      "file": "images/d660f9f4f461.webp",
+      "small": "images/d660f9f4f461-small.webp",
+      "width": 509,
+      "height": 703,
+      "title": "Imagen2"
+    },
+    {
+      "id": "7c060e1d1204",
+      "source": "wp-content/uploads/2024/05/INNO.jpg",
+      "file": "images/7c060e1d1204.webp",
+      "small": "images/7c060e1d1204-small.webp",
+      "width": 1080,
+      "height": 1080,
+      "title": "INNO"
+    },
+    {
+      "id": "763906c58dff",
+      "source": "wp-content/uploads/2024/05/INTEGR.jpg",
+      "file": "images/763906c58dff.webp",
+      "small": "images/763906c58dff-small.webp",
+      "width": 1080,
+      "height": 1080,
+      "title": "INTEGR"
+    },
+    {
+      "id": "62ad3fe4a81a",
+      "source": "wp-content/uploads/2024/05/LIDER.jpg",
+      "file": "images/62ad3fe4a81a.webp",
+      "small": "images/62ad3fe4a81a-small.webp",
+      "width": 1080,
+      "height": 1080,
+      "title": "LIDER"
+    },
+    {
+      "id": "5eef7b6e1d21",
+      "source": "wp-content/uploads/2024/05/modelar.jpg",
+      "file": "images/5eef7b6e1d21.webp",
+      "small": "images/5eef7b6e1d21-small.webp",
+      "width": 1080,
+      "height": 1080,
+      "title": "modelar"
+    },
+    {
+      "id": "2b22244e5ced",
+      "source": "wp-content/uploads/2024/05/Portada-FS-2-scaled.jpg",
+      "file": "images/2b22244e5ced.webp",
+      "small": "images/2b22244e5ced-small.webp",
+      "width": 1600,
+      "height": 593,
+      "title": "Portada FS 2 scaled"
+    },
+    {
+      "id": "d8e89cb50824",
+      "source": "wp-content/uploads/2024/05/Portada-FS-2.jpg",
+      "file": "images/d8e89cb50824.webp",
+      "small": "images/d8e89cb50824-small.webp",
+      "width": 1600,
+      "height": 592,
+      "title": "Portada FS 2"
+    },
+    {
+      "id": "5b956eac1b5f",
+      "source": "wp-content/uploads/2024/05/Portada-FS-scaled.jpg",
+      "file": "images/5b956eac1b5f.webp",
+      "small": "images/5b956eac1b5f-small.webp",
+      "width": 1600,
+      "height": 593,
+      "title": "Portada FS scaled"
+    },
+    {
+      "id": "4f00de6fa15a",
+      "source": "wp-content/uploads/2024/05/Portada-FS.jpg",
+      "file": "images/4f00de6fa15a.webp",
+      "small": "images/4f00de6fa15a-small.webp",
+      "width": 1600,
+      "height": 592,
+      "title": "Portada FS"
+    },
+    {
+      "id": "5d1929ba1b3d",
+      "source": "wp-content/uploads/2024/05/pyf.png",
+      "file": "images/5d1929ba1b3d.webp",
+      "small": "images/5d1929ba1b3d-small.webp",
+      "width": 1600,
+      "height": 1067,
+      "title": "pyf"
+    },
+    {
+      "id": "2a75c86445f8",
+      "source": "wp-content/uploads/2024/05/pyf2.png",
+      "file": "images/2a75c86445f8.webp",
+      "small": "images/2a75c86445f8-small.webp",
+      "width": 1600,
+      "height": 1067,
+      "title": "pyf2"
+    },
+    {
+      "id": "e85b33118fb6",
+      "source": "wp-content/uploads/2024/05/sindy.png",
+      "file": "images/e85b33118fb6.webp",
+      "small": "images/e85b33118fb6-small.webp",
+      "width": 1600,
+      "height": 1067,
+      "title": "sindy"
+    },
+    {
+      "id": "87f2c235167d",
+      "source": "wp-content/uploads/2024/05/sindy2.png",
+      "file": "images/87f2c235167d.webp",
+      "small": "images/87f2c235167d-small.webp",
+      "width": 1600,
+      "height": 1067,
+      "title": "sindy2"
+    },
+    {
+      "id": "92ac7720f6c7",
+      "source": "wp-content/uploads/2024/05/sindy3.png",
+      "file": "images/92ac7720f6c7.webp",
+      "small": "images/92ac7720f6c7-small.webp",
+      "width": 1600,
+      "height": 1067,
+      "title": "sindy3"
+    },
+    {
+      "id": "99de7f218579",
+      "source": "wp-content/uploads/2024/05/sindy4.png",
+      "file": "images/99de7f218579.webp",
+      "small": "images/99de7f218579-small.webp",
+      "width": 1600,
+      "height": 1067,
+      "title": "sindy4"
+    },
+    {
+      "id": "a8f334b6b1e7",
+      "source": "wp-content/uploads/2024/05/sindy5.png",
+      "file": "images/a8f334b6b1e7.webp",
+      "small": "images/a8f334b6b1e7-small.webp",
+      "width": 1600,
+      "height": 1067,
+      "title": "sindy5"
+    },
+    {
+      "id": "6005f00bca3e",
+      "source": "wp-content/uploads/2024/07/Curso-Gratuito-1900-x-556-px.png",
+      "file": "images/6005f00bca3e.webp",
+      "small": "images/6005f00bca3e-small.webp",
+      "width": 1600,
+      "height": 468,
+      "title": "Curso Gratuito 1900 x 556 px"
+    },
+    {
+      "id": "58a9380a558d",
+      "source": "wp-content/uploads/2024/07/Curso-Gratuito-935-x-507-px.png",
+      "file": "images/58a9380a558d.webp",
+      "small": "images/58a9380a558d-small.webp",
+      "width": 935,
+      "height": 507,
+      "title": "Curso Gratuito 935 x 507 px"
+    },
+    {
+      "id": "00cb2fbf7e6b",
+      "source": "wp-content/uploads/2024/07/Curso-Gratuito-de-Liderazgo-Personal.-REDES-SOCIALES.png",
+      "file": "images/00cb2fbf7e6b.webp",
+      "small": "images/00cb2fbf7e6b-small.webp",
+      "width": 1080,
+      "height": 1080,
+      "title": "Curso Gratuito de Liderazgo Personal. REDES SOCIALES"
+    },
+    {
+      "id": "76a04be554f3",
+      "source": "wp-content/uploads/2024/08/Copia-de-Semana-de-Liderazgo-Financiero-1900-.png",
+      "file": "images/76a04be554f3.webp",
+      "small": "images/76a04be554f3-small.webp",
+      "width": 1600,
+      "height": 468,
+      "title": "Copia de Semana de Liderazgo Financiero 1900"
+    },
+    {
+      "id": "7f4c08fe287c",
+      "source": "wp-content/uploads/2024/08/Semana-de-Liderazgo-Financiero-935-507.png",
+      "file": "images/7f4c08fe287c.webp",
+      "small": "images/7f4c08fe287c-small.webp",
+      "width": 935,
+      "height": 507,
+      "title": "Semana de Liderazgo Financiero 935 507"
+    },
+    {
+      "id": "1ad5ebdff832",
+      "source": "wp-content/uploads/2024/08/Semana-de-liderazgo-financiero-R.png",
+      "file": "images/1ad5ebdff832.webp",
+      "small": "images/1ad5ebdff832-small.webp",
+      "width": 1080,
+      "height": 1080,
+      "title": "Semana de liderazgo financiero R"
+    },
+    {
+      "id": "5a53a1ea0ca2",
+      "source": "wp-content/uploads/2024/10/Preciado-Podcats-1080-x-1080.png",
+      "file": "images/5a53a1ea0ca2.webp",
+      "small": "images/5a53a1ea0ca2-small.webp",
+      "width": 1080,
+      "height": 1080,
+      "title": "Preciado Podcats 1080 x 1080"
+    },
+    {
+      "id": "79c1e743eef0",
+      "source": "wp-content/uploads/2024/10/Preciado-Podcats-1900-556.png",
+      "file": "images/79c1e743eef0.webp",
+      "small": "images/79c1e743eef0-small.webp",
+      "width": 1600,
+      "height": 468,
+      "title": "Preciado Podcats 1900 556"
+    },
+    {
+      "id": "7e1857720a87",
+      "source": "wp-content/uploads/2024/10/Preciado-Podcats-935-x-507-px.png",
+      "file": "images/7e1857720a87.webp",
+      "small": "images/7e1857720a87-small.webp",
+      "width": 935,
+      "height": 507,
+      "title": "Preciado Podcats 935 x 507 px"
+    },
+    {
+      "id": "f637433683ed",
+      "source": "wp-content/uploads/2025/01/10-principios-para-adm.png",
+      "file": "images/f637433683ed.webp",
+      "small": "images/f637433683ed-small.webp",
+      "width": 1600,
+      "height": 468,
+      "title": "10 principios para adm"
+    },
+    {
+      "id": "24ab065d5e68",
+      "source": "wp-content/uploads/2025/01/31-principios.jpg",
+      "file": "images/24ab065d5e68.webp",
+      "small": "images/24ab065d5e68-small.webp",
+      "width": 300,
+      "height": 466,
+      "title": "31 principios"
+    },
+    {
+      "id": "cdde72253228",
+      "source": "wp-content/uploads/2025/01/81c5oLDgbL._AC_UY218_.jpg",
+      "file": "images/cdde72253228.webp",
+      "small": "images/cdde72253228-small.webp",
+      "width": 145,
+      "height": 218,
+      "title": "81c5oLDgbL. AC UY218"
+    },
+    {
+      "id": "4f24746b70a0",
+      "source": "wp-content/uploads/2025/01/Blog-Preciado-1.png",
+      "file": "images/4f24746b70a0.webp",
+      "small": "images/4f24746b70a0-small.webp",
+      "width": 1080,
+      "height": 1080,
+      "title": "Blog Preciado 1"
+    },
+    {
+      "id": "dd64d7bb9c8d",
+      "source": "wp-content/uploads/2025/01/Cafe-1.jpg",
+      "file": "images/dd64d7bb9c8d.webp",
+      "small": "images/dd64d7bb9c8d-small.webp",
+      "width": 1440,
+      "height": 1800,
+      "title": "Cafe 1"
+    },
+    {
+      "id": "076c485dbc66",
+      "source": "wp-content/uploads/2025/01/Cafe-2.jpg",
+      "file": "images/076c485dbc66.webp",
+      "small": "images/076c485dbc66-small.webp",
+      "width": 1440,
+      "height": 1800,
+      "title": "Cafe 2"
+    },
+    {
+      "id": "f61b94e35b41",
+      "source": "wp-content/uploads/2025/01/Casa.jpeg",
+      "file": "images/f61b94e35b41.webp",
+      "small": "images/f61b94e35b41-small.webp",
+      "width": 1500,
+      "height": 1500,
+      "title": "Casa"
+    },
+    {
+      "id": "481895cec170",
+      "source": "wp-content/uploads/2025/01/Conferencias-1.png",
+      "file": "images/481895cec170.webp",
+      "small": "images/481895cec170-small.webp",
+      "width": 1600,
+      "height": 468,
+      "title": "Conferencias 1"
+    },
+    {
+      "id": "d89c82e15874",
+      "source": "wp-content/uploads/2025/01/Copia-de-Sanar-para-crecer-crecer-para-liderar.png",
+      "file": "images/d89c82e15874.webp",
+      "small": "images/d89c82e15874-small.webp",
+      "width": 1600,
+      "height": 468,
+      "title": "Copia de Sanar para crecer crecer para liderar"
+    },
+    {
+      "id": "0a0876230cc8",
+      "source": "wp-content/uploads/2025/01/Cursos-2.png",
+      "file": "images/0a0876230cc8.webp",
+      "small": "images/0a0876230cc8-small.webp",
+      "width": 1600,
+      "height": 468,
+      "title": "Cursos 2"
+    },
+    {
+      "id": "7696c61fb5be",
+      "source": "wp-content/uploads/2025/01/Cursos-preciado.png",
+      "file": "images/7696c61fb5be.webp",
+      "small": "images/7696c61fb5be-small.webp",
+      "width": 1080,
+      "height": 1080,
+      "title": "Cursos preciado"
+    },
+    {
+      "id": "d82d29da8dc3",
+      "source": "wp-content/uploads/2025/01/Formacion-y-Soluciones-inicio.png",
+      "file": "images/d82d29da8dc3.webp",
+      "small": "images/d82d29da8dc3-small.webp",
+      "width": 1600,
+      "height": 468,
+      "title": "Formacion y Soluciones inicio"
+    },
+    {
+      "id": "5181b98dc11e",
+      "source": "wp-content/uploads/2025/01/impact-river.jpg",
+      "file": "images/5181b98dc11e.webp",
+      "small": "images/5181b98dc11e-small.webp",
+      "width": 1080,
+      "height": 1080,
+      "title": "impact river"
+    },
+    {
+      "id": "daeb2eface33",
+      "source": "wp-content/uploads/2025/01/Jovenes-1.png",
+      "file": "images/daeb2eface33.webp",
+      "small": "images/daeb2eface33-small.webp",
+      "width": 1600,
+      "height": 468,
+      "title": "Jovenes 1"
+    },
+    {
+      "id": "b1799bc509c8",
+      "source": "wp-content/uploads/2025/01/Jovenes-preciado.png",
+      "file": "images/b1799bc509c8.webp",
+      "small": "images/b1799bc509c8-small.webp",
+      "width": 1080,
+      "height": 1080,
+      "title": "Jovenes preciado"
+    },
+    {
+      "id": "8c09135e7e63",
+      "source": "wp-content/uploads/2025/01/Kids.png",
+      "file": "images/8c09135e7e63.webp",
+      "small": "images/8c09135e7e63-small.webp",
+      "width": 1080,
+      "height": 1080,
+      "title": "Kids"
+    },
+    {
+      "id": "c866b636f609",
+      "source": "wp-content/uploads/2025/01/libro2-1024x1024-1.webp",
+      "file": "images/c866b636f609.webp",
+      "small": "images/c866b636f609-small.webp",
+      "width": 1024,
+      "height": 1024,
+      "title": "libro2 1024x1024 1"
+    },
+    {
+      "id": "c29aeadb7356",
+      "source": "wp-content/uploads/2025/01/Liderazgo-Financiero-Preciado-FyS-_-Presentacion-pdf.jpg",
+      "file": "images/c29aeadb7356.webp",
+      "small": "images/c29aeadb7356-small.webp",
+      "width": 1059,
+      "height": 1497,
+      "title": "Liderazgo Financiero Preciado FyS   Presentacion pdf"
+    },
+    {
+      "id": "6b824b6e2125",
+      "source": "wp-content/uploads/2025/01/LOGO-SEBIBE-_-AZUL.png",
+      "file": "images/6b824b6e2125.webp",
+      "small": "images/6b824b6e2125-small.webp",
+      "width": 1090,
+      "height": 1090,
+      "title": "LOGO SEBIBE   AZUL"
+    },
+    {
+      "id": "164aaeebde2a",
+      "source": "wp-content/uploads/2025/01/Logo_IDD_Impact-removebg-preview.png",
+      "file": "images/164aaeebde2a.webp",
+      "small": "images/164aaeebde2a-small.webp",
+      "width": 500,
+      "height": 500,
+      "title": "Logo IDD Impact removebg preview"
+    },
+    {
+      "id": "a7836b2495b5",
+      "source": "wp-content/uploads/2025/01/Maxwell-2.jpg",
+      "file": "images/a7836b2495b5.webp",
+      "small": "images/a7836b2495b5-small.webp",
+      "width": 200,
+      "height": 200,
+      "title": "Maxwell 2"
+    },
+    {
+      "id": "22e4dd77ba64",
+      "source": "wp-content/uploads/2025/01/Maxwell.png",
+      "file": "images/22e4dd77ba64.webp",
+      "small": "images/22e4dd77ba64-small.webp",
+      "width": 225,
+      "height": 225,
+      "title": "Maxwell"
+    },
+    {
+      "id": "dd3841d5af42",
+      "source": "wp-content/uploads/2025/01/Miembro_certificado-removebg-preview.png",
+      "file": "images/dd3841d5af42.webp",
+      "small": "images/dd3841d5af42-small.webp",
+      "width": 500,
+      "height": 500,
+      "title": "Miembro certificado removebg preview"
+    },
+    {
+      "id": "a3b17f72a611",
+      "source": "wp-content/uploads/2025/01/Preciados-Kids-1.png",
+      "file": "images/a3b17f72a611.webp",
+      "small": "images/a3b17f72a611-small.webp",
+      "width": 1600,
+      "height": 468,
+      "title": "Preciados Kids 1"
+    },
+    {
+      "id": "261b775dedf0",
+      "source": "wp-content/uploads/2025/01/Presentacion-Taller-Sanar-para-crecer-crecer-para-liderar-pdf.jpg",
+      "file": "images/261b775dedf0.webp",
+      "small": "images/261b775dedf0-small.webp",
+      "width": 1059,
+      "height": 1497,
+      "title": "Presentacion Taller Sanar para crecer crecer para liderar pdf"
+    },
+    {
+      "id": "82f1fc7f6a9c",
+      "source": "wp-content/uploads/2025/01/presupuesto-familiar-2.png",
+      "file": "images/82f1fc7f6a9c.webp",
+      "small": "images/82f1fc7f6a9c-small.webp",
+      "width": 1600,
+      "height": 468,
+      "title": "presupuesto familiar 2"
+    },
+    {
+      "id": "ea197a187cb5",
+      "source": "wp-content/uploads/2025/01/presupuesto-familiar.png",
+      "file": "images/ea197a187cb5.webp",
+      "small": "images/ea197a187cb5-small.webp",
+      "width": 1600,
+      "height": 468,
+      "title": "presupuesto familiar"
+    },
+    {
+      "id": "1c8b0866524d",
+      "source": "wp-content/uploads/2025/01/Principal-1.png",
+      "file": "images/1c8b0866524d.webp",
+      "small": "images/1c8b0866524d-small.webp",
+      "width": 1600,
+      "height": 468,
+      "title": "Principal 1"
+    },
+    {
+      "id": "5b28c462cb53",
+      "source": "wp-content/uploads/2025/01/Sanar-para-crecer-crecer-para-liderar-1.png",
+      "file": "images/5b28c462cb53.webp",
+      "small": "images/5b28c462cb53-small.webp",
+      "width": 1600,
+      "height": 468,
+      "title": "Sanar para crecer crecer para liderar 1"
+    },
+    {
+      "id": "a91bf303c666",
+      "source": "wp-content/uploads/2025/01/Sanar-para-crecer-crecer-para-liderar.png",
+      "file": "images/a91bf303c666.webp",
+      "small": "images/a91bf303c666-small.webp",
+      "width": 1600,
+      "height": 468,
+      "title": "Sanar para crecer crecer para liderar"
+    },
+    {
+      "id": "5d600f4fa019",
+      "source": "wp-content/uploads/2025/01/Vive-tu-llamado.jpg",
+      "file": "images/5d600f4fa019.webp",
+      "small": "images/5d600f4fa019-small.webp",
+      "width": 989,
+      "height": 1280,
+      "title": "Vive tu llamado"
+    },
+    {
+      "id": "f96020034707",
+      "source": "wp-content/uploads/2025/02/Copia-de-La-ley-del-espejo-1900-x-556-px.png",
+      "file": "images/f96020034707.webp",
+      "small": "images/f96020034707-small.webp",
+      "width": 1600,
+      "height": 468,
+      "title": "Copia de La ley del espejo 1900 x 556 px"
+    },
+    {
+      "id": "698add9ea666",
+      "source": "wp-content/uploads/2025/02/frente-kids.jpeg",
+      "file": "images/698add9ea666.webp",
+      "small": "images/698add9ea666-small.webp",
+      "width": 1600,
+      "height": 1200,
+      "title": "frente kids"
+    },
+    {
+      "id": "dcc56a6eedb2",
+      "source": "wp-content/uploads/2025/02/MEL9186-scaled.jpg",
+      "file": "images/dcc56a6eedb2.webp",
+      "small": "images/dcc56a6eedb2-small.webp",
+      "width": 1600,
+      "height": 1068,
+      "title": "MEL9186 scaled"
+    },
+    {
+      "id": "06f010e55baa",
+      "source": "wp-content/uploads/2025/02/MEL9186.jpg",
+      "file": "images/06f010e55baa.webp",
+      "small": "images/06f010e55baa-small.webp",
+      "width": 1600,
+      "height": 1068,
+      "title": "MEL9186"
+    },
+    {
+      "id": "a73279a4ed89",
+      "source": "wp-content/uploads/2025/02/WhatsApp-Image-2025-02-11-at-10.20.18-AM-1.jpeg",
+      "file": "images/a73279a4ed89.webp",
+      "small": "images/a73279a4ed89-small.webp",
+      "width": 1500,
+      "height": 1500,
+      "title": "WhatsApp Image 2025 02 11 at 10.20.18 AM 1"
+    },
+    {
+      "id": "c85ebb24596c",
+      "source": "wp-content/uploads/2025/02/WhatsApp-Image-2025-02-11-at-10.20.18-AM.jpeg",
+      "file": "images/c85ebb24596c.webp",
+      "small": "images/c85ebb24596c-small.webp",
+      "width": 1500,
+      "height": 1500,
+      "title": "WhatsApp Image 2025 02 11 at 10.20.18 AM"
+    },
+    {
+      "id": "16a82c05809d",
+      "source": "wp-content/uploads/2025/03/inteligencia-emocional.png",
+      "file": "images/16a82c05809d.webp",
+      "small": "images/16a82c05809d-small.webp",
+      "width": 1080,
+      "height": 1080,
+      "title": "inteligencia emocional"
+    },
+    {
+      "id": "f5a24bb4ef1e",
+      "source": "wp-content/uploads/2025/05/Portada-pagina-web.png",
+      "file": "images/f5a24bb4ef1e.webp",
+      "small": "images/f5a24bb4ef1e-small.webp",
+      "width": 1584,
+      "height": 396,
+      "title": "Portada pagina web"
+    },
+    {
+      "id": "3ebde3bcf02b",
+      "source": "wp-content/uploads/2025/09/b541a7bc-211c-4b41-b83f-bc6234d58181.png",
+      "file": "images/3ebde3bcf02b.webp",
+      "small": "images/3ebde3bcf02b-small.webp",
+      "width": 1024,
+      "height": 971,
+      "title": "b541a7bc 211c 4b41 b83f bc6234d58181"
+    },
+    {
+      "id": "5c3d9bfa96f8",
+      "source": "wp-content/uploads/2025/09/IMPACTO-JUVENIL.png",
+      "file": "images/5c3d9bfa96f8.webp",
+      "small": "images/5c3d9bfa96f8-small.webp",
+      "width": 1080,
+      "height": 1080,
+      "title": "IMPACTO JUVENIL"
+    },
+    {
+      "id": "815474f066fb",
+      "source": "wp-content/uploads/2025/09/POST-INSTAGRAM-.png",
+      "file": "images/815474f066fb.webp",
+      "small": "images/815474f066fb-small.webp",
+      "width": 1080,
+      "height": 580,
+      "title": "POST INSTAGRAM"
+    }
+  ],
+  "pages": [
+    {
+      "slug": "formacion/liderazgo-financiero",
+      "title": "Finanzas desde una perspectiva bíblica.",
+      "category": "Formación",
+      "image": "d89c82e15874",
+      "paragraphs": [
+        "1 Sesión: El plan financiero de Dios para tu vida.",
+        "2 Sesión: Manejo de deudas.",
+        "3 Sesión: Cómo aumentar mis ingresos."
+      ],
+      "subtitle": "Liderazgo Financiero",
+      "facilitator": "Fabián Preciado",
+      "bio": "Teólogo, Mg. en recursos digitales aplicados a la educación, Esp. en Liderazgo, Esp. en Didáctica y Tic. Director del Seminario Bíblico Internacional Berea y Fundador de Preciado Formación y Soluciones. Contamos con el respaldo de Maxwell Leadership, la empresa del autor y conferencista más reconocido a nivel mundial, John Maxwell.",
+      "mode": "Virtual & Presencial.",
+      "pdf": "liderazgo-financiero.pdf",
+      "sourceImage": "c29aeadb7356"
+    },
+    {
+      "slug": "formacion/sanar-para-crecer",
+      "title": "Sanar para crecer, crecer para liderar",
+      "category": "Taller",
+      "image": "a91bf303c666",
+      "paragraphs": [
+        "Sanar para crecer: Los líderes reconocerán la importancia de abordar y sanar heridas emocionales y resentimientos del pasado como un paso fundamental para construir un liderazgo saludable, que fomente relaciones positivas y una influencia constructiva en sus entornos personales, familiares y en la iglesia.",
+        "Crecer para liderar: Los líderes identificarán la necesidad de un crecimiento personal continuo como base para un liderazgo efectivo, enfocándose en el desarrollo del carácter, la práctica de valores sólidos y el fortalecimiento de habilidades clave que les permitan influir positivamente y liderar con integridad."
+      ],
+      "facilitator": "Fabián y Sindy Preciado",
+      "bio": "Pastores y educadores; fundadores de Preciado Formación y Soluciones, Directores del Seminario Bíblico Internacional Berea.",
+      "mode": "Virtual & Presencial.",
+      "pdf": "sanar-para-crecer.pdf",
+      "sourceImage": "261b775dedf0"
+    },
+    {
+      "slug": "formacion/liderazgo-personal",
+      "title": "Curso gratuito de Liderazgo Personal",
+      "category": "Promoción",
+      "image": "58a9380a558d",
+      "paragraphs": [
+        "Impartido por Fabián Preciado, con la metodología y respaldo de Maxwell Leadership.",
+        "Desarrollo de liderazgo · Manejo de relaciones · Finanzas",
+        "Jueves 18, 25 de julio y 01 de agosto. 8:00 p.m."
+      ],
+      "price": "Gratuito",
+      "mode": "¡VIRTUAL!",
+      "archived": true
+    },
+    {
+      "slug": "formacion/semana-liderazgo-financiero",
+      "title": "Semana de Liderazgo Financiero",
+      "category": "Promoción",
+      "image": "7f4c08fe287c",
+      "paragraphs": [
+        "Impartido por Fabián Preciado, con la metodología y respaldo de Maxwell Leadership.",
+        "Lunes 26 al viernes 30 de agosto",
+        "8:00 p.m. (Hora Colombia)"
+      ],
+      "price": "47.000 Pesos Colombianos.",
+      "mode": "¡VIRTUAL!",
+      "archived": true
+    },
+    {
+      "slug": "formacion/liderazgo-10",
+      "title": "Liderazgo 10",
+      "category": "Formación",
+      "image": "f5a24bb4ef1e",
+      "paragraphs": [
+        "Jueves 6:00 p.m."
+      ],
+      "archived": true
+    },
+    {
+      "slug": "psicologia/terapia-individual",
+      "title": "Terapia individual",
+      "category": "Psicología",
+      "image": "4714b6f7bfcf",
+      "paragraphs": [],
+      "price": "$ 80.000",
+      "mode": "Modalidad virtual",
+      "facilitator": "Sindy Díaz. Psicóloga",
+      "bio": "T.P. 109077 · Universidad Incca",
+      "sourceImage": "f5b2193008ea",
+      "phone": "573145445807",
+      "priceNote": "Inversión indicada en la presentación original. Consulta la tarifa y disponibilidad actuales."
+    },
+    {
+      "slug": "psicologia/terapia-de-parejas",
+      "title": "Terapia de parejas",
+      "category": "Psicología",
+      "image": "a5be3351a20a",
+      "paragraphs": [],
+      "price": "$ 150.000",
+      "mode": "Modalidad virtual",
+      "facilitator": "Sindy Díaz. Psicóloga",
+      "bio": "T.P. 109077 · Universidad Incca",
+      "sourceImage": "f5b2193008ea",
+      "phone": "573145445807",
+      "priceNote": "Inversión indicada en la presentación original. Consulta la tarifa y disponibilidad actuales."
+    },
+    {
+      "slug": "psicologia/terapia-familiar",
+      "title": "Terapia familiar",
+      "category": "Psicología",
+      "image": "0d2885874c58",
+      "paragraphs": [],
+      "price": "$ 250.000",
+      "mode": "Modalidad virtual",
+      "facilitator": "Sindy Díaz. Psicóloga",
+      "bio": "T.P. 109077 · Universidad Incca",
+      "sourceImage": "f5b2193008ea",
+      "phone": "573145445807",
+      "priceNote": "Inversión indicada en la presentación original. Consulta la tarifa y disponibilidad actuales."
+    },
+    {
+      "slug": "psicologia/terapia-comportamental",
+      "title": "Terapia Comportamental",
+      "category": "Psicología",
+      "image": "0cee391096bf",
+      "paragraphs": [],
+      "price": "$ 90.000",
+      "mode": "Modalidad virtual",
+      "facilitator": "Sindy Díaz. Psicóloga",
+      "bio": "T.P. 109077 · Universidad Incca",
+      "sourceImage": "f5b2193008ea",
+      "phone": "573145445807",
+      "priceNote": "Inversión indicada en la presentación original. Consulta la tarifa y disponibilidad actuales."
+    },
+    {
+      "slug": "jovenes/impacto-juvenil",
+      "title": "Impacto Juvenil",
+      "category": "Jóvenes",
+      "image": "815474f066fb",
+      "paragraphs": [
+        "Temas: Fracaso · Autoestima · Liderazgo",
+        "Octubre y noviembre"
+      ],
+      "archived": true
+    },
+    {
+      "slug": "recursos/inteligencia-emocional",
+      "title": "Cómo desarrollar inteligencia emocional en el liderazgo.",
+      "category": "Blog",
+      "image": "16a82c05809d",
+      "paragraphs": [],
+      "incomplete": true
+    },
+    {
+      "slug": "recursos/finanzas-2025",
+      "title": "10 principios para administrar tus finanzas en este 2025",
+      "category": "Blog",
+      "image": "f637433683ed",
+      "paragraphs": [],
+      "incomplete": true
+    },
+    {
+      "slug": "recursos/necesidades-gustos-y-caprichos",
+      "title": "Cómo diferenciar necesidades, gustos y caprichos.",
+      "category": "Blog",
+      "image": "82f1fc7f6a9c",
+      "paragraphs": [
+        "Un enfoque para administrar mejor tus finanzas."
+      ],
+      "incomplete": true
+    },
+    {
+      "slug": "recursos/la-ley-del-espejo",
+      "title": "La ley del espejo",
+      "category": "Blog",
+      "image": "f96020034707",
+      "paragraphs": [],
+      "incomplete": true
+    },
+    {
+      "slug": "libros/31-principios-para-crecer",
+      "title": "31 principios para crecer",
+      "category": "Libros",
+      "image": "3ebde3bcf02b",
+      "paragraphs": [
+        "Fabián Preciado"
+      ]
+    },
+    {
+      "slug": "libros/vive-tu-llamado",
+      "title": "Vive tu llamado",
+      "category": "Libros",
+      "image": "5d600f4fa019",
+      "paragraphs": [
+        "Fabián Preciado"
+      ]
+    },
+    {
+      "slug": "podcast",
+      "title": "Preciado Podcast.",
+      "category": "Podcast",
+      "image": "7e1857720a87",
+      "paragraphs": [
+        "Por: Fabián Preciado."
+      ],
+      "external": "https://www.youtube.com/@preciadofys",
+      "externalLabel": "YouTube @preciadofys"
+    },
+    {
+      "slug": "kids",
+      "title": "Preciados Kids",
+      "category": "Kids",
+      "image": "a3b17f72a611",
+      "paragraphs": [],
+      "gallery": [
+        "698add9ea666",
+        "c85ebb24596c",
+        "a73279a4ed89"
+      ]
+    },
+    {
+      "slug": "jovenes",
+      "title": "Preciados Jóvenes",
+      "category": "Jóvenes",
+      "image": "b1799bc509c8",
+      "paragraphs": [],
+      "related": [
+        "jovenes/impacto-juvenil"
+      ]
+    },
+    {
+      "slug": "conferencias",
+      "title": "Conferencias",
+      "category": "Formación",
+      "image": "481895cec170",
+      "paragraphs": [],
+      "related": [
+        "formacion/liderazgo-financiero",
+        "formacion/sanar-para-crecer"
+      ]
+    },
+    {
+      "slug": "cafe",
+      "title": "Café",
+      "category": "Materiales",
+      "image": "dd64d7bb9c8d",
+      "paragraphs": [],
+      "gallery": [
+        "076c485dbc66"
+      ]
+    }
+  ],
+  "bio": "Teólogo, Mg. en recursos digitales aplicados a la educación, Esp. en Liderazgo, Esp. en Didáctica y Tic. Director del Seminario Bíblico Internacional Berea y Fundador de Preciado Formación y Soluciones. Contamos con el respaldo de Maxwell Leadership, la empresa del autor y conferencista más reconocido a nivel mundial, John Maxwell.",
+  "sindyBio": "Esposa, mamá y pastora; especialista en gestión educativa. Capellana del Seminario Bíblico Internacional Berea y fundadora junto a su esposo de Preciado FyS (Formación y Soluciones)"
+}

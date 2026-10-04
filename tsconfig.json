@@ -35,6 +35,8 @@
     "old_actions.ts",
     "actions_backup.txt",
     "scratch",
+    "artifacts",
+    ".static-stash",
     "src/proxy.ts",
     "**/*.bak.ts"
   ]

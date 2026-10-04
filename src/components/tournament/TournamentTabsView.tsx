@@ -82,7 +82,7 @@ function isTabId(value: string): value is TabId {
 }
 
 const TABS: { id: TabId; label: string; icon: React.ComponentType<{ size?: number; className?: string }> }[] = [
-  { id: "fixture", label: "Fixture y Resultados", icon: Calendar },
+  { id: "fixture", label: "Calendario de Partidos", icon: Calendar },
   { id: "standings", label: "Tablas de Posiciones", icon: BarChart2 },
   { id: "ranking", label: "Ranking General", icon: Trophy },
   { id: "bracket", label: "Llaves y Resultados", icon: GitMerge },
@@ -247,7 +247,7 @@ export function TournamentTabsView({ tournament, categories, matches, standings 
               <Icon size={13} className={isActive ? "text-[#00f0ff]" : "text-current"} />
               <span className="hidden sm:inline">{tab.label}</span>
               <span className="sm:hidden">
-                {tab.id === "fixture" && "Fixture"}
+                {tab.id === "fixture" && "Calendario"}
                 {tab.id === "standings" && "Posiciones"}
                 {tab.id === "ranking" && "Ranking"}
                 {tab.id === "bracket" && "Llaves"}

@@ -47,6 +47,11 @@ export function LiveControlRoom({ match, onUpdate }: { match: any, homePlayers?:
     e.preventDefault();
     if (!activeModal) return;
     
+    if (activeModal.type === 'GOAL' && !playerName.trim()) {
+      setErrorMsg("El nombre del jugador es obligatorio para los goles.");
+      return;
+    }
+    
     setIsSubmitting(true);
     setErrorMsg("");
     
@@ -293,13 +298,16 @@ export function LiveControlRoom({ match, onUpdate }: { match: any, homePlayers?:
 
             <form onSubmit={handleAddEvent} className="flex flex-col gap-4">
               <div className="flex flex-col gap-2">
-                <label className="text-[9px] text-white/70 uppercase tracking-widest font-bold">Nombre del Jugador</label>
+                <label className="text-[9px] text-white/70 uppercase tracking-widest font-bold">
+                  Nombre del Jugador {activeModal.type === 'GOAL' && <span className="text-red-500">*</span>}
+                </label>
                 <input 
                   type="text" 
                   value={playerName} 
                   onChange={(e) => setPlayerName(e.target.value)}
-                  placeholder="Ej: Lionel Messi (Opcional)"
+                  placeholder={activeModal.type === 'GOAL' ? "Ej: Lionel Messi (Obligatorio)" : "Ej: Lionel Messi (Opcional)"}
                   autoFocus
+                  required={activeModal.type === 'GOAL'}
                   className="w-full bg-[#001122] border border-[#0055cc]/50 p-3.5 rounded-xl text-white font-bold focus:border-[#00f0ff] focus:outline-none focus:ring-1 focus:ring-[#00f0ff]/50 transition-all placeholder:text-white/20"
                 />
                 <span className="text-[8px] text-white/30 uppercase tracking-widest">

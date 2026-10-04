@@ -1,0 +1,176 @@
+[
+  {
+    "slug": "",
+    "title": "Formación, liderazgo y psicología",
+    "description": "Preciado Formación y Soluciones. Liderazgo, talleres, atención psicológica, libros, Kids y Jóvenes. Fusagasugá, Cundinamarca.",
+    "area": "main"
+  },
+  {
+    "slug": "formacion",
+    "title": "Formación y liderazgo",
+    "description": "Cursos, conferencias y talleres de Preciado: liderazgo financiero, Sanar para crecer y materiales de liderazgo personal.",
+    "area": "main"
+  },
+  {
+    "slug": "psicologia",
+    "title": "Atención psicológica · Sindy Díaz",
+    "description": "Sindy Díaz. Psicóloga. Terapia individual, de parejas, familiar y comportamental. Modalidad virtual. Información y contacto.",
+    "area": "psychology"
+  },
+  {
+    "slug": "nosotros",
+    "title": "Nosotros · Fabián y Sindy Preciado",
+    "description": "Fabián y Sindy Preciado, fundadores de Preciado Formación y Soluciones. Biografías y materiales originales.",
+    "area": "main"
+  },
+  {
+    "slug": "recursos",
+    "title": "Recursos · Blog, libros y podcast",
+    "description": "Libros, Preciado Podcast y portadas de blog recuperadas de Preciado Formación y Soluciones.",
+    "area": "main"
+  },
+  {
+    "slug": "libros",
+    "title": "Libros",
+    "description": "31 principios para crecer y Vive tu llamado, de Fabián Preciado. Portadas del archivo original.",
+    "area": "main"
+  },
+  {
+    "slug": "contacto",
+    "title": "Contáctanos",
+    "description": "Contacta a Preciado Formación y Soluciones: (+57) 3144787072, (+57) 3145445807, preciadofys@gmail.com. Fusagasugá, Cundinamarca.",
+    "area": "main"
+  },
+  {
+    "slug": "formacion/liderazgo-financiero",
+    "title": "Finanzas desde una perspectiva bíblica.",
+    "description": "Finanzas desde una perspectiva bíblica. Liderazgo Financiero Virtual & Presencial. Fabián Preciado 1 Sesión: El plan financiero de Dios para tu vida.",
+    "area": "main"
+  },
+  {
+    "slug": "formacion/sanar-para-crecer",
+    "title": "Sanar para crecer, crecer para liderar",
+    "description": "Sanar para crecer, crecer para liderar Virtual & Presencial. Fabián y Sindy Preciado Sanar para crecer: Los líderes reconocerán la importancia de abordar y sanar her",
+    "area": "main"
+  },
+  {
+    "slug": "formacion/liderazgo-personal",
+    "title": "Curso gratuito de Liderazgo Personal",
+    "description": "Curso gratuito de Liderazgo Personal ¡VIRTUAL! Impartido por Fabián Preciado, con la metodología y respaldo de Maxwell Leadership.",
+    "area": "main"
+  },
+  {
+    "slug": "formacion/semana-liderazgo-financiero",
+    "title": "Semana de Liderazgo Financiero",
+    "description": "Semana de Liderazgo Financiero ¡VIRTUAL! Impartido por Fabián Preciado, con la metodología y respaldo de Maxwell Leadership.",
+    "area": "main"
+  },
+  {
+    "slug": "formacion/liderazgo-10",
+    "title": "Liderazgo 10",
+    "description": "Liderazgo 10 Jueves 6:00 p.m.",
+    "area": "main"
+  },
+  {
+    "slug": "psicologia/terapia-individual",
+    "title": "Terapia individual",
+    "description": "Terapia individual Modalidad virtual Sindy Díaz. Psicóloga",
+    "area": "psychology"
+  },
+  {
+    "slug": "psicologia/terapia-de-parejas",
+    "title": "Terapia de parejas",
+    "description": "Terapia de parejas Modalidad virtual Sindy Díaz. Psicóloga",
+    "area": "psychology"
+  },
+  {
+    "slug": "psicologia/terapia-familiar",
+    "title": "Terapia familiar",
+    "description": "Terapia familiar Modalidad virtual Sindy Díaz. Psicóloga",
+    "area": "psychology"
+  },
+  {
+    "slug": "psicologia/terapia-comportamental",
+    "title": "Terapia Comportamental",
+    "description": "Terapia Comportamental Modalidad virtual Sindy Díaz. Psicóloga",
+    "area": "psychology"
+  },
+  {
+    "slug": "jovenes/impacto-juvenil",
+    "title": "Impacto Juvenil",
+    "description": "Impacto Juvenil Temas: Fracaso · Autoestima · Liderazgo",
+    "area": "main"
+  },
+  {
+    "slug": "recursos/inteligencia-emocional",
+    "title": "Cómo desarrollar inteligencia emocional en el liderazgo.",
+    "description": "Cómo desarrollar inteligencia emocional en el liderazgo.",
+    "area": "main"
+  },
+  {
+    "slug": "recursos/finanzas-2025",
+    "title": "10 principios para administrar tus finanzas en este 2025",
+    "description": "10 principios para administrar tus finanzas en este 2025",
+    "area": "main"
+  },
+  {
+    "slug": "recursos/necesidades-gustos-y-caprichos",
+    "title": "Cómo diferenciar necesidades, gustos y caprichos.",
+    "description": "Cómo diferenciar necesidades, gustos y caprichos. Un enfoque para administrar mejor tus finanzas.",
+    "area": "main"
+  },
+  {
+    "slug": "recursos/la-ley-del-espejo",
+    "title": "La ley del espejo",
+    "description": "La ley del espejo",
+    "area": "main"
+  },
+  {
+    "slug": "libros/31-principios-para-crecer",
+    "title": "31 principios para crecer",
+    "description": "31 principios para crecer Fabián Preciado",
+    "area": "main"
+  },
+  {
+    "slug": "libros/vive-tu-llamado",
+    "title": "Vive tu llamado",
+    "description": "Vive tu llamado Fabián Preciado",
+    "area": "main"
+  },
+  {
+    "slug": "podcast",
+    "title": "Preciado Podcast.",
+    "description": "Preciado Podcast. Por: Fabián Preciado.",
+    "area": "main"
+  },
+  {
+    "slug": "kids",
+    "title": "Preciados Kids",
+    "description": "Preciados Kids",
+    "area": "main"
+  },
+  {
+    "slug": "jovenes",
+    "title": "Preciados Jóvenes",
+    "description": "Preciados Jóvenes",
+    "area": "main"
+  },
+  {
+    "slug": "conferencias",
+    "title": "Conferencias",
+    "description": "Conferencias",
+    "area": "main"
+  },
+  {
+    "slug": "cafe",
+    "title": "Café",
+    "description": "Café",
+    "area": "main"
+  },
+  {
+    "slug": "archivo",
+    "title": "Archivo visual",
+    "description": "Imágenes, portadas y piezas originales de Preciado Formación y Soluciones. Archivo visual de materiales recuperados.",
+    "area": "main"
+  }
+]

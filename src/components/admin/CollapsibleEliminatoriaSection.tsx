@@ -39,11 +39,11 @@ export function CollapsibleEliminatoriaSection({
         <div className="p-1.5 rounded-lg border border-[#0055cc]/30" style={{ background: "rgba(0,34,102,0.5)" }}>
           <Trophy size={14} className="text-[#00f0ff]" />
         </div>
-        <h2 className="text-xs font-black uppercase tracking-[0.2em] text-white">Fase Eliminatoria</h2>
+        <h2 className="text-xs font-black uppercase tracking-[0.2em] text-white">Eliminatorias</h2>
         
         {!isGroupStageComplete && !hasKnockoutMatches && (
           <span className="ml-2 text-[9px] font-bold uppercase tracking-widest text-amber-500 bg-amber-500/10 border border-amber-500/20 px-2.5 py-1 rounded-full whitespace-nowrap">
-            Bloqueada
+            Aún no disponible
           </span>
         )}
         

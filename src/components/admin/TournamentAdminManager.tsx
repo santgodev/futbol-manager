@@ -177,10 +177,10 @@ export function TournamentAdminManager({ tournamentId }: TournamentAdminManagerP
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <p className="text-xs text-white/60 leading-relaxed">
-            Asigna administradores con acceso exclusivo para gestionar categorías, partidos y resultados de este torneo.
+            Personas que pueden administrar este torneo.
           </p>
           <span className="inline-block mt-1 text-[11px] font-bold uppercase tracking-wider text-amber-400">
-            {members.length} {members.length === 1 ? "Administrador Asignado" : "Administradores Asignados"}
+            {members.length} {members.length === 1 ? "Administrador" : "Administradores"}
           </span>
         </div>
 
@@ -216,7 +216,7 @@ export function TournamentAdminManager({ tournamentId }: TournamentAdminManagerP
             ) : (
               <>
                 <UserPlus size={15} />
-                Vincular Administrador
+                Agregar Administrador
               </>
             )}
           </button>
@@ -254,7 +254,7 @@ export function TournamentAdminManager({ tournamentId }: TournamentAdminManagerP
               </div>
               <div>
                 <h3 className="text-sm font-black uppercase tracking-wider text-white">
-                  Vincular Administrador al Torneo
+                  Agregar Administrador
                 </h3>
                 <p className="text-[11px] text-white/50">
                   Selecciona un administrador existente o registra credenciales nuevas
@@ -282,7 +282,7 @@ export function TournamentAdminManager({ tournamentId }: TournamentAdminManagerP
               }`}
             >
               <Link2 size={14} />
-              Vincular Existente
+              Usuario existente
             </button>
 
             <button
@@ -369,7 +369,7 @@ export function TournamentAdminManager({ tournamentId }: TournamentAdminManagerP
                   ) : (
                     <>
                       <Link2 size={14} />
-                      Vincular a este Torneo
+                      Agregar al torneo
                     </>
                   )}
                 </button>
@@ -459,7 +459,7 @@ export function TournamentAdminManager({ tournamentId }: TournamentAdminManagerP
                   ) : (
                     <>
                       <UserPlus size={14} />
-                      Crear y Vincular
+                      Crear y agregar
                     </>
                   )}
                 </button>
@@ -495,7 +495,7 @@ export function TournamentAdminManager({ tournamentId }: TournamentAdminManagerP
               className="mt-2 inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-amber-400/15 border border-amber-400/30 text-amber-300 font-bold text-xs uppercase tracking-wider hover:bg-amber-400/25 transition-all"
             >
               <UserPlus size={14} />
-              Vincular Primer Administrador
+              Agregar primer administrador
             </button>
           </div>
         ) : (

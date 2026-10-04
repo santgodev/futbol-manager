@@ -1,0 +1,13 @@
+{
+  "name": "preciado-wordpress-redesign",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "engines": { "node": ">=20" },
+  "devDependencies": { "playwright": "1.60.0" },
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "preview": "node scripts/serve.mjs",
+    "check": "node scripts/check.mjs"
+  }
+}
