@@ -19,10 +19,14 @@ import { FixtureGenerator } from "@/components/admin/FixtureGenerator";
 import { CompetitionEngine } from "@/utils/CompetitionEngine";
 import { CollapsibleEliminatoriaSection } from "@/components/admin/CollapsibleEliminatoriaSection";
 import { CategoryManager } from "@/components/admin/CategoryManager";
+import { TournamentAdminManager } from "@/components/admin/TournamentAdminManager";
+import { TournamentResultUserManager } from "@/components/admin/TournamentResultUserManager";
+import { getCurrentUserProfile } from "@/app/admin/pegasight-actions";
 import { Tag } from "lucide-react";
 
 export function TournamentDetailsClient({ id }: { id: string }) {
   const router = useRouter();
+  const [currentUser, setCurrentUser] = useState<any>(null);
   const [tournament, setTournament] = useState<any>(null);
   const [categories, setCategories] = useState<any[]>([]);
   const [availableTeams, setAvailableTeams] = useState<any[]>([]);
@@ -36,6 +40,17 @@ export function TournamentDetailsClient({ id }: { id: string }) {
 
   const fetchAllData = async () => {
     if (!id) return;
+    let profile: any = null;
+    try {
+      profile = await getCurrentUserProfile();
+      setCurrentUser(profile);
+      if (profile?.role === "USUARIO_DE_RESULTADOS") {
+        router.push("/admin/my-matches");
+        return;
+      }
+    } catch (e) {
+      console.error(e);
+    }
     const supabase = createClient();
     
     // 1. Tournament
@@ -49,6 +64,18 @@ export function TournamentDetailsClient({ id }: { id: string }) {
       router.push("/admin/tournaments");
       return;
     }
+
+    // Validar aislamiento: Un Admin de Torneo solo puede abrir torneos asignados a él
+    if (profile?.role === "ADMINISTRADOR_DEL_TORNEO") {
+      const isAssigned = (profile.memberships || []).some(
+        (m: any) => m.tournament_id === id && m.role === "ADMINISTRADOR_DEL_TORNEO" && m.status === "ACTIVE"
+      );
+      if (!isAssigned) {
+        router.push("/admin/tournaments");
+        return;
+      }
+    }
+
     setTournament(tData);
 
     // 2. Available Teams
@@ -351,6 +378,38 @@ export function TournamentDetailsClient({ id }: { id: string }) {
 
       {/* ── TAB SECTIONS ── */}
       <div className="grid grid-cols-1 gap-8">
+
+        {/* ── SECCIÓN ADMINISTRADORES: Asignación y Gestión de Administradores (Solo Superadmin y Admin General) ── */}
+        {(currentUser?.role === "ADMINISTRADOR_GENERAL" || currentUser?.role === "SUPERADMINISTRADOR") && (
+          <section className="relative rounded-2xl overflow-hidden border border-[#00f0ff]/10" style={{ background: "rgba(0,17,51,0.6)", backdropFilter: "blur(16px)" }}>
+            <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#00f0ff]/40 to-transparent" />
+            <div className="flex items-center gap-3 px-6 py-4 border-b border-[#00f0ff]/10">
+              <div className="p-1.5 rounded-lg border border-[#0055cc]/30" style={{ background: "rgba(0,34,102,0.5)" }}>
+                <Shield size={14} className="text-[#00f0ff]" />
+              </div>
+              <h2 className="text-xs font-black uppercase tracking-[0.2em] text-white">Administradores del Torneo</h2>
+            </div>
+            <div className="p-6">
+              <TournamentAdminManager tournamentId={id} />
+            </div>
+          </section>
+        )}
+
+        {/* ── SECCIÓN ANOTADORES: Asignación y Gestión de Usuarios de Resultados (Admin General, Superadmin y Admin del Torneo) ── */}
+        {(currentUser?.role === "ADMINISTRADOR_GENERAL" || currentUser?.role === "SUPERADMINISTRADOR" || currentUser?.role === "ADMINISTRADOR_DEL_TORNEO") && (
+          <section className="relative rounded-2xl overflow-hidden border border-purple-500/20" style={{ background: "rgba(15,10,30,0.6)", backdropFilter: "blur(16px)" }}>
+            <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-purple-500/40 to-transparent" />
+            <div className="flex items-center gap-3 px-6 py-4 border-b border-purple-500/20">
+              <div className="p-1.5 rounded-lg border border-purple-500/30" style={{ background: "rgba(88,28,135,0.3)" }}>
+                <Users size={14} className="text-purple-400" />
+              </div>
+              <h2 className="text-xs font-black uppercase tracking-[0.2em] text-white">Usuarios de Resultados (Anotadores)</h2>
+            </div>
+            <div className="p-6">
+              <TournamentResultUserManager tournamentId={id} />
+            </div>
+          </section>
+        )}
 
         {/* ── SECCIÓN 0: Gestión de Categorías ── */}
         <section className="relative rounded-2xl overflow-hidden border border-[#00f0ff]/10" style={{ background: "rgba(0,17,51,0.6)", backdropFilter: "blur(16px)" }}>

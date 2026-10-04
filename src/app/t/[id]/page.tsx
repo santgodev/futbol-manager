@@ -9,10 +9,17 @@ export default async function TournamentDashboard({ params }: { params: Promise<
 }
 
 export async function generateStaticParams() {
-  const supabase = createSimpleClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    (process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY)!
-  );
-  const { data: tournaments } = await supabase.from("tournaments").select("slug");
-  return (tournaments || []).map((t) => ({ id: t.slug }));
+  try {
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseKey =
+      process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    if (!supabaseUrl || !supabaseKey) return [];
+
+    const supabase = createSimpleClient(supabaseUrl, supabaseKey);
+    const { data: tournaments } = await supabase.from("tournaments").select("slug");
+    return (tournaments || []).map((t) => ({ id: t.slug }));
+  } catch (err) {
+    console.error("Error in generateStaticParams:", err);
+    return [];
+  }
 }

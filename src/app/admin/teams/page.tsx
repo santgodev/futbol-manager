@@ -2,26 +2,40 @@
 
 import { useEffect, useState } from "react";
 import { createClient } from "@/utils/supabase/client";
-import { Shield } from "lucide-react";
+import { Shield, Plus, Users, ChevronRight, ShieldAlert } from "lucide-react";
 import Link from "next/link";
-import { Plus, Users, ChevronRight } from "lucide-react";
+import { getCurrentUserProfile, type UserProfileWithMemberships } from "../pegasight-actions";
 
 export default function AdminTeamsPage() {
+  const [profile, setProfile] = useState<UserProfileWithMemberships | null>(null);
   const [teams, setTeams] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchTeams = async () => {
-      const supabase = createClient();
-      const { data } = await supabase
-        .from("teams")
-        .select(`
-          *, 
-          players(count)
-        `)
-        .order("name", { ascending: true });
-      if (data) setTeams(data);
-      setLoading(false);
+      try {
+        setLoading(true);
+        const userProfile = await getCurrentUserProfile();
+        setProfile(userProfile);
+
+        if (userProfile?.role === "USUARIO_DE_RESULTADOS") {
+          return;
+        }
+
+        const supabase = createClient();
+        const { data } = await supabase
+          .from("teams")
+          .select(`
+            *, 
+            players(count)
+          `)
+          .order("name", { ascending: true });
+        if (data) setTeams(data);
+      } catch (err) {
+        console.error("Error cargando equipos:", err);
+      } finally {
+        setLoading(false);
+      }
     };
     fetchTeams();
   }, []);
@@ -33,6 +47,35 @@ export default function AdminTeamsPage() {
       </div>
     );
   }
+
+  // Si es Usuario de Resultados, restringir acceso
+  if (profile?.role === "USUARIO_DE_RESULTADOS") {
+    return (
+      <div className="p-6 md:p-10 max-w-3xl mx-auto pt-16">
+        <div className="bg-[#0b1118]/90 border border-amber-500/30 rounded-3xl p-8 md:p-12 text-center backdrop-blur-xl shadow-2xl">
+          <div className="w-16 h-16 mx-auto mb-6 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400">
+            <ShieldAlert size={36} />
+          </div>
+          <h2 className="text-xl md:text-2xl font-black uppercase tracking-wider text-white mb-3">
+            Gestión de Equipos Restringida
+          </h2>
+          <p className="text-xs md:text-sm text-white/60 max-w-lg mx-auto leading-relaxed mb-8">
+            La creación y administración de plantillas de equipos está reservada a los administradores. Tu rol de <span className="text-purple-400 font-bold">Usuario de Resultados</span> te permite capturar los marcadores en los partidos correspondientes.
+          </p>
+          <div className="flex justify-center gap-4">
+            <Link
+              href="/admin/my-matches"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-purple-500 to-[#00f0ff] text-black font-extrabold text-xs tracking-wider uppercase shadow-[0_0_20px_rgba(0,240,255,0.4)]"
+            >
+              Ir a Mis Partidos
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  const canRegisterTeam = profile?.role === "ADMINISTRADOR_GENERAL" || profile?.role === "SUPERADMINISTRADOR" || profile?.role === "ADMINISTRADOR_DEL_TORNEO";
 
   return (
     <div className="p-4 md:p-8 max-w-6xl mx-auto">
@@ -55,15 +98,18 @@ export default function AdminTeamsPage() {
               CLUBES Y<br className="md:hidden" /> EQUIPOS
             </h1>
             <p className="text-white/40 text-xs uppercase tracking-widest">
-              Directorio global de equipos registrados
+              Directorio de equipos registrados
             </p>
           </div>
-          <Link
-            href="/admin/teams/new"
-            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl text-xs font-black uppercase tracking-widest transition-all bg-gradient-to-r from-[#0055cc] to-[#00f0ff] text-black shadow-[0_0_20px_rgba(0,240,255,0.3)] hover:shadow-[0_0_35px_rgba(0,240,255,0.6)] hover:scale-[1.02] active:scale-95"
-          >
-            <Plus size={16} /> Registrar Equipo
-          </Link>
+
+          {canRegisterTeam && (
+            <Link
+              href="/admin/teams/new"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl text-xs font-black uppercase tracking-widest transition-all bg-gradient-to-r from-[#0055cc] to-[#00f0ff] text-black shadow-[0_0_20px_rgba(0,240,255,0.3)] hover:shadow-[0_0_35px_rgba(0,240,255,0.6)] hover:scale-[1.02] active:scale-95"
+            >
+              <Plus size={16} /> Registrar Equipo
+            </Link>
+          )}
         </div>
       </header>
 
@@ -88,37 +134,30 @@ export default function AdminTeamsPage() {
                   <img src={team.logo_url} alt={team.name} className="max-w-full max-h-full object-contain filter group-hover:drop-shadow-[0_0_10px_rgba(0,240,255,0.4)] transition-all" />
                 </div>
               ) : (
-                <Shield className="w-14 h-16 text-[#00f0ff]/20 group-hover:text-[#00f0ff]/50 transition-colors mb-4 relative z-10 group-hover:drop-shadow-[0_0_8px_rgba(0,240,255,0.4)]" />
+                <div className="w-16 h-16 mb-4 rounded-full border border-[#0055cc]/40 flex items-center justify-center relative z-10 transition-colors group-hover:border-[#00f0ff]/60"
+                  style={{ background: "rgba(0,34,102,0.5)" }}>
+                  <Shield size={28} className="text-[#00f0ff]/60 group-hover:text-[#00f0ff] transition-colors" />
+                </div>
               )}
 
-              <span className="font-black text-sm text-center tracking-wide uppercase text-white/80 group-hover:text-white transition-colors mb-1.5 relative z-10 line-clamp-2 text-center leading-tight">
+              {/* Info */}
+              <span className="font-bold text-sm text-center text-white group-hover:text-[#00f0ff] transition-colors line-clamp-1 mb-1 relative z-10">
                 {team.name}
               </span>
-
-              <div className="flex items-center gap-1 mt-auto relative z-10">
-                <Users size={10} className="text-[#00f0ff]/40" />
-                <span className="text-[9px] text-white/30 uppercase tracking-widest group-hover:text-[#00f0ff]/60 transition-colors">
-                  {playersCount} jugador{playersCount !== 1 ? 'es' : ''}
-                </span>
-              </div>
+              <span className="text-[10px] text-white/40 uppercase tracking-widest relative z-10">
+                {playersCount} {playersCount === 1 ? "Jugador" : "Jugadores"}
+              </span>
             </Link>
           );
         })}
+
+        {teams?.length === 0 && (
+          <div className="col-span-full p-12 text-center text-white/40 text-xs uppercase tracking-widest border border-dashed border-[#00f0ff]/15 rounded-2xl">
+            No hay equipos registrados actualmente.
+          </div>
+        )}
       </div>
 
-      {(!teams || teams.length === 0) && (
-        <div className="p-12 text-center rounded-2xl border border-dashed border-[#00f0ff]/15 flex flex-col items-center gap-4 mt-4"
-          style={{ background: "rgba(0,17,51,0.4)" }}>
-          <Shield className="w-12 h-16 text-[#00f0ff]/20" />
-          <h3 className="text-sm font-black uppercase tracking-widest text-white/50">No hay equipos</h3>
-          <p className="text-white/30 text-xs uppercase tracking-widest max-w-md mx-auto">
-            Registra tu primer equipo para comenzar.
-          </p>
-          <Link href="/admin/teams/new" className="btn-premium-teal inline-flex mt-2">
-            Registrar primer equipo
-          </Link>
-        </div>
-      )}
     </div>
   );
 }

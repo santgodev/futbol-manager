@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Shield } from "@/components/ui/Shield";
+import { createClient } from "@/utils/supabase/client";
 import { login } from "./actions";
 
 export default function LoginPage() {
@@ -18,16 +19,26 @@ export default function LoginPage() {
     
     try {
       const formData = new FormData(e.currentTarget);
+      const email = (formData.get("email") as string)?.trim();
+      const password = formData.get("password") as string;
+
+      // 1. Iniciar sesión en el cliente para document.cookie inmediato
+      const browserSupabase = createClient();
+      const { error: clientError } = await browserSupabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      // 2. Iniciar sesión en el servidor para cookieStore
       const res = await login(formData);
       
-      if (res?.error) {
-        setError(res.error);
+      if (clientError && res?.error) {
+        setError(res.error || clientError.message);
         setLoading(false);
-      } else {
-        setTimeout(() => {
-          window.location.href = "/admin";
-        }, 500);
+        return;
       }
+
+      window.location.href = "/admin";
     } catch (err: any) {
       setError(err.message || "Error al autenticar");
       setLoading(false);

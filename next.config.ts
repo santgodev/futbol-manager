@@ -1,7 +1,11 @@
 import type { NextConfig } from "next";
+import path from "path";
 
 const nextConfig: NextConfig = {
-  output: 'export',
+  turbopack: {
+    root: path.resolve(__dirname),
+  },
+  ...(process.env.STATIC_EXPORT === "true" ? { output: "export" as const } : {}),
   trailingSlash: true,
   images: {
     unoptimized: true,
