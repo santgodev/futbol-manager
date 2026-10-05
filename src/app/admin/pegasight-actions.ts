@@ -1425,4 +1425,28 @@ export async function getRoleHierarchyDataAction(): Promise<any> {
   };
 }
 
+export async function forceChangeUserPasswordAction(targetUserId: string, newPassword: string) {
+  const profile = await getCurrentUserProfile();
+  if (!profile || (profile.role !== "SUPERADMINISTRADOR" && profile.role !== "ADMINISTRADOR_GENERAL")) {
+    throw new Error("Acceso denegado.");
+  }
+
+  if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
+    throw new Error("Falta la variable SUPABASE_SERVICE_ROLE_KEY en el servidor.");
+  }
+
+  const { createClient: createAdminClient } = await import("@supabase/supabase-js");
+  const adminClient = createAdminClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  );
+
+  const { error } = await adminClient.auth.admin.updateUserById(targetUserId, {
+    password: newPassword,
+  });
+
+  if (error) throw new Error(error.message);
+
+  return { success: true };
+}
 

@@ -5,9 +5,7 @@ const nextConfig: NextConfig = {
   turbopack: {
     root: path.resolve(__dirname),
   },
-  // `npm run build` genera el sitio estático completo en la carpeta `out` (Hostinger).
-  ...(process.env.NODE_ENV === "production" ? { output: "export" as const } : {}),
-  trailingSlash: true,
+  output: "standalone",
   images: {
     unoptimized: true,
   },

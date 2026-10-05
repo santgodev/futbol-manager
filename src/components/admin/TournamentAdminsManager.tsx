@@ -26,7 +26,8 @@ import {
   assignTournamentAdminAction,
   unassignTournamentAdminAction,
   getCurrentUserProfile 
-} from "../pegasight-actions";
+} from "@/app/admin/pegasight-actions";
+import { ChangePasswordButton } from "./ChangePasswordButton";
 import { createClient } from "@/utils/supabase/client";
 
 interface TournamentAdmin {
@@ -359,29 +360,36 @@ export default function TournamentAdminsPage() {
                         )}
                       </td>
                       <td className="py-4 px-6 text-right">
-                        <button
-                          onClick={() => handleToggleStatus(admin)}
-                          disabled={isBusy}
-                          className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all ${
-                            admin.is_active
-                              ? "bg-red-500/10 text-red-400 border border-red-500/20 hover:bg-red-500/20 disabled:opacity-30 disabled:cursor-not-allowed"
-                              : "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 hover:bg-emerald-500/20"
-                          }`}
-                        >
-                          {isBusy ? (
-                            <RefreshCw size={12} className="animate-spin" />
-                          ) : admin.is_active ? (
-                            <>
-                              <UserX size={12} />
-                              Desactivar
-                            </>
-                          ) : (
-                            <>
-                              <UserCheck size={12} />
-                              Activar
-                            </>
-                          )}
-                        </button>
+                        <div className="flex items-center justify-end gap-2">
+                          <ChangePasswordButton 
+                            userId={admin.id} 
+                            userName={admin.full_name} 
+                            userEmail={admin.email} 
+                          />
+                          <button
+                            onClick={() => handleToggleStatus(admin)}
+                            disabled={isBusy}
+                            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all ${
+                              admin.is_active
+                                ? "bg-red-500/10 text-red-400 border border-red-500/20 hover:bg-red-500/20 disabled:opacity-30 disabled:cursor-not-allowed"
+                                : "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 hover:bg-emerald-500/20"
+                            }`}
+                          >
+                            {isBusy ? (
+                              <RefreshCw size={12} className="animate-spin" />
+                            ) : admin.is_active ? (
+                              <>
+                                <UserX size={12} />
+                                Desactivar
+                              </>
+                            ) : (
+                              <>
+                                <UserCheck size={12} />
+                                Activar
+                              </>
+                            )}
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   );

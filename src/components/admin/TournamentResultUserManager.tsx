@@ -24,6 +24,7 @@ import {
   toggleMembershipStatusAction,
   unassignResultUserAction
 } from "@/app/admin/pegasight-actions";
+import { ChangePasswordButton } from "./ChangePasswordButton";
 
 interface TournamentResultUserManagerProps {
   tournamentId: string;
@@ -540,6 +541,12 @@ export function TournamentResultUserManager({ tournamentId }: TournamentResultUs
                         Inactivo
                       </span>
                     )}
+
+                    <ChangePasswordButton 
+                      userId={m.user?.id} 
+                      userName={m.user?.full_name} 
+                      userEmail={m.user?.email} 
+                    />
 
                     {/* Botón Activar / Desactivar */}
                     <button

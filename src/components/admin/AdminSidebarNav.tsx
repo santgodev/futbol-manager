@@ -43,20 +43,16 @@ export const AdminSidebarNav = ({
       { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
       { href: "/admin/tournaments", label: "Torneos", icon: Trophy },
       { href: "/admin/teams", label: "Equipos", icon: Shield },
-      { href: "/admin/superadmins", label: "Superadmins", icon: ShieldCheck },
-      { href: "/admin/tournament-admins", label: "Admins Torneo", icon: Users },
-      { href: "/admin/result-users", label: "Usuarios Resultados", icon: UserPlus },
+      { href: "/admin/users", label: "Gestión de Usuarios", icon: Users },
       { href: "/admin/pending-results", label: "Resultados Pendientes", icon: Clock },
       { href: "/admin/audit-logs", label: "Auditoría", icon: FileText },
     ];
   } else if (role === "SUPERADMINISTRADOR") {
-    // A los superadministradores les salen todas las herramientas de gestión organizativa
     links = [
       { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
       { href: "/admin/tournaments", label: "Torneos", icon: Trophy },
       { href: "/admin/teams", label: "Equipos", icon: Shield },
-      { href: "/admin/tournament-admins", label: "Admins Torneo", icon: Users },
-      { href: "/admin/result-users", label: "Usuarios Resultados", icon: UserPlus },
+      { href: "/admin/users", label: "Gestión de Usuarios", icon: Users },
       { href: "/admin/pending-results", label: "Resultados Pendientes", icon: Clock },
       { href: "/admin/audit-logs", label: "Auditoría", icon: FileText },
     ];
@@ -65,7 +61,7 @@ export const AdminSidebarNav = ({
       { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
       { href: "/admin/tournaments", label: "Mis Torneos", icon: Trophy },
       { href: "/admin/teams", label: "Equipos", icon: Shield },
-      { href: "/admin/result-users", label: "Usuarios Resultados", icon: UserPlus },
+      { href: "/admin/users", label: "Gestión de Usuarios", icon: Users },
       { href: "/admin/pending-results", label: "Resultados Pendientes", icon: Clock },
     ];
   } else {
@@ -117,12 +113,12 @@ export const AdminSidebarNav = ({
       {/* Section label */}
       <span className="px-6 text-[9px] text-[#00f0ff]/40 uppercase tracking-[0.25em] font-bold mb-2">
         {role === "ADMINISTRADOR_GENERAL"
-          ? "ADMINISTRACIÓN GENERAL"
+          ? "👑 ADMINISTRACIÓN GENERAL"
           : role === "SUPERADMINISTRADOR" 
-          ? "PANEL GLOBAL" 
+          ? "🛡️ PANEL GLOBAL" 
           : role === "ADMINISTRADOR_DEL_TORNEO" 
-          ? "GESTIÓN TORNEO" 
-          : "REGISTRO DE PARTIDOS"}
+          ? "🏆 GESTIÓN TORNEO" 
+          : "📝 REGISTRO DE PARTIDOS"}
       </span>
       {links.map((link) => {
         const Icon = link.icon;
