@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { createPortal } from "react-dom";
 import { KeyRound, Loader2, X, AlertCircle, CheckCircle2, ShieldAlert, Wand2 } from "lucide-react";
-import { forceChangeUserPasswordAction } from "@/app/admin/pegasight-actions";
+import { forceChangeUserPasswordAction } from "@/app/admin/server-actions";
 
 interface ChangePasswordButtonProps {
   userId: string;
