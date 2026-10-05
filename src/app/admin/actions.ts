@@ -134,6 +134,7 @@ function sanitizePlayerName(rawName: string): string {
 
 export async function createTeam(teamData: {
   name: string;
+  tournament_id: string;
   logo_url?: string | null;
   city?: string | null;
   primary_color?: string | null;
@@ -145,15 +146,16 @@ export async function createTeam(teamData: {
 
   const cleanName = sanitizeTeamName(teamData.name);
 
-  // Validar duplicado exacto sin distinción de mayúsculas/minúsculas y espacios
+  // Validar duplicado exacto dentro del mismo torneo
   const { data: existingTeam } = await supabase
     .from("teams")
     .select("id")
+    .eq("tournament_id", teamData.tournament_id)
     .ilike("name", cleanName)
     .maybeSingle();
 
   if (existingTeam) {
-    throw new Error(`Ya existe un equipo registrado con el nombre "${cleanName}".`);
+    throw new Error(`Ya existe un equipo registrado con el nombre "${cleanName}" en este torneo.`);
   }
 
   const { data, error } = await supabase

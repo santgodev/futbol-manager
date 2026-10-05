@@ -82,6 +82,7 @@ export function TournamentDetailsClient({ id }: { id: string }) {
     const { data: teamsData } = await supabase
       .from("teams")
       .select("*")
+      .eq("tournament_id", id)
       .order("name");
     if (teamsData) setAvailableTeams(teamsData);
 
