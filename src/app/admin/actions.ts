@@ -1463,6 +1463,25 @@ export async function generateRoundRobinFixture(tournamentId: string, categoryId
   };
 }
 
+export async function deleteAllMatchesFromTournament(tournamentId: string, categoryId?: string | null) {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error("No autorizado");
+
+  let query = supabase.from("matches").delete().eq("tournament_id", tournamentId).eq("stage", "GROUP");
+  
+  if (categoryId) {
+    query = query.eq("category_id", categoryId);
+  } else {
+    query = query.is("category_id", null);
+  }
+
+  const { error } = await query;
+  if (error) throw new Error(error.message);
+  
+  return { success: true };
+}
+
 export async function bulkCreateAndEnrollTeams(
   tournamentId: string,
   categoryId: string | null | undefined,

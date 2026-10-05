@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import { createPortal } from "react-dom";
-import { generateRoundRobinFixture } from "@/app/admin/actions";
-import { Loader2, Calendar, X, CheckCircle2 } from "lucide-react";
+import { generateRoundRobinFixture, deleteAllMatchesFromTournament } from "@/app/admin/actions";
+import { Loader2, Calendar, X, CheckCircle2, Trash2 } from "lucide-react";
 
 export function FixtureGenerator({
   tournamentId,
@@ -50,6 +50,21 @@ export function FixtureGenerator({
     }
   };
 
+  const handleDelete = async () => {
+    if (!confirm("¿Estás seguro de que deseas eliminar TODOS los partidos programados? Esta acción no se puede deshacer.")) return;
+    setLoading(true);
+    setErrorMsg("");
+    try {
+      await deleteAllMatchesFromTournament(tournamentId, categoryId);
+      if (onUpdate) onUpdate();
+    } catch (err: any) {
+      setErrorMsg(err.message || "Ocurrió un error al eliminar.");
+      alert(err.message || "Ocurrió un error al eliminar.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const closeModal = () => {
     if (!loading) {
       setIsOpen(false);
@@ -61,18 +76,35 @@ export function FixtureGenerator({
   return (
     <>
       {/* Trigger Button */}
-      <button
-        onClick={() => canGenerate && setIsOpen(true)}
-        disabled={!canGenerate}
-        className={`w-full min-h-[44px] flex items-center justify-center gap-2 rounded-lg font-bold uppercase tracking-widest text-[10px] transition-all touch-manipulation
-          ${canGenerate
-            ? "bg-gradient-to-r from-[#00f0ff]/10 to-[#00f0ff]/20 text-[#00f0ff] border border-[#00f0ff]/30 hover:bg-[#00f0ff]/30 hover:shadow-[0_0_20px_rgba(0,240,255,0.4)] active:scale-95"
-            : "bg-white/5 text-white/30 cursor-not-allowed border border-white/10"
-          }`}
-      >
-        <Calendar size={16} />
-        {hasGroupMatches ? "✅ Calendario creado" : "Crear calendario automático"}
-      </button>
+      {!hasGroupMatches ? (
+        <button
+          onClick={() => canGenerate && setIsOpen(true)}
+          disabled={!canGenerate}
+          className={`w-full min-h-[44px] flex items-center justify-center gap-2 rounded-lg font-bold uppercase tracking-widest text-[10px] transition-all touch-manipulation
+            ${canGenerate
+              ? "bg-gradient-to-r from-[#00f0ff]/10 to-[#00f0ff]/20 text-[#00f0ff] border border-[#00f0ff]/30 hover:bg-[#00f0ff]/30 hover:shadow-[0_0_20px_rgba(0,240,255,0.4)] active:scale-95"
+              : "bg-white/5 text-white/30 cursor-not-allowed border border-white/10"
+            }`}
+        >
+          <Calendar size={16} />
+          Crear calendario automático
+        </button>
+      ) : (
+        <div className="flex gap-2 w-full">
+          <div className="flex-1 min-h-[44px] flex items-center justify-center gap-2 rounded-lg font-bold uppercase tracking-widest text-[10px] bg-white/5 text-white/50 border border-white/10">
+            <CheckCircle2 size={16} className="text-[#00aa66]" />
+            Calendario creado
+          </div>
+          <button
+            onClick={handleDelete}
+            disabled={loading}
+            title="Eliminar calendario"
+            className="w-11 min-h-[44px] flex items-center justify-center rounded-lg bg-red-500/10 text-red-500 border border-red-500/30 hover:bg-red-500/20 transition-all touch-manipulation active:scale-95 disabled:opacity-50"
+          >
+            {loading ? <Loader2 size={16} className="animate-spin" /> : <Trash2 size={16} />}
+          </button>
+        </div>
+      )}
 
       {/* Modal via Portal — oscurece toda la pantalla */}
       {isOpen && typeof document !== "undefined" && createPortal(
