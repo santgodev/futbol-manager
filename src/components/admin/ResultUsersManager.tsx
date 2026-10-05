@@ -18,6 +18,7 @@ import {
   User, 
   Lock 
 } from "lucide-react";
+import { SecurePasswordInput } from "./SecurePasswordInput";
 import { 
   getResultUsersAction, 
   createResultUserAction, 
@@ -489,24 +490,11 @@ export default function ResultUsersPage() {
                 </div>
               </div>
 
-              <div>
-                <label className="block text-[10px] font-bold uppercase tracking-wider text-white/60 mb-1.5">
-                  Contraseña Inicial *
-                </label>
-                <div className="relative">
-                  <Lock size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/40" />
-                  <input
-                    type="password"
-                    required
-                    minLength={6}
-                    value={formPassword}
-                    onChange={(e) => setFormPassword(e.target.value)}
-                    placeholder="Mínimo 6 caracteres"
-                    autoComplete="new-password"
-                    className="w-full pl-9 pr-3 py-2 rounded-xl bg-black/40 border border-white/10 text-white text-xs placeholder:text-white/30 focus:outline-none focus:border-purple-400 transition-colors"
-                  />
-                </div>
-              </div>
+              <SecurePasswordInput
+                value={formPassword}
+                onChange={setFormPassword}
+                className="focus:border-purple-400"
+              />
 
               <div>
                 <label className="block text-[10px] font-bold uppercase tracking-wider text-white/60 mb-1.5">

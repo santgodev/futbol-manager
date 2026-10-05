@@ -19,6 +19,7 @@ import {
   User,
   X
 } from "lucide-react";
+import { SecurePasswordInput } from "./SecurePasswordInput";
 import { 
   getTournamentAdminsAction, 
   createTournamentAdminAction, 
@@ -459,23 +460,11 @@ export default function TournamentAdminsPage() {
                 </div>
               </div>
 
-              <div>
-                <label className="block text-[10px] font-bold uppercase tracking-wider text-white/60 mb-1.5">
-                  Contraseña Inicial
-                </label>
-                <div className="relative">
-                  <Lock size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/40" />
-                  <input
-                    type="password"
-                    required
-                    minLength={6}
-                    value={formPassword}
-                    onChange={(e) => setFormPassword(e.target.value)}
-                    placeholder="Mínimo 6 caracteres"
-                    className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-xs focus:border-amber-400 focus:outline-none focus:ring-1 focus:ring-amber-400 transition-colors"
-                  />
-                </div>
-              </div>
+              <SecurePasswordInput
+                value={formPassword}
+                onChange={setFormPassword}
+                className="focus:border-amber-400 focus:ring-amber-400 bg-white/5 pl-10 pr-4 py-2.5"
+              />
 
               <div>
                 <label className="block text-[10px] font-bold uppercase tracking-wider text-white/60 mb-1.5">

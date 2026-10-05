@@ -5,6 +5,7 @@ import Link from "next/link";
 import { ShieldCheck, UserPlus, UserX, UserCheck, AlertTriangle, Shield, CheckCircle2, RefreshCw, ShieldAlert, Users } from "lucide-react";
 import { getSuperadminsAction, createSuperadminAction, toggleUserStatusAction, getCurrentUserProfile } from "@/app/admin/pegasight-actions";
 import { ChangePasswordButton } from "./ChangePasswordButton";
+import { SecurePasswordInput } from "./SecurePasswordInput";
 
 export default function SuperadminsPage() {
   const [superadmins, setSuperadmins] = useState<any[]>([]);
@@ -326,20 +327,11 @@ export default function SuperadminsPage() {
                 />
               </div>
 
-              <div>
-                <label className="block text-[10px] font-bold uppercase tracking-widest text-[#00f0ff]/70 mb-1.5">
-                  Contraseña Temporal
-                </label>
-                <input
-                  type="password"
-                  required
-                  minLength={6}
-                  value={formPassword}
-                  onChange={(e) => setFormPassword(e.target.value)}
-                  placeholder="Mínimo 6 caracteres"
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-black/40 border border-white/10 text-white placeholder-white/30 text-xs focus:outline-none focus:border-[#00f0ff] focus:ring-1 focus:ring-[#00f0ff]"
-                />
-              </div>
+              <SecurePasswordInput
+                value={formPassword}
+                onChange={setFormPassword}
+                className="focus:border-[#00f0ff]"
+              />
 
               <div className="pt-2 flex items-center justify-end gap-3">
                 <button
