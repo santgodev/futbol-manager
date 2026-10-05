@@ -182,10 +182,15 @@ export function TeamForm() {
 
               <div className="flex flex-col gap-2">
                 <label className="text-[10px] text-[#00f0ff]/80 uppercase tracking-widest font-bold ml-1">
-                  Categoría (Opcional)
+                  {categories.length > 0 ? "Categoría de Destino *" : "Categoría"}
                 </label>
-                <select name="category_id" className="input-premium appearance-none !bg-black/50" disabled={categories.length === 0}>
-                  <option value="">{categories.length === 0 ? 'Sin categorías disponibles' : 'Selecciona una categoría...'}</option>
+                <select 
+                  name="category_id" 
+                  className="input-premium appearance-none !bg-black/50" 
+                  disabled={categories.length === 0}
+                  required={categories.length > 0}
+                >
+                  <option value="">{categories.length === 0 ? 'Sin categorías disponibles' : 'Selecciona a qué categoría van...'}</option>
                   {categories.map(c => (
                     <option key={c.id} value={c.id}>{c.name}</option>
                   ))}
