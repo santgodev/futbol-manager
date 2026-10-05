@@ -95,9 +95,7 @@ export function TeamForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="panel-premium max-w-xl mx-auto">
-      {/* Decorative accent */}
-      <div className="absolute top-0 left-0 w-full h-[3px] bg-gradient-to-r from-brand-teal via-brand-aqua to-brand-gold" />
+    <form onSubmit={handleSubmit} className="panel-premium max-w-xl mx-auto relative overflow-hidden">
       
       <div className="flex flex-col gap-6 relative z-10">
         <h3 className="text-sm font-bold uppercase tracking-widest text-brand-sand">Registrar Nuevo Equipo</h3>

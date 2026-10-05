@@ -17,7 +17,7 @@ export default function NewTeamPage() {
           NUEVO EQUIPO
         </h1>
         <p className="text-[#00f0ff]/60 text-xs font-semibold uppercase tracking-widest">
-          Registra un nuevo club en la base de datos global
+          Registra un nuevo club para uno de tus torneos
         </p>
       </header>
 
