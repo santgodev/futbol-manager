@@ -42,3 +42,6 @@ next-env.d.ts
 
 # scratch & local testing
 /scratch/
+
+# artifacts
+/artifacts/
