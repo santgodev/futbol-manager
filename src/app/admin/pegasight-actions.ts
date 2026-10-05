@@ -490,12 +490,54 @@ export async function approveMatchResultAction(resultId: string) {
   if (!profile) throw new Error("No autorizado");
 
   const supabase = await createClient();
+
+  const { data: submission } = await supabase
+    .from("match_result_submissions")
+    .select("match_id, sets_data, matches(tournament_id)")
+    .eq("id", resultId)
+    .single();
+
   const { data, error } = await (supabase.rpc as any)("approve_match_result", {
     p_result_id: resultId
   });
 
   if (error) {
     throw new Error(error.message);
+  }
+
+  // Process drafted events
+  if (submission && submission.sets_data) {
+     try {
+       const events = typeof submission.sets_data === 'string' 
+         ? JSON.parse(submission.sets_data) 
+         : submission.sets_data;
+       
+       if (Array.isArray(events)) {
+         const tournamentId = (submission.matches as any)?.tournament_id;
+         
+          const { error: delError } = await supabase.from("match_events").delete().eq("match_id", submission.match_id);
+          if (delError) console.error("Error deleting old events", delError);
+
+          if (events.length > 0) {
+            const newEvents = events.map(ev => ({
+              match_id: submission.match_id,
+              tournament_id: tournamentId,
+              team_id: ev.team_id,
+              player_id: ev.player_id || null,
+              type: ev.type,
+              minute: ev.minute || null,
+              description: ev.player?.name || 'Jugador Desconocido',
+              created_at: ev.created_at || new Date().toISOString(),
+              created_by: profile.id
+            }));
+
+            const { error: insError } = await supabase.from("match_events").insert(newEvents);
+            if (insError) console.error("Error inserting new events", insError);
+          }
+        }
+     } catch (e) {
+       console.error("Error processing drafted events:", e);
+     }
   }
 
   revalidatePath("/admin/pending-results");

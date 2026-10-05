@@ -248,6 +248,35 @@ export default function PendingResultsPage() {
                         Nota: "{item.details}"
                       </span>
                     )}
+                    
+                    {item.sets_data && (() => {
+                      const events = typeof item.sets_data === 'string' ? JSON.parse(item.sets_data) : item.sets_data;
+                      if (!Array.isArray(events) || events.length === 0) return null;
+                      return (
+                        <div className="w-full mt-2 space-y-1.5 bg-[#000814]/50 border border-white/5 p-3 rounded-xl">
+                          <strong className="text-[#00f0ff] font-bold text-[10px] uppercase tracking-wider block mb-2">Anotaciones en Borrador:</strong>
+                          <div className="flex flex-col gap-1.5">
+                            {events.map((ev: any, i: number) => (
+                              <div key={i} className="bg-white/5 border border-white/10 rounded-lg px-3 py-2 flex items-center gap-3">
+                                <span className={`text-[9px] font-black tracking-widest px-2 py-0.5 rounded-sm uppercase ${
+                                  ev.type === 'GOAL' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 
+                                  ev.type === 'YELLOW_CARD' ? 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30' : 
+                                  'bg-red-500/20 text-red-400 border border-red-500/30'
+                                }`}>
+                                  {ev.type === 'GOAL' ? 'GOL' : ev.type === 'YELLOW_CARD' ? 'AMARILLA' : 'ROJA'}
+                                </span>
+                                <span className="text-white text-xs font-bold uppercase">
+                                  {ev.player?.name || 'Jugador Desconocido'}
+                                </span>
+                                <span className="text-white/40 ml-auto text-[9px] uppercase tracking-wider">
+                                  {ev.team_id === match.home_team_id ? "Local" : "Visitante"}
+                                </span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      );
+                    })()}
                   </div>
                 </div>
 

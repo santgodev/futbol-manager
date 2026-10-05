@@ -8,7 +8,7 @@ import { VolleyballControlRoom } from "@/components/admin/VolleyballControlRoom"
 import { Shield } from "@/components/ui/Shield";
 import { isVolleyballSport } from "@/utils/volleyball";
 
-export function MatchControlRoomClient({ id }: { id: string }) {
+export function MatchControlRoomClient({ id, isDraft = false }: { id: string, isDraft?: boolean }) {
   const router = useRouter();
 
   const [match, setMatch] = useState<any>(null);
@@ -111,6 +111,7 @@ export function MatchControlRoomClient({ id }: { id: string }) {
       homePlayers={homePlayers} 
       awayPlayers={awayPlayers} 
       onUpdate={fetchAllData}
+      isDraft={isDraft}
     />
   );
 }

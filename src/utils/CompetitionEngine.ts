@@ -78,8 +78,26 @@ export class CompetitionEngine {
     // Calculate required group stage matches based on round-robin formulas
     let requiredGroupMatches = 0;
     if (format !== 'PLAYOFFS' && teamsCount >= 2) {
-      const singleRoundMatches = (teamsCount * (teamsCount - 1)) / 2;
-      requiredGroupMatches = isDoubleRound ? singleRoundMatches * 2 : singleRoundMatches;
+      const groups: Record<string, number> = {};
+      let hasGroups = false;
+      
+      tournament.tournament_teams?.forEach((tt: any) => {
+        const gName = tt.group_name || 'UNASSIGNED';
+        hasGroups = true;
+        groups[gName] = (groups[gName] || 0) + 1;
+      });
+
+      if (hasGroups) {
+        for (const count of Object.values(groups)) {
+          if (count >= 2) {
+            const matchesInGroup = (count * (count - 1)) / 2;
+            requiredGroupMatches += isDoubleRound ? matchesInGroup * 2 : matchesInGroup;
+          }
+        }
+      } else {
+        const singleRoundMatches = (teamsCount * (teamsCount - 1)) / 2;
+        requiredGroupMatches = isDoubleRound ? singleRoundMatches * 2 : singleRoundMatches;
+      }
     }
 
     // Determine if group stage is complete

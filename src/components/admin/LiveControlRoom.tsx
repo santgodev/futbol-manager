@@ -2,16 +2,18 @@
 
 import { useState } from "react";
 import { updateMatchScore, createMatchEvent, createPlayer, deleteMatchEvent } from "@/app/admin/actions";
+import { submitMatchResultAction } from "@/app/admin/pegasight-actions";
 import { Shield, CheckCircle, Plus, Trash2, Goal } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 
-export function LiveControlRoom({ match, onUpdate }: { match: any, homePlayers?: any[], awayPlayers?: any[], onUpdate?: () => void }) {
+export function LiveControlRoom({ match, onUpdate, isDraft = false }: { match: any, homePlayers?: any[], awayPlayers?: any[], onUpdate?: () => void, isDraft?: boolean }) {
   const router = useRouter();
   
   const [homeScore, setHomeScore] = useState<number>(match.home_score || 0);
   const [awayScore, setAwayScore] = useState<number>(match.away_score || 0);
+  const [localEvents, setLocalEvents] = useState<any[]>(match.match_events || []);
   
   const [playerName, setPlayerName] = useState("");
   const [activeModal, setActiveModal] = useState<{
@@ -26,17 +28,29 @@ export function LiveControlRoom({ match, onUpdate }: { match: any, homePlayers?:
     setIsSubmitting(true);
     setErrorMsg("");
     try {
-      await updateMatchScore(
-        match.id,
-        homeScore,
-        awayScore,
-        match.tournament_id,
-        match.version || 1,
-        match.home_penalty_score,
-        match.away_penalty_score,
-        'FINISHED'
-      );
-      router.push(`/admin/tournaments/${match.tournament_id}`);
+      if (isDraft) {
+        await submitMatchResultAction({
+          matchId: match.id,
+          homeScore,
+          awayScore,
+          homePenalties: match.home_penalty_score,
+          awayPenalties: match.away_penalty_score,
+          setsData: localEvents
+        });
+        router.push("/admin/my-matches");
+      } else {
+        await updateMatchScore(
+          match.id,
+          homeScore,
+          awayScore,
+          match.tournament_id,
+          match.version || 1,
+          match.home_penalty_score,
+          match.away_penalty_score,
+          'FINISHED'
+        );
+        router.push(`/admin/tournaments/${match.tournament_id}`);
+      }
     } catch (err: any) {
       setErrorMsg(err.message || "Error al finalizar el partido");
       setIsSubmitting(false);
@@ -57,23 +71,36 @@ export function LiveControlRoom({ match, onUpdate }: { match: any, homePlayers?:
     
     try {
       let playerId = null;
+      let createdPlayerName = playerName.trim() ? playerName.trim() : 'Jugador Desconocido';
       if (playerName.trim()) {
         const res = await createPlayer({
            team_id: activeModal.teamId,
            name: playerName.trim(),
         });
         playerId = res.player.id;
+        createdPlayerName = res.player?.name || playerName.trim();
       }
 
-      await createMatchEvent({
-         match_id: match.id,
-         tournament_id: match.tournament_id,
-         team_id: activeModal.teamId,
-         player_id: playerId,
-         type: activeModal.type,
-         minute: null,
-         description: playerName.trim() ? null : 'Jugador Desconocido'
-      });
+      if (isDraft) {
+        setLocalEvents(prev => [...prev, {
+          id: crypto.randomUUID(),
+          type: activeModal.type,
+          team_id: activeModal.teamId,
+          player_id: playerId,
+          created_at: new Date().toISOString(),
+          player: { id: playerId, name: createdPlayerName }
+        }]);
+      } else {
+        await createMatchEvent({
+           match_id: match.id,
+           tournament_id: match.tournament_id,
+           team_id: activeModal.teamId,
+           player_id: playerId,
+           type: activeModal.type,
+           minute: null,
+           description: playerName.trim() ? null : 'Jugador Desconocido'
+        });
+      }
 
       if (activeModal.type === 'GOAL') {
         if (activeModal.teamId === match.home_team_id) {
@@ -86,7 +113,7 @@ export function LiveControlRoom({ match, onUpdate }: { match: any, homePlayers?:
       setPlayerName("");
       setActiveModal(null);
       if (onUpdate) onUpdate();
-      router.refresh();
+      if (!isDraft) router.refresh();
     } catch (err: any) {
       setErrorMsg(err.message || "Error al agregar el evento");
     } finally {
@@ -98,9 +125,19 @@ export function LiveControlRoom({ match, onUpdate }: { match: any, homePlayers?:
     if (!confirm("¿Eliminar este evento?")) return;
     setIsSubmitting(true);
     try {
-      await deleteMatchEvent(eventId, match.tournament_id);
+      if (isDraft) {
+        setLocalEvents(prev => prev.filter(e => e.id !== eventId));
+        // Recalculate score if it was a goal (optional but good ux)
+        const ev = localEvents.find(e => e.id === eventId);
+        if (ev && ev.type === 'GOAL') {
+          if (ev.team_id === match.home_team_id) setHomeScore(s => Math.max(0, s - 1));
+          else setAwayScore(s => Math.max(0, s - 1));
+        }
+      } else {
+        await deleteMatchEvent(eventId, match.tournament_id);
+      }
       if (onUpdate) onUpdate();
-      router.refresh();
+      if (!isDraft) router.refresh();
     } catch (err: any) {
       setErrorMsg(err.message || "Error al eliminar");
     } finally {
@@ -228,7 +265,7 @@ export function LiveControlRoom({ match, onUpdate }: { match: any, homePlayers?:
               disabled={isSubmitting}
               className="h-14 px-10 rounded-full bg-emerald-500/20 border border-emerald-500/50 hover:bg-emerald-500 hover:text-black text-emerald-400 font-black uppercase tracking-widest text-sm flex items-center gap-2 transition-all hover:shadow-[0_0_20px_rgba(16,185,129,0.5)] disabled:opacity-50"
             >
-              <CheckCircle size={20} /> Guardar Resultado Final
+              <CheckCircle size={20} /> {isDraft ? "Enviar Borrador a Revisión" : "Guardar Resultado Final"}
             </button>
           </div>
         </div>
@@ -238,7 +275,7 @@ export function LiveControlRoom({ match, onUpdate }: { match: any, homePlayers?:
            <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-[#00f0ff] mb-4">Anotaciones del Partido</h3>
            
            <div className="flex flex-col gap-2 max-h-[360px] overflow-y-auto custom-scrollbar pr-2">
-              {match.match_events?.map((ev: any) => {
+              {localEvents.map((ev: any) => {
                  let evName = "GOL";
                  let colorClass = "text-emerald-400 bg-emerald-500/10 border-emerald-500/30";
                  if (ev.type === 'YELLOW_CARD') { evName = "AMARILLA"; colorClass = "text-yellow-400 bg-yellow-500/10 border-yellow-500/30"; }

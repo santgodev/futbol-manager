@@ -26,6 +26,7 @@ interface Match {
 
 interface FixtureTabProps {
   matches: Match[];
+  onTeamClick?: (teamId: string) => void;
 }
 
 function formatDate(dateStr: string | null): string {
@@ -75,7 +76,7 @@ function getRoundLabel(match: Match): string {
   return "Sin fecha";
 }
 
-export function FixtureTab({ matches }: FixtureTabProps) {
+export function FixtureTab({ matches, onTeamClick }: FixtureTabProps) {
   const [search, setSearch] = useState("");
   const [collapsedRounds, setCollapsedRounds] = useState<Set<string>>(new Set());
   const [selectedMatch, setSelectedMatch] = useState<Match | null>(null);
@@ -268,7 +269,13 @@ export function FixtureTab({ matches }: FixtureTabProps) {
                               {/* Home row */}
                               <div className="flex items-center gap-3">
                                 <span
-                                  className={`text-[11px] font-black uppercase tracking-wider flex-1 ${
+                                  onClick={(e) => {
+                                    if (onTeamClick && match.home_team_id) {
+                                      e.stopPropagation();
+                                      onTeamClick(match.home_team_id);
+                                    }
+                                  }}
+                                  className={`text-[11px] font-black uppercase tracking-wider flex-1 ${onTeamClick ? "cursor-pointer hover:text-[#00f0ff] transition-colors" : ""} ${
                                     homeWon
                                       ? "text-white"
                                       : isFinished
@@ -302,7 +309,13 @@ export function FixtureTab({ matches }: FixtureTabProps) {
                                   {awayScore !== null ? awayScore : "—"}
                                 </span>
                                 <span
-                                  className={`text-[11px] font-black uppercase tracking-wider flex-1 text-right ${
+                                  onClick={(e) => {
+                                    if (onTeamClick && match.away_team_id) {
+                                      e.stopPropagation();
+                                      onTeamClick(match.away_team_id);
+                                    }
+                                  }}
+                                  className={`text-[11px] font-black uppercase tracking-wider flex-1 text-right ${onTeamClick ? "cursor-pointer hover:text-[#00f0ff] transition-colors" : ""} ${
                                     awayWon
                                       ? "text-white"
                                       : isFinished

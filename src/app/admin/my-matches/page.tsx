@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { Calendar, CheckCircle2, Clock, XCircle, AlertCircle, Edit3, Send, Trophy, RefreshCw } from "lucide-react";
 import { getMyAssignedMatchesAction, submitMatchResultAction } from "../pegasight-actions";
+import Link from "next/link";
 
 export default function MyMatchesPage() {
   const [matches, setMatches] = useState<any[]>([]);
@@ -241,8 +242,8 @@ export default function MyMatchesPage() {
                       Publicado • No modificable
                     </span>
                   ) : (
-                    <button
-                      onClick={() => openModal(m)}
+                    <Link
+                      href={`/admin/match-room?id=${m.id}&draft=true`}
                       className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all ${
                         isRejected
                           ? "bg-red-500/20 text-red-300 border border-red-500/40 hover:bg-red-500/30"
@@ -253,7 +254,7 @@ export default function MyMatchesPage() {
                     >
                       <Edit3 size={13} />
                       {isRejected ? "Corregir Marcador" : isPending ? "Modificar Marcador" : "Registrar Marcador"}
-                    </button>
+                    </Link>
                   )}
                 </div>
               </div>

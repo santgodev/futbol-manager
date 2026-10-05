@@ -909,18 +909,25 @@ export async function generateKnockoutBracket(tournamentId: string, categoryId: 
     throw new Error("No se pueden generar eliminatorias en un torneo con formato de Liga Directa.");
   }
 
-  // 1. Validar que la fase de grupos esté matemáticamente terminada y sea consistente
-  const { data: groupMatches, error: gmErr } = await supabase
+  let gmQuery = supabase
     .from('matches')
     .select('*')
     .eq('tournament_id', tournamentId)
-    .or('stage.eq.GROUP,stage.eq.GRUPOS');
+    .eq('stage', 'GROUP');
 
-  if (gmErr) throw new Error("Error consultando partidos de fase de grupos");
+  if (categoryId) {
+    gmQuery = gmQuery.eq('category_id', categoryId);
+  } else {
+    gmQuery = gmQuery.is('category_id', null);
+  }
+
+  const { data: groupMatches, error: gmErr } = await gmQuery;
+
+  if (gmErr) throw new Error("Error consultando partidos de fase de grupos: " + gmErr.message);
 
   let rtQuery = supabase
     .from('tournament_teams')
-    .select('team_id')
+    .select('team_id, group_name')
     .eq('tournament_id', tournamentId);
     
   if (categoryId) {
@@ -941,14 +948,29 @@ export async function generateKnockoutBracket(tournamentId: string, categoryId: 
     }
 
     // B. Validar consistencia de partidos jugados vs requeridos (Todos contra todos)
-    const N = registeredTeams.length;
     const isDoubleRound = !!tournament.is_double_round;
-    const singleRoundMatches = N >= 2 ? (N * (N - 1)) / 2 : 0;
-    const requiredMatches = isDoubleRound ? singleRoundMatches * 2 : singleRoundMatches;
+    let requiredMatches = 0;
+    
+    if (registeredTeams.length >= 2) {
+      const groups: Record<string, number> = {};
+      registeredTeams.forEach((tt: any) => {
+        const gName = tt.group_name || 'UNASSIGNED';
+        groups[gName] = (groups[gName] || 0) + 1;
+      });
+      
+      for (const gName in groups) {
+        const count = groups[gName];
+        if (count >= 2) {
+          const single = (count * (count - 1)) / 2;
+          requiredMatches += isDoubleRound ? single * 2 : single;
+        }
+      }
+    }
+
     const finishedGroup = groupMatches?.filter((m: any) => m.status === 'FINISHED') || [];
 
     if (finishedGroup.length < requiredMatches) {
-      throw new Error(`Lógica competitiva rota: Se requieren jugar ${requiredMatches} partidos de grupo (todos contra todos para ${N} equipos) para generar las llaves, pero solo se han jugado ${finishedGroup.length} partidos.`);
+      throw new Error(`Lógica competitiva rota: Se requieren jugar ${requiredMatches} partidos de grupo en total para generar las llaves, pero solo se han jugado ${finishedGroup.length} partidos.`);
     }
 
     // C. Validar que no haya equipos sin haber jugado partidos

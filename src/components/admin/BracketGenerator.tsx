@@ -13,6 +13,7 @@ interface BracketGeneratorProps {
   pendingGroupMatchesCount: number;
   registeredTeamsCount: number;
   matchesPlayed: number;
+  requiredGroupMatches: number;
 }
 
 function getPhaseDescription(num: number): string {
@@ -30,7 +31,8 @@ export function BracketGenerator({
   isGroupStageComplete,
   pendingGroupMatchesCount,
   registeredTeamsCount,
-  matchesPlayed
+  matchesPlayed,
+  requiredGroupMatches
 }: BracketGeneratorProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [status, setStatus] = useState<"idle" | "generating" | "success" | "error">("idle");
@@ -70,9 +72,6 @@ export function BracketGenerator({
 
   // ── Fase de grupos incompleta ──
   if (!isGroupStageComplete) {
-    const requiredGroupMatches = registeredTeamsCount >= 2
-      ? (registeredTeamsCount * (registeredTeamsCount - 1)) / 2
-      : 0;
     const progress = requiredGroupMatches > 0
       ? Math.min(100, Math.round((matchesPlayed / requiredGroupMatches) * 100))
       : 0;

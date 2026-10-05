@@ -831,7 +831,7 @@ export function RoleHierarchyAccordion({
                         </div>
 
                         <Link
-                          href="/admin/submit-result"
+                          href={`/admin/match-room?id=${m.id}`}
                           className="px-4 py-2 rounded-xl bg-gradient-to-r from-purple-500 to-[#00f0ff] text-black font-extrabold text-xs uppercase tracking-wider text-center hover:scale-[1.02] transition-transform"
                         >
                           {isRejected ? "Corregir" : res ? "Ver detalle" : "Registrar"}

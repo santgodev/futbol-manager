@@ -9,6 +9,7 @@ import Link from "next/link";
 function MatchRoomContent() {
   const searchParams = useSearchParams();
   const id = searchParams.get("id");
+  const isDraft = searchParams.get("draft") === "true";
 
   if (!id) {
     return (
@@ -22,7 +23,7 @@ function MatchRoomContent() {
     );
   }
 
-  return <MatchControlRoomClient id={id} />;
+  return <MatchControlRoomClient id={id} isDraft={isDraft} />;
 }
 
 export default function MatchRoomPage() {

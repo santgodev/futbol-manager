@@ -8,13 +8,13 @@ import { Loader2, Calendar, X, CheckCircle2, Trash2 } from "lucide-react";
 export function FixtureGenerator({
   tournamentId,
   categoryId,
-  teamsCount,
+  teams,
   hasGroupMatches,
   onUpdate
 }: {
   tournamentId: string;
   categoryId?: string | null;
-  teamsCount: number;
+  teams: any[];
   hasGroupMatches: boolean;
   onUpdate?: () => void;
 }) {
@@ -23,13 +23,33 @@ export function FixtureGenerator({
   const [done, setDone] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
 
-  const isOdd = teamsCount % 2 !== 0;
-  const virtualTeams = isOdd ? teamsCount + 1 : teamsCount;
-  const numRounds = virtualTeams - 1;
-  const matchesPerRound = virtualTeams / 2;
-  const totalMatches = numRounds * (isOdd ? matchesPerRound - 1 : matchesPerRound);
+  const teamsCount = teams.length;
 
-  const canGenerate = teamsCount >= 3 && !hasGroupMatches;
+  const teamsByGroup = teams.reduce((acc: any, curr: any) => {
+    const groupName = curr.group_name || 'UNASSIGNED';
+    if (!acc[groupName]) acc[groupName] = [];
+    acc[groupName].push(curr.team_id);
+    return acc;
+  }, {});
+
+  let numRounds = 0;
+  let totalMatches = 0;
+
+  for (const groupName in teamsByGroup) {
+    const groupTeamsCount = teamsByGroup[groupName].length;
+    if (groupTeamsCount < 2) continue;
+    
+    const isOdd = groupTeamsCount % 2 !== 0;
+    const virtualTeams = isOdd ? groupTeamsCount + 1 : groupTeamsCount;
+    const r = virtualTeams - 1;
+    const matchesPerRound = virtualTeams / 2;
+    const groupMatches = r * (isOdd ? matchesPerRound - 1 : matchesPerRound);
+
+    if (r > numRounds) numRounds = r;
+    totalMatches += groupMatches;
+  }
+
+  const canGenerate = teamsCount >= 3 && totalMatches > 0 && !hasGroupMatches;
 
   const handleGenerate = async () => {
     if (!canGenerate) return;

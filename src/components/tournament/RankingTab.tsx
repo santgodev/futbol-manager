@@ -25,6 +25,7 @@ interface StandingRow {
 interface RankingTabProps {
   standings: StandingRow[];
   sport?: string | null;
+  onTeamClick?: (teamId: string) => void;
 }
 
 function safeRatio(a: number, b: number): string {
@@ -54,7 +55,7 @@ function buildGroupPositions(standings: StandingRow[]): Map<string, number> {
   return posMap;
 }
 
-export function RankingTab({ standings, sport }: RankingTabProps) {
+export function RankingTab({ standings, sport, onTeamClick }: RankingTabProps) {
   const isVolleyball = sport === "VOLLEYBALL" || sport === "BEACH_VOLLEYBALL";
   const posMap = useMemo(() => buildGroupPositions(standings), [standings]);
 
@@ -158,7 +159,8 @@ export function RankingTab({ standings, sport }: RankingTabProps) {
               return (
                 <tr
                   key={team.team_id}
-                  className={`border-b border-white/5 last:border-0 transition-colors ${
+                  onClick={() => onTeamClick?.(team.team_id)}
+                  className={`border-b border-white/5 last:border-0 transition-colors ${onTeamClick ? "cursor-pointer hover:bg-white/10" : ""} ${
                     pos === 1
                       ? "bg-[#00f0ff]/5"
                       : pos === 2

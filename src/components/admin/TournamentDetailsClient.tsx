@@ -511,7 +511,7 @@ export function TournamentDetailsClient({ id }: { id: string }) {
                     <FixtureGenerator 
                       tournamentId={id} 
                       categoryId={activeCategoryId}
-                      teamsCount={teamsCount}
+                      teams={activeTeams}
                       hasGroupMatches={activeMatches?.some((m: any) => m.stage === "GROUP" || m.stage === "GRUPOS")}
                       onUpdate={fetchAllData}
                     />
@@ -696,6 +696,7 @@ export function TournamentDetailsClient({ id }: { id: string }) {
             teamsCount={teamsCount}
             groupMatchesPending={groupMatchesPending}
             groupMatchesPlayed={groupMatchesPlayed}
+            requiredGroupMatches={requiredGroupMatches}
           />
         )}
 

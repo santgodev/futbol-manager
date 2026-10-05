@@ -69,7 +69,7 @@ export function TeamForm() {
       .select("id, name")
       .eq("tournament_id", selectedTournament)
       .order("display_order", { ascending: true })
-      .then(({ data }) => setCategories(data || []));
+      .then((res: any) => setCategories(res.data || []));
   }, [selectedTournament]);
 
   const addTeam = () => {

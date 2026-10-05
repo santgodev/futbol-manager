@@ -24,6 +24,7 @@ interface TeamRow {
 interface PublicGroupStandingsProps {
   standings: TeamRow[];
   sport?: string | null;
+  onTeamClick?: (teamId: string) => void;
 }
 
 function safeRatio(a: number, b: number): string {
@@ -31,7 +32,7 @@ function safeRatio(a: number, b: number): string {
   return (a / b).toFixed(3);
 }
 
-export function PublicGroupStandings({ standings, sport }: PublicGroupStandingsProps) {
+export function PublicGroupStandings({ standings, sport, onTeamClick }: PublicGroupStandingsProps) {
   if (!standings || standings.length === 0) return null;
   const isVolleyball = sport === "VOLLEYBALL" || sport === "BEACH_VOLLEYBALL";
 
@@ -137,7 +138,8 @@ export function PublicGroupStandings({ standings, sport }: PublicGroupStandingsP
                       return (
                         <tr
                           key={team.team_id}
-                          className={`border-b border-white/5 last:border-0 transition-colors
+                          onClick={() => onTeamClick?.(team.team_id)}
+                          className={`border-b border-white/5 last:border-0 transition-colors ${onTeamClick ? "cursor-pointer hover:bg-white/10" : ""}
                             ${isFirst ? "bg-[#00f0ff]/5" : isSecond ? "bg-[#0055cc]/5" : "hover:bg-white/[0.02]"}`}
                         >
                           {/* # */}

@@ -32,7 +32,7 @@ export default function AdminTeamsPage() {
           `)
           .order("name", { ascending: true });
 
-        if (userProfile.role === "ADMINISTRADOR_DEL_TORNEO") {
+        if (userProfile?.role === "ADMINISTRADOR_DEL_TORNEO") {
           const assignedIds = userProfile.memberships
             .filter(m => m.role === "ADMINISTRADOR_DEL_TORNEO" && m.status === "ACTIVE")
             .map(m => m.tournament_id);
@@ -43,11 +43,11 @@ export default function AdminTeamsPage() {
             return;
           }
           query = query.in("tournament_id", assignedIds);
-        } else if (userProfile.role === "SUPERADMINISTRADOR") {
+        } else if (userProfile?.role === "SUPERADMINISTRADOR") {
           // Si es superadmin, solo ver los de sus propios torneos
           const { data: adminTournaments } = await supabase.from("tournaments").select("id").eq("superadmin_id", userProfile.id);
           if (adminTournaments && adminTournaments.length > 0) {
-            query = query.in("tournament_id", adminTournaments.map(t => t.id));
+            query = query.in("tournament_id", adminTournaments.map((t: any) => t.id));
           } else {
              setTeams([]);
              setLoading(false);

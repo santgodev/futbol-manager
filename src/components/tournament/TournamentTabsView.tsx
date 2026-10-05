@@ -6,6 +6,7 @@ import { FixtureTab } from "./FixtureTab";
 import { PublicGroupStandings } from "./PublicGroupStandings";
 import { RankingTab } from "./RankingTab";
 import { KnockoutBracket } from "./KnockoutBracket";
+import { PublicTeamModal } from "./PublicTeamModal";
 
 interface StandingRow {
   team_id: string;
@@ -134,6 +135,7 @@ function stageBadgeLabel(stage: string): string {
 export function TournamentTabsView({ tournament, categories, matches, standings }: TournamentTabsViewProps) {
   const [activeCategoryId, setActiveCategoryId] = useState<string | null>(categories?.[0]?.id || null);
   const [activeTab, setActiveTab] = useState<TabId>("fixture");
+  const [selectedTeamId, setSelectedTeamId] = useState<string | null>(null);
 
   useEffect(() => {
     const applyHashTab = () => {
@@ -260,12 +262,12 @@ export function TournamentTabsView({ tournament, categories, matches, standings 
       {/* Tab Content */}
       <div>
         {activeTab === "fixture" && (
-          <FixtureTab matches={activeMatches} />
+          <FixtureTab matches={activeMatches} onTeamClick={setSelectedTeamId} />
         )}
 
         {activeTab === "standings" && (
           activeStandings.length > 0 ? (
-            <PublicGroupStandings standings={activeStandings} sport={tournament?.sport} />
+            <PublicGroupStandings standings={activeStandings} sport={tournament?.sport} onTeamClick={setSelectedTeamId} />
           ) : (
             <EmptyState text="No hay tablas de posiciones disponibles aún." />
           )
@@ -273,7 +275,7 @@ export function TournamentTabsView({ tournament, categories, matches, standings 
 
         {activeTab === "ranking" && (
           activeStandings.length > 0 ? (
-            <RankingTab standings={activeStandings} sport={tournament?.sport} />
+            <RankingTab standings={activeStandings} sport={tournament?.sport} onTeamClick={setSelectedTeamId} />
           ) : (
             <EmptyState text="No hay suficientes datos para el ranking." />
           )
@@ -288,6 +290,14 @@ export function TournamentTabsView({ tournament, categories, matches, standings 
         )}
       </div>
 
+      {selectedTeamId && (
+        <PublicTeamModal
+          teamId={selectedTeamId}
+          standings={standings}
+          matches={matches}
+          onClose={() => setSelectedTeamId(null)}
+        />
+      )}
     </section>
   );
 }
