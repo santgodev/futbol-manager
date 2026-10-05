@@ -978,18 +978,16 @@ export async function createResultUserAction(data: {
   const profile = await getCurrentUserProfile();
   if (!profile) throw new Error("No autorizado");
 
-  if (!data.email || !data.password || !data.full_name) {
-    throw new Error("Todos los campos (correo, contraseña y nombre) son obligatorios.");
+  if (!data.email || !data.password || !data.full_name || !data.tournamentId) {
+    throw new Error("Todos los campos (correo, contraseña, nombre y torneo) son obligatorios.");
   }
 
-  if (data.tournamentId) {
-    const isSuperadmin = isSuperOrGeneralAdmin(profile.role);
-    const isAssignedAdmin = profile.memberships.some(
-      (m) => m.tournament_id === data.tournamentId && m.role === "ADMINISTRADOR_DEL_TORNEO" && m.status === "ACTIVE"
-    );
-    if (!isSuperadmin && !isAssignedAdmin) {
-      throw new Error("No tienes autorización en este torneo.");
-    }
+  const isSuperadmin = isSuperOrGeneralAdmin(profile.role);
+  const isAssignedAdmin = profile.memberships.some(
+    (m) => m.tournament_id === data.tournamentId && m.role === "ADMINISTRADOR_DEL_TORNEO" && m.status === "ACTIVE"
+  );
+  if (!isSuperadmin && !isAssignedAdmin) {
+    throw new Error("No tienes autorización en este torneo.");
   }
 
   const supabase = await createClient();
@@ -1005,6 +1003,15 @@ export async function createResultUserAction(data: {
 
   if (result?.id) {
     await supabase.from("profiles").update({ created_by: profile.id }).eq("id", result.id);
+
+    // VINCULACIÓN OBLIGATORIA al torneo
+    await supabase.from("tournament_memberships").upsert({
+      user_id: result.id,
+      tournament_id: data.tournamentId,
+      role: "USUARIO_DE_RESULTADOS",
+      status: "ACTIVE",
+      assigned_by: profile.id
+    }, { onConflict: "user_id,tournament_id" });
   }
 
   revalidatePath("/admin/result-users");

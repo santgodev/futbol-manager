@@ -498,16 +498,17 @@ export default function ResultUsersPage() {
 
               <div>
                 <label className="block text-[10px] font-bold uppercase tracking-wider text-white/60 mb-1.5">
-                  Dar acceso a un Torneo (Opcional)
+                  Torneo Asignado *
                 </label>
                 <div className="relative">
                   <Trophy size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/40" />
                   <select
                     value={formTournamentId}
+                    required
                     onChange={(e) => setFormTournamentId(e.target.value)}
                     className="w-full pl-9 pr-3 py-2 rounded-xl bg-black/40 border border-white/10 text-white text-xs focus:outline-none focus:border-purple-400 transition-colors appearance-none"
                   >
-                    <option value="">-- Puedes darle acceso después --</option>
+                    <option value="">-- Selecciona un Torneo --</option>
                     {tournaments.map((t) => (
                       <option key={t.id} value={t.id} className="bg-[#0e1622] text-white">
                         {t.name}
