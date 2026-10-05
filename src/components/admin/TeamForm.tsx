@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { createTeam } from "@/app/admin/actions";
+import { createTeam, addTeamToTournament } from "@/app/admin/actions";
 import { ImageUpload } from "@/components/ui/ImageUpload";
 import { Loader2, Shield, AlertTriangle, Plus, X } from "lucide-react";
 import Link from "next/link";
@@ -14,6 +14,10 @@ export function TeamForm() {
   const [errorMessage, setErrorMessage] = useState("");
   const [tournaments, setTournaments] = useState<{id: string, name: string}[]>([]);
   const [loadingData, setLoadingData] = useState(true);
+  
+  // State for categories of the selected tournament
+  const [selectedTournament, setSelectedTournament] = useState("");
+  const [categories, setCategories] = useState<{id: string, name: string}[]>([]);
   
   // State for multiple team forms
   const [teamIds, setTeamIds] = useState<string[]>([crypto.randomUUID()]);
@@ -54,6 +58,20 @@ export function TeamForm() {
     loadTournaments();
   }, []);
 
+  // Fetch categories when a tournament is selected
+  useEffect(() => {
+    if (!selectedTournament) {
+      setCategories([]);
+      return;
+    }
+    const supabase = createClient();
+    supabase.from("tournament_categories")
+      .select("id, name")
+      .eq("tournament_id", selectedTournament)
+      .order("display_order", { ascending: true })
+      .then(({ data }) => setCategories(data || []));
+  }, [selectedTournament]);
+
   const addTeam = () => {
     setTeamIds(prev => [...prev, crypto.randomUUID()]);
   };
@@ -71,6 +89,7 @@ export function TeamForm() {
 
     const formData = new FormData(e.currentTarget);
     const tournament_id = formData.get("tournament_id") as string;
+    const category_id = formData.get("category_id") as string;
     
     if (!tournament_id) {
       setErrorMessage("Debes seleccionar un torneo al cual pertenecerán los equipos");
@@ -98,7 +117,13 @@ export function TeamForm() {
     }
 
     try {
-      await Promise.all(teamsToCreate.map(data => createTeam(data)));
+      await Promise.all(teamsToCreate.map(async data => {
+        const res = await createTeam(data);
+        if (res.success && res.team) {
+          // Auto enroll team in tournament categories
+          await addTeamToTournament(tournament_id, res.team.id, undefined, category_id || null);
+        }
+      }));
       setStatus("success");
       setTimeout(() => {
         router.push("/admin/teams");
@@ -128,23 +153,45 @@ export function TeamForm() {
           </div>
         ) : (
           <>
-            {/* Torneo al que pertenece */}
-            <div className="flex flex-col gap-2 bg-[#040c1a]/50 p-4 rounded-xl border border-brand-navy/30">
-              <label className="text-[10px] text-[#00f0ff]/80 uppercase tracking-widest font-bold ml-1">
-                Torneo de Destino *
-              </label>
-              {tournaments.length === 0 ? (
-                <div className="bg-red-500/10 border border-red-500/30 text-red-400 text-xs p-3 rounded-lg">
-                  No tienes torneos activos para asignar equipos. Crea un torneo primero.
-                </div>
-              ) : (
-                <select name="tournament_id" required className="input-premium appearance-none !bg-black/50">
-                  <option value="">Selecciona a qué torneo irán estos equipos...</option>
-                  {tournaments.map(t => (
-                    <option key={t.id} value={t.id}>{t.name}</option>
+            {/* Configuración de Torneo y Categoría */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-[#040c1a]/50 p-4 rounded-xl border border-brand-navy/30">
+              
+              <div className="flex flex-col gap-2">
+                <label className="text-[10px] text-[#00f0ff]/80 uppercase tracking-widest font-bold ml-1">
+                  Torneo de Destino *
+                </label>
+                {tournaments.length === 0 ? (
+                  <div className="bg-red-500/10 border border-red-500/30 text-red-400 text-xs p-3 rounded-lg">
+                    No tienes torneos activos para asignar equipos. Crea un torneo primero.
+                  </div>
+                ) : (
+                  <select 
+                    name="tournament_id" 
+                    required 
+                    className="input-premium appearance-none !bg-black/50"
+                    value={selectedTournament}
+                    onChange={e => setSelectedTournament(e.target.value)}
+                  >
+                    <option value="">Selecciona el torneo...</option>
+                    {tournaments.map(t => (
+                      <option key={t.id} value={t.id}>{t.name}</option>
+                    ))}
+                  </select>
+                )}
+              </div>
+
+              <div className="flex flex-col gap-2">
+                <label className="text-[10px] text-[#00f0ff]/80 uppercase tracking-widest font-bold ml-1">
+                  Categoría (Opcional)
+                </label>
+                <select name="category_id" className="input-premium appearance-none !bg-black/50" disabled={categories.length === 0}>
+                  <option value="">{categories.length === 0 ? 'Sin categorías disponibles' : 'Selecciona una categoría...'}</option>
+                  {categories.map(c => (
+                    <option key={c.id} value={c.id}>{c.name}</option>
                   ))}
                 </select>
-              )}
+              </div>
+
             </div>
 
             {/* List of Teams */}
