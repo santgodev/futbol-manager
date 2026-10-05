@@ -418,11 +418,12 @@ export function TournamentResultUserManager({ tournamentId }: TournamentResultUs
                 </div>
               </div>
 
-              <SecurePasswordInput
-                value={newPassword}
-                onChange={setNewPassword}
-                className="focus:border-purple-400 focus:ring-purple-400 bg-black/50 pl-10 pr-4 py-2.5"
-              />
+              <div>
+                <SecurePasswordInput
+                  value={newPassword}
+                  onChange={setNewPassword}
+                  className="focus:border-purple-400 focus:ring-purple-400 bg-black/50 pl-10 pr-4 py-2.5"
+                />
                 <span className="text-[10px] text-white/40 block mt-1">
                   Se creará su cuenta de Usuario de Resultados y se le vinculará de inmediato a este torneo.
                 </span>
