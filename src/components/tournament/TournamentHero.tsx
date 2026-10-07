@@ -19,6 +19,8 @@ function getStatusConfig(status: string) {
       return { label: "Próximamente",  dot: "bg-[#f59e0b]", color: "text-[#f59e0b]", border: "border-[#f59e0b]/30", bg: "bg-[#f59e0b]/10" };
     case "FINISHED":
       return { label: "Finalizado",    dot: null,            color: "text-[#707b86]", border: "border-[#202830]",   bg: "bg-[#0a0f14]" };
+    case "DISABLED":
+      return { label: "Deshabilitado", dot: null,            color: "text-red-500", border: "border-red-500/30", bg: "bg-red-500/10" };
     default:
       return { label: status,          dot: "bg-[#0a84ff]",  color: "text-[#0a84ff]", border: "border-[#0a84ff]/30", bg: "bg-[#0a84ff]/10" };
   }

@@ -7,6 +7,7 @@ import { MobileBottomNav } from "@/components/layout/MobileBottomNav";
 import { TournamentHero } from "@/components/tournament/TournamentHero";
 import { TournamentTabsView } from "@/components/tournament/TournamentTabsView";
 import { TournamentRules } from "@/components/tournament/TournamentRules";
+import { TournamentChampions } from "@/components/tournament/TournamentChampions";
 import { DashboardGrid } from "@/components/home/DashboardGrid";
 import { createClient } from "@/utils/supabase/client";
 
@@ -55,8 +56,8 @@ export function TournamentClientWrapper({ slug }: { slug: string }) {
           .from("matches")
           .select(`
             *,
-            home_team:teams!matches_home_team_id_fkey(name, logo_url),
-            away_team:teams!matches_away_team_id_fkey(name, logo_url),
+            home_team:teams!matches_home_team_id_fkey(id, name, logo_url),
+            away_team:teams!matches_away_team_id_fkey(id, name, logo_url),
             match_sets(
               id,
               set_number,
@@ -153,6 +154,11 @@ export function TournamentClientWrapper({ slug }: { slug: string }) {
       <main>
         {/* Hero section with tournament name, dates, location */}
         <TournamentHero tournament={data.tournament} />
+
+        {/* Champions showcase (if there are finished finals) */}
+        {data.matches.some((m: any) => m.stage === "FINAL" && m.status === "FINISHED") && (
+          <TournamentChampions matches={data.matches} />
+        )}
 
         {/* Dashboard stats strip */}
         <div className="w-full">

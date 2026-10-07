@@ -18,6 +18,9 @@ export function tournamentStatusLabel(status?: string | null): string {
     case "COMPLETED":
     case "FINALIZADO":
       return "Terminado";
+    case "DISABLED":
+    case "DESHABILITADO":
+      return "Deshabilitado";
     default:
       return status || "—";
   }

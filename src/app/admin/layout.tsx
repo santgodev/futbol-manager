@@ -87,7 +87,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
       </div>
 
       {/* ── Sidebar (Desktop) ── */}
-      <aside className="hidden md:flex w-64 border-r border-border-default flex-col relative z-20 shrink-0 bg-bg-secondary">
+      <aside className="hidden md:flex w-64 border-r border-border-default flex-col sticky top-0 h-screen overflow-y-auto custom-scrollbar z-20 shrink-0 bg-bg-secondary">
         {/* Sidebar top glow line */}
         <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-sky-300/35 to-transparent" />
 

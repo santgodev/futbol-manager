@@ -9,12 +9,7 @@ const features = [
   { icon: Users,     label: "Comunidad activa" },
 ];
 
-const StatBadge = ({ value, label }: { value: string; label: string }) => (
-  <div className="flex flex-col items-center px-6 py-4 rounded-2xl bg-[#0a0f14] border border-[#202830]">
-    <span className="text-2xl font-bold text-white tabular-nums">{value}</span>
-    <span className="text-[11px] text-[#707b86] mt-0.5 font-medium">{label}</span>
-  </div>
-);
+
 
 export const HomeHero = () => {
   return (
@@ -99,12 +94,7 @@ export const HomeHero = () => {
                 Ver torneos
                 <ArrowRight className="w-4 h-4" />
               </a>
-              <a
-                href="/login"
-                className="inline-flex items-center gap-2 px-6 py-3 text-[14px] font-semibold text-[#a7b0ba] hover:text-white transition-colors duration-200"
-              >
-                Crear cuenta gratis
-              </a>
+
             </div>
           </div>
 
@@ -117,10 +107,10 @@ export const HomeHero = () => {
               {/* Top bar */}
               <div className="w-full flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 rounded-full bg-[#22c55e]" />
-                  <span className="text-[12px] text-[#707b86] font-medium">Disponible ahora</span>
+                  <div className="w-2 h-2 rounded-full bg-[#f59e0b]" />
+                  <span className="text-[12px] text-[#707b86] font-medium">Próximamente</span>
                 </div>
-                <span className="text-[11px] text-[#0a84ff] font-semibold uppercase tracking-widest">Nuevo</span>
+                <span className="text-[11px] text-[#f59e0b] font-semibold uppercase tracking-widest">En desarrollo</span>
               </div>
 
               {/* Llavero image */}
@@ -153,9 +143,8 @@ export const HomeHero = () => {
               </div>
 
               {/* Action */}
-              <button className="w-full flex items-center justify-center gap-2 py-3 px-6 text-[13px] font-semibold text-white bg-[#0a84ff] rounded-xl hover:bg-[#2493ff] transition-all duration-200 shadow-[0_4px_16px_rgba(10,132,255,0.3)]">
-                <span>Adquirir ahora</span>
-                <ArrowRight className="w-3.5 h-3.5" />
+              <button className="w-full flex items-center justify-center gap-2 py-3 px-6 text-[13px] font-semibold text-white/50 bg-[#202830] rounded-xl cursor-not-allowed">
+                <span>Muy pronto</span>
               </button>
 
               {/* Subtle inner glow */}
@@ -168,12 +157,7 @@ export const HomeHero = () => {
               />
             </div>
 
-            {/* Stats row */}
-            <div className="grid grid-cols-3 gap-3">
-              <StatBadge value="50+" label="Torneos" />
-              <StatBadge value="2K+" label="Partidos" />
-              <StatBadge value="8K+" label="Jugadores" />
-            </div>
+
           </div>
 
         </div>

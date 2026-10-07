@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 
 const selectClass = "bg-[#040c1a]/80 border border-[#0055cc]/50 focus:border-[#00f0ff] px-3 py-2 text-white text-xs rounded-lg outline-none transition-all appearance-none cursor-pointer pr-8";
 
-export function TournamentStatusSwitcher({ tournament, isDisabled = false, onUpdate }: { tournament: any, isDisabled?: boolean, onUpdate?: () => void }) {
+export function TournamentStatusSwitcher({ tournament, isDisabled = false, onUpdate, isSuperAdmin = false }: { tournament: any, isDisabled?: boolean, onUpdate?: () => void, isSuperAdmin?: boolean }) {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
@@ -40,6 +40,9 @@ export function TournamentStatusSwitcher({ tournament, isDisabled = false, onUpd
             <option value="INSCRIPCIONES ABIERTAS" className="bg-[#040c1a]">Inscripciones</option>
             <option value="EN CURSO"            className="bg-[#040c1a]">En Curso</option>
             <option value="FINALIZADO"          className="bg-[#040c1a]">Finalizado</option>
+            {isSuperAdmin && (
+              <option value="DISABLED" className="bg-[#040c1a] text-red-400">🚫 Deshabilitado</option>
+            )}
           </select>
           <ChevronDown size={12} className="absolute right-2 top-1/2 -translate-y-1/2 text-[#00f0ff]/50 pointer-events-none" />
         </div>

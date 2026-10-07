@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { updateMatchScore, createMatchEvent, createPlayer, deleteMatchEvent } from "@/app/admin/actions";
+import { useState, useEffect } from "react";
+import { updateMatchScore, createMatchEvent, createPlayer, deleteMatchEvent, createAndRegisterPlayer } from "@/app/admin/actions";
 import { submitMatchResultAction } from "@/app/admin/pegasight-actions";
 import { Shield, CheckCircle, Plus, Trash2, Goal } from "lucide-react";
 import Link from "next/link";
@@ -14,8 +14,8 @@ export function LiveControlRoom({ match, onUpdate, isDraft = false }: { match: a
   const [homeScore, setHomeScore] = useState<number>(match.home_score || 0);
   const [awayScore, setAwayScore] = useState<number>(match.away_score || 0);
   const [localEvents, setLocalEvents] = useState<any[]>(match.match_events || []);
-  
   const [playerName, setPlayerName] = useState("");
+  
   const [activeModal, setActiveModal] = useState<{
     teamId: string;
     type: "GOAL" | "YELLOW_CARD" | "RED_CARD";
@@ -23,6 +23,10 @@ export function LiveControlRoom({ match, onUpdate, isDraft = false }: { match: a
   
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
+
+  useEffect(() => {
+    setLocalEvents(match.match_events || []);
+  }, [match.match_events]);
   
   const handleFinalizeMatch = async () => {
     setIsSubmitting(true);
@@ -73,10 +77,11 @@ export function LiveControlRoom({ match, onUpdate, isDraft = false }: { match: a
       let playerId = null;
       let createdPlayerName = playerName.trim() ? playerName.trim() : 'Jugador Desconocido';
       if (playerName.trim()) {
-        const res = await createPlayer({
-           team_id: activeModal.teamId,
-           name: playerName.trim(),
-        });
+        const res = await createAndRegisterPlayer(
+           playerName.trim(),
+           match.tournament_id,
+           activeModal.teamId
+        );
         playerId = res.player.id;
         createdPlayerName = res.player?.name || playerName.trim();
       }
@@ -91,7 +96,7 @@ export function LiveControlRoom({ match, onUpdate, isDraft = false }: { match: a
           player: { id: playerId, name: createdPlayerName }
         }]);
       } else {
-        await createMatchEvent({
+        const res = await createMatchEvent({
            match_id: match.id,
            tournament_id: match.tournament_id,
            team_id: activeModal.teamId,
@@ -100,6 +105,15 @@ export function LiveControlRoom({ match, onUpdate, isDraft = false }: { match: a
            minute: null,
            description: playerName.trim() ? null : 'Jugador Desconocido'
         });
+        
+        setLocalEvents(prev => [...prev, {
+          id: res.event.id,
+          type: res.event.type,
+          team_id: res.event.team_id,
+          player_id: res.event.player_id,
+          created_at: res.event.created_at,
+          player: { id: playerId, name: createdPlayerName }
+        }]);
       }
 
       if (activeModal.type === 'GOAL') {
@@ -113,7 +127,6 @@ export function LiveControlRoom({ match, onUpdate, isDraft = false }: { match: a
       setPlayerName("");
       setActiveModal(null);
       if (onUpdate) onUpdate();
-      if (!isDraft) router.refresh();
     } catch (err: any) {
       setErrorMsg(err.message || "Error al agregar el evento");
     } finally {
@@ -137,7 +150,6 @@ export function LiveControlRoom({ match, onUpdate, isDraft = false }: { match: a
         await deleteMatchEvent(eventId, match.tournament_id);
       }
       if (onUpdate) onUpdate();
-      if (!isDraft) router.refresh();
     } catch (err: any) {
       setErrorMsg(err.message || "Error al eliminar");
     } finally {

@@ -16,6 +16,7 @@ interface Match {
   home_team?: { name: string; logo_url?: string | null } | null;
   away_team?: { name: string; logo_url?: string | null } | null;
   group_name?: string | null;
+  cup_name?: string | null;
   venue?: string | null;
   bracket_order?: number | null;
   match_sets?: VolleyballSet[] | null;
@@ -71,6 +72,20 @@ function statusBadge(status: string | null) {
 }
 
 function getRoundLabel(match: Match): string {
+  if (match.stage !== "GROUP" && match.stage !== "LEAGUE" && match.stage) {
+    let label = "";
+    switch (match.stage) {
+      case "FINAL": label = "Gran Final"; break;
+      case "SEMIFINAL": label = "Semifinal"; break;
+      case "QUARTER_FINAL": label = "Cuartos de Final"; break;
+      case "ROUND_OF_16": label = "Octavos de Final"; break;
+      default: label = "Fase Final"; break;
+    }
+    if (match.cup_name) {
+       label += ` - ${match.cup_name}`;
+    }
+    return label;
+  }
   if (match.round_number != null) return `Jornada ${match.round_number}`;
   if (match.match_date) return match.match_date;
   return "Sin fecha";
@@ -119,10 +134,26 @@ export function FixtureTab({ matches, onTeamClick }: FixtureTabProps) {
   }, [matches, search]);
 
   const roundKeys = Object.keys(groupMatches).sort((a, b) => {
-    const numA = parseInt(a.replace("Jornada ", "")) || 0;
-    const numB = parseInt(b.replace("Jornada ", "")) || 0;
-    if (numA && numB) return numA - numB;
-    return a < b ? -1 : 1;
+    const getRank = (label: string) => {
+      if (label.startsWith("Jornada")) {
+        return parseInt(label.replace("Jornada ", "")) || 0;
+      }
+      if (label.includes("Octavos")) return 1000;
+      if (label.includes("Cuartos")) return 2000;
+      if (label.includes("Semifinal")) return 3000;
+      if (label.includes("Tercer Puesto")) return 3500;
+      if (label.includes("Gran Final")) return 4000;
+      if (label.includes("Fase Final")) return 5000;
+      return 9000; // "Sin fecha" y otros
+    };
+
+    const rankA = getRank(a);
+    const rankB = getRank(b);
+
+    if (rankA !== rankB) {
+      return rankA - rankB;
+    }
+    return a.localeCompare(b);
   });
 
   const toggleRound = (key: string) => {
@@ -257,6 +288,10 @@ export function FixtureTab({ matches, onTeamClick }: FixtureTabProps) {
                             {match.group_name ? (
                               <span className="text-[10px] font-black uppercase tracking-wider text-[#00f0ff]/70">
                                 Grupo {match.group_name}
+                              </span>
+                            ) : match.cup_name ? (
+                              <span className="text-[10px] font-black uppercase tracking-wider text-amber-500/80">
+                                {match.cup_name}
                               </span>
                             ) : (
                               <span className="text-[10px] text-white/20">—</span>

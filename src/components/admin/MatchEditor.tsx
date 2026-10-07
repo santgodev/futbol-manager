@@ -205,13 +205,23 @@ export function MatchEditor({ match, tournamentId, venues = [], isHighlighted = 
             )}
           </div>
           <div className="flex items-center gap-3">
-            <Link 
-              href={`/admin/match-room?id=${match.id}`}
-              className="flex items-center justify-center bg-brand-teal/10 border border-brand-teal/30 text-brand-teal px-4 py-2 text-[10px] font-bold uppercase tracking-widest hover:bg-brand-teal hover:text-brand-deep hover:shadow-[0_0_15px_rgba(0,240,255,0.4)] transition-all rounded-lg z-10"
-              onClick={(e) => e.stopPropagation()}
-            >
-              Registrar Resultado
-            </Link>
+            {(match.home_team_id && match.away_team_id) ? (
+              <Link 
+                href={`/admin/match-room?id=${match.id}`}
+                className="flex items-center justify-center bg-brand-teal/10 border border-brand-teal/30 text-brand-teal px-4 py-2 text-[10px] font-bold uppercase tracking-widest hover:bg-brand-teal hover:text-brand-deep hover:shadow-[0_0_15px_rgba(0,240,255,0.4)] transition-all rounded-lg z-10"
+                onClick={(e) => e.stopPropagation()}
+              >
+                Registrar Resultado
+              </Link>
+            ) : (
+              <div 
+                className="flex items-center justify-center bg-white/5 border border-white/10 text-white/30 px-4 py-2 text-[10px] font-bold uppercase tracking-widest rounded-lg z-10 cursor-not-allowed"
+                onClick={(e) => e.stopPropagation()}
+                title="Esperando equipos"
+              >
+                Registrar Resultado
+              </div>
+            )}
             {!isFinished && (
               <div className="text-brand-teal/50 p-1">
                 {isOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}

@@ -87,19 +87,26 @@ export async function getCurrentUserProfile(): Promise<UserProfileWithMembership
       role,
       status,
       assigned_at,
-      tournaments:tournament_id(name, slug)
+      tournaments:tournament_id(name, slug, status)
     `)
     .eq("user_id", user.id);
 
-  const formattedMemberships = (memberships || []).map((m: any) => ({
-    id: m.id,
-    tournament_id: m.tournament_id,
-    tournament_name: m.tournaments?.name || "Torneo",
-    tournament_slug: m.tournaments?.slug || "",
-    role: m.role as "ADMINISTRADOR_DEL_TORNEO" | "USUARIO_DE_RESULTADOS",
-    status: m.status as "ACTIVE" | "INACTIVE",
-    assigned_at: m.assigned_at
-  }));
+  const isSuperOrGeneral = profile.role === "SUPERADMINISTRADOR" || profile.role === "ADMINISTRADOR_GENERAL";
+
+  const formattedMemberships = (memberships || [])
+    .filter((m: any) => {
+      if (isSuperOrGeneral) return true;
+      return m.tournaments?.status !== "DISABLED" && m.status === "ACTIVE";
+    })
+    .map((m: any) => ({
+      id: m.id,
+      tournament_id: m.tournament_id,
+      tournament_name: m.tournaments?.name || "Torneo",
+      tournament_slug: m.tournaments?.slug || "",
+      role: m.role as "ADMINISTRADOR_DEL_TORNEO" | "USUARIO_DE_RESULTADOS",
+      status: m.status as "ACTIVE" | "INACTIVE",
+      assigned_at: m.assigned_at
+    }));
 
   return {
     id: profile.id,

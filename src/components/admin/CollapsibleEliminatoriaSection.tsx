@@ -14,6 +14,7 @@ interface CollapsibleEliminatoriaSectionProps {
   groupMatchesPending: number;
   groupMatchesPlayed: number;
   requiredGroupMatches: number;
+  onUpdate?: () => void;
 }
 
 export function CollapsibleEliminatoriaSection({
@@ -25,6 +26,7 @@ export function CollapsibleEliminatoriaSection({
   groupMatchesPending,
   groupMatchesPlayed,
   requiredGroupMatches,
+  onUpdate,
 }: CollapsibleEliminatoriaSectionProps) {
   // If group stage is complete or there are already knockout matches, keep it open by default
   const hasKnockoutMatches = matches && matches.some((m: any) => m.is_knockout);
@@ -66,6 +68,7 @@ export function CollapsibleEliminatoriaSection({
                 registeredTeamsCount={teamsCount}
                 matchesPlayed={groupMatchesPlayed}
                 requiredGroupMatches={requiredGroupMatches}
+                onUpdate={onUpdate}
               />
             </div>
           )}

@@ -10,12 +10,14 @@ export function FixtureGenerator({
   categoryId,
   teams,
   hasGroupMatches,
+  hasPlayedMatches,
   onUpdate
 }: {
   tournamentId: string;
   categoryId?: string | null;
   teams: any[];
   hasGroupMatches: boolean;
+  hasPlayedMatches?: boolean;
   onUpdate?: () => void;
 }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -117,9 +119,9 @@ export function FixtureGenerator({
           </div>
           <button
             onClick={handleDelete}
-            disabled={loading}
-            title="Eliminar calendario"
-            className="w-11 min-h-[44px] flex items-center justify-center rounded-lg bg-red-500/10 text-red-500 border border-red-500/30 hover:bg-red-500/20 transition-all touch-manipulation active:scale-95 disabled:opacity-50"
+            disabled={loading || hasPlayedMatches}
+            title={hasPlayedMatches ? "No se puede eliminar el calendario si ya hay partidos con resultados" : "Eliminar calendario"}
+            className="w-11 min-h-[44px] flex items-center justify-center rounded-lg bg-red-500/10 text-red-500 border border-red-500/30 hover:bg-red-500/20 transition-all touch-manipulation active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? <Loader2 size={16} className="animate-spin" /> : <Trash2 size={16} />}
           </button>

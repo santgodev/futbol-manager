@@ -16,7 +16,7 @@ export const Header = () => {
 
   const navLinks = [
     { href: "/", label: "Inicio" },
-    { href: "#torneos", label: "Torneos" },
+    { href: "/#torneos", label: "Torneos" },
   ];
 
   return (
@@ -61,15 +61,9 @@ export const Header = () => {
           <div className="flex items-center gap-3">
             <Link
               href="/login"
-              className="hidden sm:inline-flex items-center px-4 py-2 text-[13px] font-semibold text-[#0a84ff] border border-[#0a84ff]/40 rounded-full hover:bg-[#0a84ff]/10 hover:border-[#0a84ff]/70 transition-all duration-200"
+              className="hidden sm:inline-flex items-center px-4 py-2 text-[13px] font-semibold text-white bg-[#0a84ff] rounded-full hover:bg-[#2493ff] transition-all duration-200 shadow-[0_2px_12px_rgba(10,132,255,0.3)]"
             >
-              Iniciar Sesión
-            </Link>
-            <Link
-              href="/login"
-              className="inline-flex items-center px-4 py-2 text-[13px] font-semibold text-white bg-[#0a84ff] rounded-full hover:bg-[#2493ff] transition-all duration-200 shadow-[0_2px_12px_rgba(10,132,255,0.3)]"
-            >
-              Registrarse
+              Ingresar
             </Link>
             {/* Mobile menu toggle */}
             <button

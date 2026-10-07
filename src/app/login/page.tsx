@@ -76,7 +76,7 @@ export default function LoginPage() {
               name="email"
               required
               className="input-premium !px-4 !py-3 !text-sm !normal-case !tracking-normal"
-              placeholder="admin@torneo.com"
+              placeholder="tu@email.com"
             />
           </div>
 

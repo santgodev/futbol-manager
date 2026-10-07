@@ -32,6 +32,7 @@ function statusColor(rawStatus: string) {
   if (status.includes("CURSO"))  return "text-emerald-400 border-emerald-500/40 bg-emerald-500/10";
   if (status.includes("INSCRI")) return "text-blue-400 border-blue-500/40 bg-blue-500/10";
   if (status.includes("TERMIN")) return "text-white/30 border-white/10 bg-white/5";
+  if (status.includes("DESHABI")) return "text-red-500 border-red-500/40 bg-red-500/10";
   return "text-amber-400 border-amber-500/40 bg-amber-500/10";
 }
 

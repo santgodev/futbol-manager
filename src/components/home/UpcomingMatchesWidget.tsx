@@ -34,7 +34,8 @@ const TeamLogo = ({ logoUrl, name, size = 40 }: { logoUrl?: string | null; name?
 );
 
 export const UpcomingMatchesWidget = ({ matches = [] }: { matches?: any[] }) => {
-  if (matches.length === 0) {
+  const validMatches = matches.filter(m => m.home_team_id && m.away_team_id);
+  if (validMatches.length === 0) {
     return (
       <div className="w-full p-5 flex flex-col h-full relative overflow-hidden rounded-xl bg-[#1A1D24] border border-[#2D3342] border-l-[4px] border-l-[#0088ff] shadow-xl">
         <div className="flex items-center gap-3 mb-4">
@@ -67,7 +68,7 @@ export const UpcomingMatchesWidget = ({ matches = [] }: { matches?: any[] }) => 
 
       {/* Uniform compact list */}
       <div className="flex flex-col gap-2 relative z-10">
-        {matches.map((m) => {
+        {validMatches.map((m) => {
           const { label } = getRelativeLabel(m.match_date);
           return (
             <div

@@ -214,6 +214,7 @@ export function TournamentDetailsClient({ id }: { id: string }) {
     if (status === "REGISTRATION") return "INSCRIPCIONES";
     if (status === "IN_PROGRESS") return "EN CURSO";
     if (status === "FINISHED") return "FINALIZADO";
+    if (status === "DISABLED") return "DESHABILITADO";
     return status;
   };
 
@@ -222,6 +223,7 @@ export function TournamentDetailsClient({ id }: { id: string }) {
     if (s.includes("CURSO"))    return "bg-emerald-500/20 text-emerald-400 border-emerald-500/40";
     if (s.includes("INSCRI"))   return "bg-blue-500/20 text-blue-400 border-blue-500/40";
     if (s.includes("FINALIZ"))  return "bg-gray-500/20 text-gray-400 border-gray-500/40";
+    if (s.includes("DESHABI"))  return "bg-red-500/20 text-red-500 border-red-500/40";
     return "bg-amber-500/20 text-amber-400 border-amber-500/40"; // Próximamente
   };
 
@@ -317,7 +319,7 @@ export function TournamentDetailsClient({ id }: { id: string }) {
 
           {/* Actions */}
           <div className="flex flex-col sm:flex-row w-full md:w-auto items-stretch sm:items-center gap-3 shrink-0">
-            <TournamentStatusSwitcher tournament={tournament} isDisabled={integritySeverity === "CRITICAL"} onUpdate={fetchAllData} />
+            <TournamentStatusSwitcher tournament={tournament} isDisabled={integritySeverity === "CRITICAL"} onUpdate={fetchAllData} isSuperAdmin={currentUser?.role === "SUPERADMINISTRADOR" || currentUser?.role === "ADMINISTRADOR_GENERAL"} />
             <Link
               href={`/t/${tournament.slug}`}
               target="_blank"
@@ -513,6 +515,7 @@ export function TournamentDetailsClient({ id }: { id: string }) {
                       categoryId={activeCategoryId}
                       teams={activeTeams}
                       hasGroupMatches={activeMatches?.some((m: any) => m.stage === "GROUP" || m.stage === "GRUPOS")}
+                      hasPlayedMatches={activeMatches?.some((m: any) => m.status === "FINISHED" || m.status === "IN_PROGRESS" || m.status === "LIVE" || m.home_score !== null || m.away_score !== null)}
                       onUpdate={fetchAllData}
                     />
                   </div>
@@ -697,6 +700,7 @@ export function TournamentDetailsClient({ id }: { id: string }) {
             groupMatchesPending={groupMatchesPending}
             groupMatchesPlayed={groupMatchesPlayed}
             requiredGroupMatches={requiredGroupMatches}
+            onUpdate={fetchAllData}
           />
         )}
 

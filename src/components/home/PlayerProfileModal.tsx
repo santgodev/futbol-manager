@@ -43,7 +43,8 @@ export function PlayerProfileModal({ isOpen, onClose, player, tournamentId }: Pl
           .order("match_time", { ascending: false });
 
         if (!error && data) {
-          setMatches(data);
+          const validMatches = data.filter((m: any) => m.home_team_id !== null && m.away_team_id !== null);
+          setMatches(validMatches);
         }
         setLoading(false);
       };

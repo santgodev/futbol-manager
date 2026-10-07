@@ -14,6 +14,7 @@ interface BracketGeneratorProps {
   registeredTeamsCount: number;
   matchesPlayed: number;
   requiredGroupMatches: number;
+  onUpdate?: () => void;
 }
 
 function getPhaseDescription(num: number): string {
@@ -32,7 +33,8 @@ export function BracketGenerator({
   pendingGroupMatchesCount,
   registeredTeamsCount,
   matchesPlayed,
-  requiredGroupMatches
+  requiredGroupMatches,
+  onUpdate
 }: BracketGeneratorProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [status, setStatus] = useState<"idle" | "generating" | "success" | "error">("idle");
@@ -54,6 +56,7 @@ export function BracketGenerator({
       setStatus("success");
       setTimeout(() => {
         setIsOpen(false);
+        if (onUpdate) onUpdate();
         router.refresh();
       }, 1500);
     } catch (err: any) {

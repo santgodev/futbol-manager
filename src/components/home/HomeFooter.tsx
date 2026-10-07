@@ -44,17 +44,17 @@ export const HomeFooter = () => {
           <div className="md:col-span-4 flex items-center gap-4 px-6 py-5 border-t md:border-t-0 md:border-l border-[#202830] bg-[#0a84ff]/5">
             <div className="flex flex-col gap-1 min-w-0 flex-1">
               <p className="text-[10.5px] font-bold text-[#0a84ff] uppercase tracking-widest">
-                Únete gratis
+                Navega y descubre
               </p>
               <h4 className="text-[13px] font-bold text-white">
-                La comunidad de torneos más grande
+                Tus torneos favoritos, un solo lugar
               </h4>
             </div>
             <Link
-              href="/login"
+              href="/#torneos"
               className="shrink-0 flex items-center gap-1.5 px-4 py-2.5 text-[12.5px] font-semibold text-white bg-[#0a84ff] rounded-full hover:bg-[#2493ff] transition-all shadow-[0_2px_12px_rgba(10,132,255,0.3)] whitespace-nowrap"
             >
-              Empezar
+              Ver Torneos
               <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </div>

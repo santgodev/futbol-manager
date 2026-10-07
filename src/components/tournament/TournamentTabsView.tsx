@@ -86,7 +86,7 @@ const TABS: { id: TabId; label: string; icon: React.ComponentType<{ size?: numbe
   { id: "fixture", label: "Calendario de Partidos", icon: Calendar },
   { id: "standings", label: "Tablas de Posiciones", icon: BarChart2 },
   { id: "ranking", label: "Ranking General", icon: Trophy },
-  { id: "bracket", label: "Llaves y Resultados", icon: GitMerge },
+  { id: "bracket", label: "Fase Final", icon: GitMerge },
 ];
 
 /** Determine the current active phase label from matches */
@@ -156,6 +156,17 @@ export function TournamentTabsView({ tournament, categories, matches, standings 
       window.removeEventListener("hashchange", applyHashTab);
       window.removeEventListener("tournament-tab-change", handleTabChange);
     };
+  }, []);
+
+  // Listen to open-team-modal event
+  useEffect(() => {
+    const handleOpenTeamModal = (e: any) => {
+      if (e.detail?.teamId) {
+        setSelectedTeamId(e.detail.teamId);
+      }
+    };
+    window.addEventListener("open-team-modal", handleOpenTeamModal);
+    return () => window.removeEventListener("open-team-modal", handleOpenTeamModal);
   }, []);
 
   // ── FILTER BY ACTIVE CATEGORY ──
@@ -252,7 +263,7 @@ export function TournamentTabsView({ tournament, categories, matches, standings 
                 {tab.id === "fixture" && "Calendario"}
                 {tab.id === "standings" && "Posiciones"}
                 {tab.id === "ranking" && "Ranking"}
-                {tab.id === "bracket" && "Llaves"}
+                {tab.id === "bracket" && "Fase Final"}
               </span>
             </button>
           );

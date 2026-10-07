@@ -3,6 +3,8 @@ import { useState } from "react";
 import Image from "next/image";
 import { Medal, Goal } from "lucide-react";
 import { PlayerProfileModal } from "@/components/home/PlayerProfileModal";
+import { mergeDuplicatePlayers } from "@/app/admin/actions";
+import { useEffect } from "react";
 
 export function TournamentTopScorers({ scorers, tournamentId }: { scorers: any[], tournamentId?: string }) {
   const [selectedPlayer, setSelectedPlayer] = useState<any | null>(null);
@@ -12,6 +14,16 @@ export function TournamentTopScorers({ scorers, tournamentId }: { scorers: any[]
     setSelectedPlayer(player);
     setIsModalOpen(true);
   };
+
+  useEffect(() => {
+    if (!scorers || scorers.length === 0) return;
+    const hasDuplicates = scorers.length !== new Set(scorers.map(s => s.player_name + "_" + s.team_id)).size;
+    if (hasDuplicates) {
+      mergeDuplicatePlayers().then(() => {
+        window.location.reload();
+      });
+    }
+  }, [scorers]);
   if (!scorers || scorers.length === 0) {
     return (
       <div className="py-12 text-center flex flex-col items-center gap-3">

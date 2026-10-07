@@ -28,6 +28,78 @@ const STAGE_LABELS: Record<string, string> = {
   THIRD_PLACE: "Tercer Puesto",
 };
 
+
+export const getTheme = (cupName: string) => {
+  const name = (cupName || "").toLowerCase();
+  if (name.includes("oro")) {
+    return {
+      primary: "text-[#ffaa00]",
+      bg: "bg-[#ffaa00]",
+      bg10: "bg-[#ffaa00]/10",
+      bg20: "bg-[#ffaa00]/20",
+      border: "border-[#ffaa00]/20",
+      border80: "border-[#ffaa00]/80",
+      borderSolid: "border-[#ffaa00]",
+      glow: "drop-shadow-[0_0_8px_rgba(255,170,0,0.6)]",
+      glowText: "drop-shadow-[0_0_15px_rgba(255,170,0,0.4)]",
+      shadow: "shadow-[0_0_20px_rgba(255,170,0,0.3)]",
+      hoverShadow: "hover:shadow-[0_0_20px_rgba(255,170,0,0.3)]",
+      from: "from-[#ffaa00]",
+      to50: "to-[#ffaa00]/50",
+      finalLabel: "bg-gradient-to-r from-[#ffaa00]/80 via-[#ffaa00] to-[#ffaa00]/80 text-[#050810]",
+      finalBorder: "border-[#ffaa00]/60",
+      finalShadow: "shadow-[0_0_25px_rgba(255,170,0,0.2)]",
+      finalHoverBorder: "hover:border-[#ffaa00]",
+      finalHoverShadow: "hover:shadow-[0_0_35px_rgba(255,170,0,0.4)]",
+      finalHeader: "text-[#ffaa00]"
+    };
+  } else if (name.includes("plata")) {
+    return {
+      primary: "text-[#a7b0ba]",
+      bg: "bg-[#a7b0ba]",
+      bg10: "bg-[#a7b0ba]/10",
+      bg20: "bg-[#a7b0ba]/20",
+      border: "border-[#a7b0ba]/20",
+      border80: "border-[#a7b0ba]/80",
+      borderSolid: "border-[#a7b0ba]",
+      glow: "drop-shadow-[0_0_8px_rgba(167,176,186,0.6)]",
+      glowText: "drop-shadow-[0_0_15px_rgba(167,176,186,0.4)]",
+      shadow: "shadow-[0_0_20px_rgba(167,176,186,0.3)]",
+      hoverShadow: "hover:shadow-[0_0_20px_rgba(167,176,186,0.3)]",
+      from: "from-[#a7b0ba]",
+      to50: "to-[#a7b0ba]/50",
+      finalLabel: "bg-gradient-to-r from-[#a7b0ba]/80 via-[#a7b0ba] to-[#a7b0ba]/80 text-[#050810]",
+      finalBorder: "border-[#a7b0ba]/60",
+      finalShadow: "shadow-[0_0_25px_rgba(167,176,186,0.2)]",
+      finalHoverBorder: "hover:border-[#a7b0ba]",
+      finalHoverShadow: "hover:shadow-[0_0_35px_rgba(167,176,186,0.4)]",
+      finalHeader: "text-[#a7b0ba]"
+    };
+  } else {
+    return {
+      primary: "text-[#00f0ff]",
+      bg: "bg-[#00f0ff]",
+      bg10: "bg-[#00f0ff]/10",
+      bg20: "bg-[#00f0ff]/20",
+      border: "border-[#00f0ff]/20",
+      border80: "border-[#00f0ff]/80",
+      borderSolid: "border-[#00f0ff]",
+      glow: "drop-shadow-[0_0_8px_rgba(0,240,255,0.6)]",
+      glowText: "drop-shadow-[0_0_15px_rgba(0,240,255,0.4)]",
+      shadow: "shadow-[0_0_20px_rgba(0,240,255,0.3)]",
+      hoverShadow: "hover:shadow-[0_0_20px_rgba(0,240,255,0.3)]",
+      from: "from-[#00f0ff]",
+      to50: "to-[#00f0ff]/50",
+      finalLabel: "bg-gradient-to-r from-[#f59e0b]/80 via-[#f59e0b] to-[#f59e0b]/80 text-[#050810]",
+      finalBorder: "border-[#f59e0b]/60",
+      finalShadow: "shadow-[0_0_25px_rgba(245,158,11,0.2)]",
+      finalHoverBorder: "hover:border-[#f59e0b]",
+      finalHoverShadow: "hover:shadow-[0_0_35px_rgba(245,158,11,0.4)]",
+      finalHeader: "text-[#f59e0b]"
+    };
+  }
+};
+
 function statusBadge(status: string | null) {
   const s = (status || "").toUpperCase();
   if (s === "FINISHED" || s === "FINALIZADO")
@@ -90,16 +162,17 @@ export function KnockoutBracket({ matches, totalTeams = 0 }: KnockoutBracketProp
   }
 
   // ── Match Node (tree view) ──────────────────────────────────────────
-  const MatchNode = ({ match, isFinal = false }: { match?: any; isFinal?: boolean }) => {
+  const MatchNode = ({ match, isFinal = false, cupName = "" }: { match?: any; isFinal?: boolean; cupName?: string }) => {
+    const theme = getTheme(cupName);
     if (!match) {
       return (
-        <div className="flex flex-col w-full glass-panel h-[90px] justify-center px-4 relative group opacity-60">
-          <div className="flex justify-between items-center text-white/30 uppercase tracking-widest text-[10px] mb-2 font-bold font-mono">
-            <span>TBD</span>
+        <div className="flex flex-col w-full bg-[#0a1526]/40 border border-white/5 rounded-xl h-[90px] justify-center px-4 relative group transition-all duration-300">
+          <div className="flex justify-between items-center text-white/20 uppercase tracking-widest text-[10px] mb-2 font-bold font-mono">
+            <span>Por Definir</span>
             <span>—</span>
           </div>
-          <div className="flex justify-between items-center text-white/30 uppercase tracking-widest text-[10px] font-bold font-mono">
-            <span>TBD</span>
+          <div className="flex justify-between items-center text-white/20 uppercase tracking-widest text-[10px] font-bold font-mono">
+            <span>Por Definir</span>
             <span>—</span>
           </div>
         </div>
@@ -114,64 +187,62 @@ export function KnockoutBracket({ matches, totalTeams = 0 }: KnockoutBracketProp
 
     return (
       <div
-        className={`flex flex-col w-full glass-panel relative group overflow-hidden transition-all ${
+        className={`flex flex-col w-full bg-[#0a1526]/80 backdrop-blur-sm rounded-xl relative group overflow-hidden transition-all duration-300 ${
           isFinal
-            ? "!border-brand-yellow shadow-[0_0_20px_rgba(255,215,0,0.15)]"
-            : "hover:border-brand-cyan/50"
+            ? "border-[2px] " + theme.finalBorder + " " + theme.finalShadow + " " + theme.finalHoverBorder + " " + theme.finalHoverShadow + " hover:-translate-y-1"
+            : "border " + theme.border + " " + theme.border80 + " " + theme.hoverShadow + " hover:-translate-y-1"
         }`}
       >
         {isFinal && (
-          <div className="absolute top-0 left-0 w-full bg-brand-yellow text-brand-deep text-[8px] font-black uppercase tracking-widest text-center py-0.5 shadow-[0_1px_5px_rgba(0,0,0,0.3)] select-none">
+          <div className={`absolute top-0 left-0 w-full ${theme.finalLabel} text-[9px] font-black uppercase tracking-[0.2em] text-center py-1 shadow-md select-none z-10`}>
             Gran Final
           </div>
         )}
 
-        <div className={`flex justify-between items-center p-3 border-b border-white/5 ${isFinal ? "mt-4" : ""}`}>
+        <div className={`flex justify-between items-center px-4 py-3 border-b border-white/5 relative z-0 ${isFinal ? "mt-5" : ""}`}>
+          {homeWon && <div className={`absolute left-0 top-0 bottom-0 w-1 ${theme.bg}`} />}
           <div className="flex items-center gap-3 truncate pr-2">
             <Shield
-              className={`w-4 h-5 ${homeWon ? "text-brand-cyan drop-shadow-[0_0_5px_rgba(0,240,255,0.4)]" : "text-brand-cyan/20"}`}
+              className={`w-5 h-6 ${homeWon ? theme.primary + " " + theme.glow : theme.primary.replace("text-", "text-").split(' ')[0] + "/20"}`}
             />
             <span
-              className={`text-xs font-bold uppercase tracking-wider truncate ${
-                homeWon ? "text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.15)]" : "text-brand-text-muted"
+              className={`text-[13px] font-bold uppercase tracking-wider truncate ${
+                homeWon ? "text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.2)]" : "text-white/40"
               }`}
             >
               {match.home_team?.name || "TBD"}
             </span>
           </div>
           <span
-            className={`text-sm font-black font-mono ${
-              homeWon ? "text-brand-cyan drop-shadow-[0_0_8px_rgba(0,240,255,0.3)]" : "text-brand-text-muted"
-            }`}
+            className={`text-lg font-black font-mono ${homeWon ? theme.primary + " " + theme.glow : "text-white/40"}`}
           >
             {homeScore !== null ? homeScore : "—"}
           </span>
         </div>
 
-        <div className="flex justify-between items-center p-3 bg-brand-deep/30">
+        <div className="flex justify-between items-center px-4 py-3 bg-white/[0.02] relative z-0">
+          {awayWon && <div className={`absolute left-0 top-0 bottom-0 w-1 ${theme.bg}`} />}
           <div className="flex items-center gap-3 truncate pr-2">
             <Shield
-              className={`w-4 h-5 ${awayWon ? "text-brand-cyan drop-shadow-[0_0_5px_rgba(0,240,255,0.4)]" : "text-brand-cyan/20"}`}
+              className={`w-5 h-6 ${awayWon ? theme.primary + " " + theme.glow : theme.primary.replace("text-", "text-").split(' ')[0] + "/20"}`}
             />
             <span
-              className={`text-xs font-bold uppercase tracking-wider truncate ${
-                awayWon ? "text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.15)]" : "text-brand-text-muted"
+              className={`text-[13px] font-bold uppercase tracking-wider truncate ${
+                awayWon ? "text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.2)]" : "text-white/40"
               }`}
             >
               {match.away_team?.name || "TBD"}
             </span>
           </div>
           <span
-            className={`text-sm font-black font-mono ${
-              awayWon ? "text-brand-cyan drop-shadow-[0_0_8px_rgba(0,240,255,0.3)]" : "text-brand-text-muted"
-            }`}
+            className={`text-lg font-black font-mono ${awayWon ? theme.primary + " " + theme.glow : "text-white/40"}`}
           >
             {awayScore !== null ? awayScore : "—"}
           </span>
         </div>
 
         {match.home_penalty_score !== null && match.away_penalty_score !== null && (
-          <div className="w-full text-[8px] text-center bg-brand-cyan/10 text-brand-cyan py-0.5 uppercase tracking-widest font-mono font-bold border-t border-white/5">
+          <div className="w-full text-[10px] text-center ${theme.bg}/10 text-[#00f0ff] py-1.5 uppercase tracking-widest font-mono font-bold border-t border-[#00f0ff]/20">
             PEN: {match.home_penalty_score} - {match.away_penalty_score}
           </div>
         )}
@@ -181,6 +252,8 @@ export function KnockoutBracket({ matches, totalTeams = 0 }: KnockoutBracketProp
 
   // ── Rounds view ────────────────────────────────────────────────────
   const RoundsView = ({ cupMatches }: { cupMatches: any[] }) => {
+    const cupName = cupMatches[0]?.cup_name || "";
+    const theme = getTheme(cupName);
     const getMatchesByStage = (stage: string) => cupMatches.filter((m) => m.stage === stage);
     const roundsWithMatches = STAGE_ORDER.filter((stage) => {
       const stageMatches = getMatchesByStage(stage);
@@ -194,13 +267,13 @@ export function KnockoutBracket({ matches, totalTeams = 0 }: KnockoutBracketProp
           return (
             <div
               key={stage}
-              className="rounded-2xl border border-[#00f0ff]/10 overflow-hidden"
+              className="rounded-2xl border ${theme.border} overflow-hidden"
               style={{ background: "rgba(5,8,17,0.85)" }}
             >
-              <div className="flex items-center gap-2 px-5 py-3.5 border-b border-[#00f0ff]/10 bg-[#0a1526]/70">
+              <div className="flex items-center gap-2 px-5 py-3.5 border-b ${theme.border} bg-[#0a1526]/70">
                 <span
                   className={`text-[11px] font-black uppercase tracking-[0.18em] ${
-                    stage === "FINAL" ? "text-[#f59e0b]" : "text-[#00f0ff]"
+                    stage === "FINAL" ? "${theme.finalHeader}" : `${theme.primary}`
                   }`}
                 >
                   {STAGE_LABELS[stage] || stage}
@@ -230,11 +303,11 @@ export function KnockoutBracket({ matches, totalTeams = 0 }: KnockoutBracketProp
                           {match.home_team?.name || "TBD"}
                         </span>
                         <div className="flex items-center gap-1.5 shrink-0">
-                          <span className={`text-[13px] font-black font-mono w-5 text-center ${homeWon ? "text-[#00f0ff]" : "text-white/40"}`}>
+                          <span className={`text-[13px] font-black font-mono w-5 text-center ${homeWon ? "${theme.primary}" : "text-white/40"}`}>
                             {homeScore !== null ? homeScore : "—"}
                           </span>
                           <span className="text-white/20 text-[10px]">:</span>
-                          <span className={`text-[13px] font-black font-mono w-5 text-center ${awayWon ? "text-[#00f0ff]" : "text-white/40"}`}>
+                          <span className={`text-[13px] font-black font-mono w-5 text-center ${awayWon ? "${theme.primary}" : "text-white/40"}`}>
                             {awayScore !== null ? awayScore : "—"}
                           </span>
                         </div>
@@ -284,11 +357,11 @@ export function KnockoutBracket({ matches, totalTeams = 0 }: KnockoutBracketProp
                         {match.home_team?.name || "TBD"}
                       </span>
                       <div className="flex items-center gap-1.5 shrink-0">
-                        <span className={`text-[13px] font-black font-mono w-5 text-center ${homeWon ? "text-[#00f0ff]" : "text-white/40"}`}>
+                        <span className={`text-[13px] font-black font-mono w-5 text-center ${homeWon ? "${theme.primary}" : "text-white/40"}`}>
                           {homeScore !== null ? homeScore : "—"}
                         </span>
                         <span className="text-white/20 text-[10px]">:</span>
-                        <span className={`text-[13px] font-black font-mono w-5 text-center ${awayWon ? "text-[#00f0ff]" : "text-white/40"}`}>
+                        <span className={`text-[13px] font-black font-mono w-5 text-center ${awayWon ? "${theme.primary}" : "text-white/40"}`}>
                           {awayScore !== null ? awayScore : "—"}
                         </span>
                       </div>
@@ -309,6 +382,8 @@ export function KnockoutBracket({ matches, totalTeams = 0 }: KnockoutBracketProp
 
   // ── Tree view ──────────────────────────────────────────────────────
   const TreeView = ({ cupMatches }: { cupMatches: any[] }) => {
+    const cupName = cupMatches[0]?.cup_name || "";
+    const theme = getTheme(cupName);
     const getMatchesByStage = (stage: string) => cupMatches.filter((m) => m.stage === stage);
     const round16 = getMatchesByStage("ROUND_16");
     const quarterfinals = getMatchesByStage("QUARTERFINAL");
@@ -330,28 +405,28 @@ export function KnockoutBracket({ matches, totalTeams = 0 }: KnockoutBracketProp
           {hasRound16 && (
           <>
             <div className="flex-1 flex flex-col justify-around relative z-10">
-              <h4 className="text-[9px] text-brand-cyan/50 uppercase tracking-widest font-mono font-bold text-center absolute -top-8 w-full left-0">
+              <h4 className={`text-[9px] ${theme.primary} opacity-50 uppercase tracking-widest font-mono font-bold text-center absolute -top-8 w-full left-0`}>
                 // OCTAVOS
               </h4>
-              <MatchNode match={round16[0]} />
-              <MatchNode match={round16[1]} />
-              <MatchNode match={round16[2]} />
-              <MatchNode match={round16[3]} />
-              <MatchNode match={round16[4]} />
-              <MatchNode match={round16[5]} />
-              <MatchNode match={round16[6]} />
-              <MatchNode match={round16[7]} />
+              <MatchNode match={round16[0]} cupName={cupName} />
+              <MatchNode match={round16[1]} cupName={cupName} />
+              <MatchNode match={round16[2]} cupName={cupName} />
+              <MatchNode match={round16[3]} cupName={cupName} />
+              <MatchNode match={round16[4]} cupName={cupName} />
+              <MatchNode match={round16[5]} cupName={cupName} />
+              <MatchNode match={round16[6]} cupName={cupName} />
+              <MatchNode match={round16[7]} cupName={cupName} />
             </div>
             {/* Connectors to Cuartos */}
             <div className="hidden md:flex flex-col w-8 opacity-30">
               <div style={{ flex: 1 }} />
-              <div style={{ flex: 2 }} className="border-r border-t border-b border-[#00f0ff] rounded-r-lg w-full" />
+              <div style={{ flex: 2 }} className={`border-r border-t border-b ${theme.borderSolid} rounded-r-lg w-full`} />
               <div style={{ flex: 2 }} />
-              <div style={{ flex: 2 }} className="border-r border-t border-b border-[#00f0ff] rounded-r-lg w-full" />
+              <div style={{ flex: 2 }} className={`border-r border-t border-b ${theme.borderSolid} rounded-r-lg w-full`} />
               <div style={{ flex: 2 }} />
-              <div style={{ flex: 2 }} className="border-r border-t border-b border-[#00f0ff] rounded-r-lg w-full" />
+              <div style={{ flex: 2 }} className={`border-r border-t border-b ${theme.borderSolid} rounded-r-lg w-full`} />
               <div style={{ flex: 2 }} />
-              <div style={{ flex: 2 }} className="border-r border-t border-b border-[#00f0ff] rounded-r-lg w-full" />
+              <div style={{ flex: 2 }} className={`border-r border-t border-b ${theme.borderSolid} rounded-r-lg w-full`} />
               <div style={{ flex: 1 }} />
             </div>
           </>
@@ -361,20 +436,20 @@ export function KnockoutBracket({ matches, totalTeams = 0 }: KnockoutBracketProp
           {hasQuarterfinals && (
           <>
             <div className="flex-1 flex flex-col justify-around relative z-10">
-              <h4 className="text-[9px] text-brand-cyan/50 uppercase tracking-widest font-mono font-bold text-center absolute -top-8 w-full left-0">
+              <h4 className={`text-[9px] ${theme.primary} opacity-50 uppercase tracking-widest font-mono font-bold text-center absolute -top-8 w-full left-0`}>
                 // CUARTOS
               </h4>
-              <MatchNode match={quarterfinals[0]} />
-              <MatchNode match={quarterfinals[1]} />
-              <MatchNode match={quarterfinals[2]} />
-              <MatchNode match={quarterfinals[3]} />
+              <MatchNode match={quarterfinals[0]} cupName={cupName} />
+              <MatchNode match={quarterfinals[1]} cupName={cupName} />
+              <MatchNode match={quarterfinals[2]} cupName={cupName} />
+              <MatchNode match={quarterfinals[3]} cupName={cupName} />
             </div>
             {/* Connectors to Semis */}
             <div className="hidden md:flex flex-col w-8 opacity-30">
               <div style={{ flex: 1 }} />
-              <div style={{ flex: 2 }} className="border-r border-t border-b border-[#00f0ff] rounded-r-lg w-full" />
+              <div style={{ flex: 2 }} className={`border-r border-t border-b ${theme.borderSolid} rounded-r-lg w-full`} />
               <div style={{ flex: 2 }} />
-              <div style={{ flex: 2 }} className="border-r border-t border-b border-[#00f0ff] rounded-r-lg w-full" />
+              <div style={{ flex: 2 }} className={`border-r border-t border-b ${theme.borderSolid} rounded-r-lg w-full`} />
               <div style={{ flex: 1 }} />
             </div>
           </>
@@ -384,16 +459,16 @@ export function KnockoutBracket({ matches, totalTeams = 0 }: KnockoutBracketProp
         {hasSemifinals && (
           <>
             <div className="flex-1 flex flex-col justify-around relative z-10">
-              <h4 className="text-[9px] text-brand-cyan/50 uppercase tracking-widest font-mono font-bold text-center absolute -top-8 w-full left-0">
+              <h4 className={`text-[9px] ${theme.primary} opacity-50 uppercase tracking-widest font-mono font-bold text-center absolute -top-8 w-full left-0`}>
                 // SEMIFINALES
               </h4>
-              <MatchNode match={semifinals[0]} />
-              <MatchNode match={semifinals[1]} />
+              <MatchNode match={semifinals[0]} cupName={cupName} />
+              <MatchNode match={semifinals[1]} cupName={cupName} />
             </div>
             {/* Connector to Final */}
             <div className="hidden md:flex flex-col w-8 opacity-30">
               <div style={{ flex: 1 }} />
-              <div style={{ flex: 2 }} className="border-r border-t border-b border-[#00f0ff] rounded-r-lg w-full" />
+              <div style={{ flex: 2 }} className={`border-r border-t border-b ${theme.borderSolid} rounded-r-lg w-full`} />
               <div style={{ flex: 1 }} />
             </div>
           </>
@@ -402,10 +477,10 @@ export function KnockoutBracket({ matches, totalTeams = 0 }: KnockoutBracketProp
         {/* FINAL */}
         {hasFinal && (
           <div className="flex-1 flex flex-col justify-around relative z-10">
-            <h4 className="text-[9px] text-brand-yellow uppercase tracking-widest font-mono font-bold text-center absolute -top-8 w-full left-0">
+            <h4 className={`text-[9px] ${theme.finalHeader} uppercase tracking-widest font-mono font-bold text-center absolute -top-8 w-full left-0`}>
               // FINAL
             </h4>
-            <MatchNode match={final[0]} isFinal />
+            <MatchNode match={final[0]} isFinal cupName={cupName} />
           </div>
         )}
 
@@ -417,7 +492,7 @@ export function KnockoutBracket({ matches, totalTeams = 0 }: KnockoutBracketProp
           <h4 className="text-[9px] text-amber-400/70 uppercase tracking-widest font-mono font-bold text-center mb-3">
             Tercer Puesto
           </h4>
-          <MatchNode match={thirdPlace[0]} />
+          <MatchNode match={thirdPlace[0]} cupName={cupName} />
         </div>
       )}
     </div>
@@ -459,12 +534,12 @@ export function KnockoutBracket({ matches, totalTeams = 0 }: KnockoutBracketProp
           return (
             <div key={idx} className="w-full relative">
               <div className="flex items-center justify-center gap-4 mb-8">
-                <div className="h-px w-16 bg-gradient-to-r from-transparent to-[#00f0ff]/50" />
-                <h3 className="text-[#00f0ff] font-black uppercase tracking-widest text-lg drop-shadow-[0_0_15px_rgba(0,240,255,0.4)] flex items-center gap-2">
+                <div className="h-px w-16 bg-gradient-to-r from-transparent ${theme.to50}" />
+                <h3 className="${theme.primary} font-black uppercase tracking-widest text-lg ${theme.glowText} flex items-center gap-2">
                   <Trophy size={20} />
                   {cupName}
                 </h3>
-                <div className="h-px w-16 bg-gradient-to-l from-transparent to-[#00f0ff]/50" />
+                <div className="h-px w-16 bg-gradient-to-l from-transparent ${theme.to50}" />
               </div>
 
               {view === "tree" ? <TreeView cupMatches={cupMatches} /> : <RoundsView cupMatches={cupMatches} />}

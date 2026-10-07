@@ -696,6 +696,24 @@ export async function createMatchEvent(eventData: {
         })
         .eq("id", eventData.match_id);
     }
+    
+    // Si es un GOAL normal y tiene jugador asignado, sumar gol al jugador en el torneo
+    if (eventData.type === "GOAL" && eventData.player_id) {
+      const { data: tp } = await supabase
+        .from("tournament_players")
+        .select("goals")
+        .eq("tournament_id", eventData.tournament_id)
+        .eq("player_id", eventData.player_id)
+        .maybeSingle();
+
+      if (tp) {
+        await supabase
+          .from("tournament_players")
+          .update({ goals: (tp.goals || 0) + 1 })
+          .eq("tournament_id", eventData.tournament_id)
+          .eq("player_id", eventData.player_id);
+      }
+    }
   }
 
   return { success: true, event: data };
@@ -706,27 +724,50 @@ export async function createAndRegisterPlayer(playerName: string, tournamentId: 
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error("No autorizado");
 
-  // 1. Create player globally, assigned to the team
   const cleanName = sanitizePlayerName(playerName);
-  const { data: player, error: playerError } = await supabase
+
+  // 1. Verificar si el jugador ya existe en ese equipo
+  const { data: existingPlayer } = await supabase
     .from("players")
-    .insert({ name: cleanName, team_id: teamId, created_by: user.id, is_active: true })
-    .select()
-    .single();
+    .select("*")
+    .eq("team_id", teamId)
+    .ilike("name", cleanName)
+    .maybeSingle();
 
-  if (playerError) throw new Error("Error creando jugador: " + playerError.message);
+  let player = existingPlayer;
 
-  // 2. Register in tournament_players
-  const { error: registerError } = await supabase
+  if (!player) {
+    // Crear jugador si no existe
+    const { data: newPlayer, error: playerError } = await supabase
+      .from("players")
+      .insert({ name: cleanName, team_id: teamId, created_by: user.id, is_active: true })
+      .select()
+      .single();
+
+    if (playerError) throw new Error("Error creando jugador: " + playerError.message);
+    player = newPlayer;
+  }
+
+  // 2. Register in tournament_players (si no está ya registrado)
+  const { data: existingRegistration } = await supabase
     .from("tournament_players")
-    .insert({
-      tournament_id: tournamentId,
-      player_id: player.id,
-      team_id: teamId,
-      goals: 0
-    });
+    .select("player_id")
+    .eq("tournament_id", tournamentId)
+    .eq("player_id", player.id)
+    .maybeSingle();
 
-  if (registerError) throw new Error("Error registrando jugador al equipo: " + registerError.message);
+  if (!existingRegistration) {
+    const { error: registerError } = await supabase
+      .from("tournament_players")
+      .insert({
+        tournament_id: tournamentId,
+        player_id: player.id,
+        team_id: teamId,
+        goals: 0
+      });
+
+    if (registerError) throw new Error("Error registrando jugador al equipo: " + registerError.message);
+  }
 
   return { success: true, player };
 }
@@ -1243,6 +1284,23 @@ export async function deleteMatchEvent(
 
     if (updateError) throw new Error("Error de concurrencia al ajustar el marcador. Recarga la página.");
   }
+  
+  if (event.type === "GOAL" && event.player_id) {
+    const { data: tp } = await supabase
+      .from("tournament_players")
+      .select("goals")
+      .eq("tournament_id", tournamentId)
+      .eq("player_id", event.player_id)
+      .maybeSingle();
+
+    if (tp) {
+      await supabase
+        .from("tournament_players")
+        .update({ goals: Math.max(0, (tp.goals || 0) - 1) })
+        .eq("tournament_id", tournamentId)
+        .eq("player_id", event.player_id);
+    }
+  }
 
   return { success: true };
 }
@@ -1490,6 +1548,24 @@ export async function deleteAllMatchesFromTournament(tournamentId: string, categ
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error("No autorizado");
 
+  // PREVENT DELETION IF THERE ARE MATCHES WITH RESULTS
+  let checkQuery = supabase.from("matches").select("status, home_score, away_score").eq("tournament_id", tournamentId).eq("stage", "GROUP");
+  if (categoryId) {
+    checkQuery = checkQuery.eq("category_id", categoryId);
+  } else {
+    checkQuery = checkQuery.is("category_id", null);
+  }
+  
+  const { data: allGroupMatches, error: checkError } = await checkQuery;
+  if (checkError) throw new Error(checkError.message);
+  
+  if (allGroupMatches) {
+    const hasResults = allGroupMatches.some((m: any) => m.status === 'FINISHED' || m.status === 'IN_PROGRESS' || m.status === 'LIVE' || m.home_score !== null || m.away_score !== null);
+    if (hasResults) {
+      throw new Error("No se pueden eliminar los partidos: algunos ya tienen resultados o están en curso.");
+    }
+  }
+
   let query = supabase.from("matches").delete().eq("tournament_id", tournamentId).eq("stage", "GROUP");
   
   if (categoryId) {
@@ -1578,6 +1654,55 @@ export async function bulkCreateAndEnrollTeams(
   }
 
   return { success: true, count: addedCount };
+}
+
+export async function mergeDuplicatePlayers() {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error("No autorizado");
+
+  const { data: players } = await supabase.from('players').select('id, name, team_id');
+  if (!players) return { success: false };
+
+  const duplicates: Record<string, any[]> = {};
+  for (const p of players) {
+    const key = p.team_id + '_' + p.name.trim().toLowerCase();
+    if (!duplicates[key]) duplicates[key] = [];
+    duplicates[key].push(p);
+  }
+
+  let mergedCount = 0;
+
+  for (const key in duplicates) {
+    const group = duplicates[key];
+    if (group.length > 1) {
+      const primaryId = group[0].id;
+      
+      for (let i = 1; i < group.length; i++) {
+        const dupId = group[i].id;
+        
+        await supabase.from('match_events').update({ player_id: primaryId }).eq('player_id', dupId);
+        
+        const { data: tpData } = await supabase.from('tournament_players').select('goals, tournament_id').eq('player_id', dupId);
+        if (tpData && tpData.length > 0) {
+          for (const tp of tpData) {
+            const { data: primTp } = await supabase.from('tournament_players').select('goals').eq('player_id', primaryId).eq('tournament_id', tp.tournament_id).maybeSingle();
+            if (primTp) {
+              await supabase.from('tournament_players').update({ goals: (primTp.goals || 0) + (tp.goals || 0) }).eq('player_id', primaryId).eq('tournament_id', tp.tournament_id);
+            } else {
+              await supabase.from('tournament_players').update({ player_id: primaryId }).eq('player_id', dupId).eq('tournament_id', tp.tournament_id);
+            }
+          }
+        }
+        
+        await supabase.from('tournament_players').delete().eq('player_id', dupId);
+        await supabase.from('players').delete().eq('id', dupId);
+        
+        mergedCount++;
+      }
+    }
+  }
+  return { success: true, count: mergedCount };
 }
 
 export async function createTournamentVenue(venueData: {
