@@ -24,7 +24,7 @@ export function TournamentClientWrapper({ slug }: { slug: string }) {
         // 1. Fetch tournament
         const { data: tournament, error: tournamentError } = await supabase
           .from("tournaments")
-          .select(`*, tournament_teams (team_id, category_id, group_name)`)
+          .select(`*, tournament_teams (team_id, category_id, group_name, team:teams(name, logo_url))`)
           .eq("slug", slug)
           .single();
 

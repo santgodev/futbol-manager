@@ -25,8 +25,10 @@ export function LiveControlRoom({ match, onUpdate, isDraft = false }: { match: a
   const [errorMsg, setErrorMsg] = useState("");
 
   useEffect(() => {
-    setLocalEvents(match.match_events || []);
-  }, [match.match_events]);
+    if (!isDraft) {
+      setLocalEvents(match.match_events || []);
+    }
+  }, [match.match_events, isDraft]);
   
   const handleFinalizeMatch = async () => {
     setIsSubmitting(true);
@@ -77,13 +79,19 @@ export function LiveControlRoom({ match, onUpdate, isDraft = false }: { match: a
       let playerId = null;
       let createdPlayerName = playerName.trim() ? playerName.trim() : 'Jugador Desconocido';
       if (playerName.trim()) {
-        const res = await createAndRegisterPlayer(
-           playerName.trim(),
-           match.tournament_id,
-           activeModal.teamId
-        );
-        playerId = res.player.id;
-        createdPlayerName = res.player?.name || playerName.trim();
+        try {
+          const res = await createAndRegisterPlayer(
+            playerName.trim(),
+            match.tournament_id,
+            activeModal.teamId
+          );
+          playerId = res.player.id;
+          createdPlayerName = res.player?.name || playerName.trim();
+        } catch (playerErr) {
+          // En modo borrador (Anotador), si RLS restringe crear jugador directamente, conservamos el nombre para que se cree al aprobar
+          if (!isDraft) throw playerErr;
+          createdPlayerName = playerName.trim();
+        }
       }
 
       if (isDraft) {
@@ -92,6 +100,7 @@ export function LiveControlRoom({ match, onUpdate, isDraft = false }: { match: a
           type: activeModal.type,
           team_id: activeModal.teamId,
           player_id: playerId,
+          description: createdPlayerName,
           created_at: new Date().toISOString(),
           player: { id: playerId, name: createdPlayerName }
         }]);
@@ -103,7 +112,7 @@ export function LiveControlRoom({ match, onUpdate, isDraft = false }: { match: a
            player_id: playerId,
            type: activeModal.type,
            minute: null,
-           description: playerName.trim() ? null : 'Jugador Desconocido'
+           description: createdPlayerName
         });
         
         setLocalEvents(prev => [...prev, {
@@ -111,6 +120,7 @@ export function LiveControlRoom({ match, onUpdate, isDraft = false }: { match: a
           type: res.event.type,
           team_id: res.event.team_id,
           player_id: res.event.player_id,
+          description: createdPlayerName,
           created_at: res.event.created_at,
           player: { id: playerId, name: createdPlayerName }
         }]);
@@ -126,7 +136,7 @@ export function LiveControlRoom({ match, onUpdate, isDraft = false }: { match: a
 
       setPlayerName("");
       setActiveModal(null);
-      if (onUpdate) onUpdate();
+      if (!isDraft && onUpdate) onUpdate();
     } catch (err: any) {
       setErrorMsg(err.message || "Error al agregar el evento");
     } finally {
@@ -148,8 +158,8 @@ export function LiveControlRoom({ match, onUpdate, isDraft = false }: { match: a
         }
       } else {
         await deleteMatchEvent(eventId, match.tournament_id);
+        if (onUpdate) onUpdate();
       }
-      if (onUpdate) onUpdate();
     } catch (err: any) {
       setErrorMsg(err.message || "Error al eliminar");
     } finally {
@@ -311,7 +321,7 @@ export function LiveControlRoom({ match, onUpdate, isDraft = false }: { match: a
                  )
               })}
 
-              {(!match.match_events || match.match_events.length === 0) && (
+              {(!localEvents || localEvents.length === 0) && (
                  <div className="text-center py-12 text-[10px] font-bold text-white/20 uppercase tracking-widest border border-dashed border-white/10 rounded-xl bg-white/5">
                     No hay goles ni eventos registrados
                  </div>

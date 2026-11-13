@@ -60,6 +60,37 @@ export function MatchControlRoomClient({ id, isDraft = false }: { id: string, is
     if (matchData.match_sets) {
       matchData.match_sets.sort((a: any, b: any) => a.set_number - b.set_number);
     }
+
+    // En modo borrador (Anotador), si ya existe un reporte previo en match_results, cargamos sus goles/eventos y marcador
+    if (isDraft) {
+      const { data: existingDraft } = await supabase
+        .from("match_results")
+        .select("home_score, away_score, sets_data")
+        .eq("match_id", id)
+        .maybeSingle();
+
+      if (existingDraft) {
+        if (existingDraft.home_score !== null && existingDraft.home_score !== undefined) {
+          matchData.home_score = existingDraft.home_score;
+        }
+        if (existingDraft.away_score !== null && existingDraft.away_score !== undefined) {
+          matchData.away_score = existingDraft.away_score;
+        }
+        if (existingDraft.sets_data) {
+          try {
+            const parsedEvents = typeof existingDraft.sets_data === "string"
+              ? JSON.parse(existingDraft.sets_data)
+              : existingDraft.sets_data;
+            if (Array.isArray(parsedEvents) && parsedEvents.length > 0) {
+              matchData.match_events = parsedEvents;
+            }
+          } catch {
+            // ignore malformed JSON
+          }
+        }
+      }
+    }
+
     setMatch(matchData);
 
     // Fetch Rosters

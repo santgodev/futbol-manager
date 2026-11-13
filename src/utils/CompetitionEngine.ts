@@ -249,4 +249,145 @@ export class CompetitionEngine {
       default: return 'Desconocido';
     }
   }
+
+  /**
+   * Calculates accurate Group/League stage standings exclusively from non-knockout FINISHED matches.
+   * Prevents Semifinals/Finals (Copa Oro / Copa Plata) from polluting group stage PJ, DG, and PTS.
+   */
+  static calculateGroupStandings(
+    enrolledTeams: any[] = [],
+    matches: any[] = [],
+    sport: string = 'FOOTBALL',
+    fallbackStandings: any[] = []
+  ) {
+    const isVolley = sport === 'VOLLEYBALL' || sport === 'BEACH_VOLLEYBALL';
+
+    // Build map of team metadata from enrolledTeams + fallbackStandings + match teams
+    const statsMap = new Map<string, {
+      team_id: string;
+      team_name: string;
+      logo_url: string | null;
+      group_name: string | null;
+      played: number;
+      won: number;
+      drawn: number;
+      lost: number;
+      goals_for: number;
+      goals_against: number;
+      goal_difference: number;
+      volleyball_points_for: number;
+      volleyball_points_against: number;
+      points: number;
+    }>();
+
+    for (const tt of enrolledTeams) {
+      const tId = tt.team_id || tt.id;
+      if (!tId) continue;
+      const fallback = fallbackStandings.find((f: any) => f.team_id === tId);
+      const teamObj = Array.isArray(tt.team) ? tt.team[0] : tt.team;
+      statsMap.set(tId, {
+        team_id: tId,
+        team_name: teamObj?.name || tt.team_name || fallback?.team_name || 'Equipo',
+        logo_url: teamObj?.logo_url ?? tt.logo_url ?? fallback?.logo_url ?? null,
+        group_name: tt.group_name ?? fallback?.group_name ?? null,
+        played: 0,
+        won: 0,
+        drawn: 0,
+        lost: 0,
+        goals_for: 0,
+        goals_against: 0,
+        goal_difference: 0,
+        volleyball_points_for: 0,
+        volleyball_points_against: 0,
+        points: 0,
+      });
+    }
+
+    // Filter ONLY finished group/league stage matches (exclude knockout matches!)
+    const finishedGroupMatches = (matches || []).filter((m: any) => {
+      if (m.status !== 'FINISHED') return false;
+      if (m.is_knockout) return false;
+      if (m.stage && m.stage !== 'GROUP' && m.stage !== 'GRUPOS' && m.stage !== 'LEAGUE') return false;
+      return true;
+    });
+
+    for (const m of finishedGroupMatches) {
+      const homeId = m.home_team_id;
+      const awayId = m.away_team_id;
+      const hScore = Number(m.home_score ?? 0);
+      const aScore = Number(m.away_score ?? 0);
+
+      // Calculate volleyball points from sets if available
+      let hVolleyPts = 0;
+      let aVolleyPts = 0;
+      if (Array.isArray(m.match_sets)) {
+        for (const s of m.match_sets) {
+          if (s.status === 'FINISHED') {
+            hVolleyPts += Number(s.home_points ?? 0);
+            aVolleyPts += Number(s.away_points ?? 0);
+          }
+        }
+      }
+
+      const calcPoints = (myScore: number, oppScore: number) => {
+        if (!isVolley) {
+          if (myScore > oppScore) return 3;
+          if (myScore === oppScore) return 1;
+          return 0;
+        } else {
+          if (myScore > oppScore) {
+            if (oppScore === 0 || (myScore === 3 && oppScore === 1)) return 3;
+            if ((myScore === 3 && oppScore === 2) || (myScore === 2 && oppScore === 1)) return 2;
+            return 3;
+          } else if (myScore < oppScore) {
+            if ((oppScore === 3 && myScore === 2) || (oppScore === 2 && myScore === 1)) return 1;
+            return 0;
+          }
+          return 0;
+        }
+      };
+
+      const homeSt = statsMap.get(homeId);
+      if (homeSt) {
+        if (m.home_team?.name && homeSt.team_name === 'Equipo') homeSt.team_name = m.home_team.name;
+        if (m.home_team?.logo_url && !homeSt.logo_url) homeSt.logo_url = m.home_team.logo_url;
+        homeSt.played += 1;
+        if (hScore > aScore) homeSt.won += 1;
+        else if (!isVolley && hScore === aScore) homeSt.drawn += 1;
+        else if (hScore < aScore) homeSt.lost += 1;
+        homeSt.goals_for += hScore;
+        homeSt.goals_against += aScore;
+        homeSt.goal_difference = homeSt.goals_for - homeSt.goals_against;
+        homeSt.volleyball_points_for += hVolleyPts;
+        homeSt.volleyball_points_against += aVolleyPts;
+        homeSt.points += calcPoints(hScore, aScore);
+      }
+
+      const awaySt = statsMap.get(awayId);
+      if (awaySt) {
+        if (m.away_team?.name && awaySt.team_name === 'Equipo') awaySt.team_name = m.away_team.name;
+        if (m.away_team?.logo_url && !awaySt.logo_url) awaySt.logo_url = m.away_team.logo_url;
+        awaySt.played += 1;
+        if (aScore > hScore) awaySt.won += 1;
+        else if (!isVolley && aScore === hScore) awaySt.drawn += 1;
+        else if (aScore < hScore) awaySt.lost += 1;
+        awaySt.goals_for += aScore;
+        awaySt.goals_against += hScore;
+        awaySt.goal_difference = awaySt.goals_for - awaySt.goals_against;
+        awaySt.volleyball_points_for += aVolleyPts;
+        awaySt.volleyball_points_against += hVolleyPts;
+        awaySt.points += calcPoints(aScore, hScore);
+      }
+    }
+
+    return Array.from(statsMap.values()).sort((a, b) => {
+      if (b.points !== a.points) return b.points - a.points;
+      if (b.goal_difference !== a.goal_difference) return b.goal_difference - a.goal_difference;
+      if (b.goals_for !== a.goals_for) return b.goals_for - a.goals_for;
+      const aVP = a.volleyball_points_for - a.volleyball_points_against;
+      const bVP = b.volleyball_points_for - b.volleyball_points_against;
+      if (bVP !== aVP) return bVP - aVP;
+      return a.team_name.localeCompare(b.team_name);
+    });
+  }
 }

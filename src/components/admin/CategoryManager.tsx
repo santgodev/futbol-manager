@@ -42,6 +42,8 @@ interface CategoryManagerProps {
   categories: Category[];
   enrolledTeams: TournamentTeamRow[];
   availableTeams: AvailableTeam[];
+  activeCategoryId?: string | null;
+  onSelectCategory?: (categoryId: string) => void;
   onUpdate: () => void;
   isDisabled?: boolean;
 }
@@ -81,6 +83,8 @@ export function CategoryManager({
   categories,
   enrolledTeams,
   availableTeams,
+  activeCategoryId,
+  onSelectCategory,
   onUpdate,
   isDisabled = false,
 }: CategoryManagerProps) {
@@ -116,13 +120,16 @@ export function CategoryManager({
   const addPreset = async (preset: typeof PRESET_CATEGORIES[0]) => {
     setAddingPreset(preset.name);
     try {
-      await createCategory(tournamentId, {
+      const res = await createCategory(tournamentId, {
         name: preset.name,
         gender: preset.gender,
         min_age: preset.min_age,
         max_age: preset.max_age,
         display_order: categories.length,
       });
+      if (res?.category?.id && onSelectCategory) {
+        onSelectCategory(res.category.id);
+      }
       onUpdate();
     } catch (e: any) {
       setError(e.message);
@@ -136,7 +143,7 @@ export function CategoryManager({
     setSaving(true);
     setError("");
     try {
-      await createCategory(tournamentId, {
+      const res = await createCategory(tournamentId, {
         name: newName.trim(),
         gender: newGender,
         min_age: parseInt(newMinAge) || 0,
@@ -145,6 +152,9 @@ export function CategoryManager({
       });
       setNewName(""); setNewGender("MIXED"); setNewMinAge("0"); setNewMaxAge("");
       setShowNewForm(false);
+      if (res?.category?.id && onSelectCategory) {
+        onSelectCategory(res.category.id);
+      }
       onUpdate();
     } catch (e: any) {
       setError(e.message);
@@ -311,16 +321,21 @@ export function CategoryManager({
           const avail = availableForCategory(cat.id);
           const showEnroll = enrollCategoryId === cat.id;
           const isExpanded = expandedCategories.includes(cat.id) || showEnroll || isEditing;
+          const isActiveCategory = activeCategoryId === cat.id;
 
           return (
             <div
               key={cat.id}
-              className="rounded-2xl border border-[#0055cc]/25 overflow-hidden transition-all duration-300"
-              style={{ background: "rgba(0,17,51,0.6)", backdropFilter: "blur(12px)" }}
+              className={`rounded-2xl border overflow-hidden transition-all duration-300 ${
+                isActiveCategory
+                  ? "border-[#00f0ff]/60 shadow-[0_0_25px_rgba(0,240,255,0.12)]"
+                  : "border-[#0055cc]/25"
+              }`}
+              style={{ background: isActiveCategory ? "rgba(0,30,68,0.75)" : "rgba(0,17,51,0.6)", backdropFilter: "blur(12px)" }}
             >
               {/* Category header */}
               <div 
-                className={`flex items-center gap-3 px-5 py-3.5 cursor-pointer hover:bg-[#0055cc]/10 transition-colors ${isExpanded ? 'border-b border-[#0055cc]/15' : ''}`}
+                className={`flex flex-wrap sm:flex-nowrap items-center gap-3 px-5 py-3.5 cursor-pointer hover:bg-[#0055cc]/10 transition-colors ${isExpanded ? 'border-b border-[#0055cc]/15' : ''}`}
                 onClick={() => { if (!isEditing) toggleCategory(cat.id); }}
               >
                 <div className={`text-[#00f0ff]/50 transition-transform duration-300 ${isExpanded ? 'rotate-90' : ''}`}>
@@ -376,7 +391,7 @@ export function CategoryManager({
                     </>
                   ) : (
                     <>
-                      <div className="flex items-center gap-2 flex-1 min-w-0">
+                      <div className="flex flex-wrap items-center gap-2 flex-1 min-w-0">
                         <span className="text-sm font-black uppercase tracking-wider text-white truncate">
                           {cat.name}
                         </span>
@@ -390,6 +405,23 @@ export function CategoryManager({
                       <span className="text-[10px] text-[#00f0ff]/60 font-bold shrink-0">
                         {catTeams.length} equipo{catTeams.length !== 1 ? "s" : ""}
                       </span>
+                      {onSelectCategory && (
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onSelectCategory(cat.id);
+                            document.getElementById("zona-organizacion-categoria")?.scrollIntoView({ behavior: "smooth", block: "start" });
+                          }}
+                          className={`px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all shrink-0 ${
+                            isActiveCategory
+                              ? "bg-[#00f0ff] text-[#001122] shadow-[0_0_12px_rgba(0,240,255,0.4)]"
+                              : "bg-[#00f0ff]/10 border border-[#00f0ff]/30 text-[#00f0ff] hover:bg-[#00f0ff]/20"
+                          }`}
+                        >
+                          {isActiveCategory ? "✓ Organizando" : "Organizar ↓"}
+                        </button>
+                      )}
                       {!isDisabled && (
                         <>
                           <button

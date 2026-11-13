@@ -66,7 +66,9 @@ export function TournamentTopScorers({ scorers, tournamentId }: { scorers: any[]
               {scorer.photo_url ? (
                 <Image src={scorer.photo_url} alt={scorer.player_name} width={48} height={48} className="object-cover w-full h-full" unoptimized />
               ) : (
-                <span className="text-xs text-white/30">{scorer.number || '-'}</span>
+                <span className="text-xs font-bold text-white/60 uppercase">
+                  {scorer.number ? `#${scorer.number}` : (scorer.player_name ? scorer.player_name.charAt(0) : "⚽")}
+                </span>
               )}
             </div>
 
@@ -78,7 +80,9 @@ export function TournamentTopScorers({ scorers, tournamentId }: { scorers: any[]
                 <span className="text-[10px] text-white/40 uppercase tracking-normal">
                   {scorer.team_name}
                 </span>
-                <span className="text-[9px] text-[#00f0ff]/50 font-mono">#{scorer.number || 'N/A'}</span>
+                {scorer.number ? (
+                  <span className="text-[9px] text-[#00f0ff]/60 font-mono">#{scorer.number}</span>
+                ) : null}
               </div>
             </div>
 

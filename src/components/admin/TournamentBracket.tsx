@@ -174,7 +174,7 @@ function BracketMatchCard({ match }: { match: Match }) {
             </span>
           )}
           {match.status === "FINISHED" && (
-            <span className="text-[9px] font-bold text-white/40 uppercase tracking-widest">Final</span>
+            <span className="text-[9px] font-bold text-emerald-400/70 uppercase tracking-widest">Finalizado</span>
           )}
         </div>
 

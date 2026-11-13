@@ -123,6 +123,7 @@ WITH volleyball_matches AS (
   LEFT JOIN match_sets ms ON ms.match_id = m.id
   WHERE t.sport::text IN ('VOLLEYBALL', 'BEACH_VOLLEYBALL')
     AND m.status = 'FINISHED'
+    AND COALESCE(m.is_knockout, false) = false
   GROUP BY m.id, m.tournament_id, m.home_team_id, m.away_team_id
 ),
 volleyball_rows AS (
@@ -173,6 +174,7 @@ football_rows AS (
   JOIN tournaments t ON t.id = m.tournament_id
   WHERE t.sport::text NOT IN ('VOLLEYBALL', 'BEACH_VOLLEYBALL')
     AND m.status = 'FINISHED'
+    AND COALESCE(m.is_knockout, false) = false
   UNION ALL
   SELECT
     m.tournament_id,
@@ -192,6 +194,7 @@ football_rows AS (
   JOIN tournaments t ON t.id = m.tournament_id
   WHERE t.sport::text NOT IN ('VOLLEYBALL', 'BEACH_VOLLEYBALL')
     AND m.status = 'FINISHED'
+    AND COALESCE(m.is_knockout, false) = false
 ),
 combined_rows AS (
   SELECT

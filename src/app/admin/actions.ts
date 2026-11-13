@@ -1,4 +1,5 @@
 import { createClient } from "@/utils/supabase/client";
+import { CompetitionEngine } from "@/utils/CompetitionEngine";
 
 export * from "./pegasight-actions";
 
@@ -380,6 +381,77 @@ export async function removeTeamFromCategory(
     .eq("category_id", categoryId);
 
   if (error) throw new Error(error.message);
+  return { success: true };
+}
+
+export async function assignOrphanItemsToCategory(
+  tournamentId: string,
+  categoryId: string
+) {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error("No autorizado");
+
+  // 1. Asignar equipos huérfanos (sin category_id) a la categoría seleccionada
+  const { data: orphans } = await supabase
+    .from("tournament_teams")
+    .select("id, team_id")
+    .eq("tournament_id", tournamentId)
+    .is("category_id", null);
+
+  if (orphans && orphans.length > 0) {
+    for (const orphan of orphans) {
+      // Verificar si ya está inscrito en la categoría destino para evitar conflicto unique
+      const { data: existingInCat } = await supabase
+        .from("tournament_teams")
+        .select("id")
+        .eq("tournament_id", tournamentId)
+        .eq("team_id", orphan.team_id)
+        .eq("category_id", categoryId)
+        .maybeSingle();
+
+      if (existingInCat) {
+        await supabase.from("tournament_teams").delete().eq("id", orphan.id);
+      } else {
+        await supabase
+          .from("tournament_teams")
+          .update({ category_id: categoryId })
+          .eq("id", orphan.id);
+      }
+    }
+  }
+
+  // 2. Asignar partidos huérfanos (sin category_id) a la categoría seleccionada
+  await supabase
+    .from("matches")
+    .update({ category_id: categoryId })
+    .eq("tournament_id", tournamentId)
+    .is("category_id", null);
+
+  return { success: true };
+}
+
+export async function removeOrphanItemsFromTournament(tournamentId: string) {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error("No autorizado");
+
+  const { error: ttErr } = await supabase
+    .from("tournament_teams")
+    .delete()
+    .eq("tournament_id", tournamentId)
+    .is("category_id", null);
+
+  if (ttErr) throw new Error("Error limpiando equipos sin categoría: " + ttErr.message);
+
+  const { error: mErr } = await supabase
+    .from("matches")
+    .delete()
+    .eq("tournament_id", tournamentId)
+    .is("category_id", null);
+
+  if (mErr) throw new Error("Error limpiando partidos sin categoría: " + mErr.message);
+
   return { success: true };
 }
 
@@ -941,7 +1013,7 @@ export async function generateKnockoutBracket(tournamentId: string, categoryId: 
   // Validar formato del torneo
   const { data: tournament, error: tErr } = await supabase
     .from('tournaments')
-    .select('format, is_double_round')
+    .select('format, is_double_round, sport')
     .eq('id', tournamentId)
     .single();
 
@@ -1087,19 +1159,11 @@ export async function generateKnockoutBracket(tournamentId: string, categoryId: 
     
     topTeams = ttTeams.map((t: any) => t.team_id);
   } else {
-    const { data: standings, error: standingsErr } = await supabase
-      .from('tournament_standings_view')
-      .select('team_id, group_name')
-      .eq('tournament_id', tournamentId)
-      .order('points', { ascending: false })
-      .order('goal_difference', { ascending: false })
-      .order('goals_for', { ascending: false });
-
-    if (standingsErr) throw new Error("Error obteniendo tabla de posiciones");
-    
-    // Filtramos los standings a solo los equipos de esta categoría si aplica
-    const validTeamIds = new Set(registeredTeams.map((rt: any) => rt.team_id));
-    const filteredStandings = standings.filter((st: any) => validTeamIds.has(st.team_id));
+    const filteredStandings = CompetitionEngine.calculateGroupStandings(
+      registeredTeams,
+      groupMatches || [],
+      tournament.sport || 'FOOTBALL'
+    );
 
     // Agrupar los standings por grupo
     const grouped: Record<string, any[]> = {};
@@ -1601,21 +1665,22 @@ export async function bulkCreateAndEnrollTeams(
   for (const rawName of names) {
     const cleanName = sanitizeTeamName(rawName);
 
-    // 1. Check if team exists
+    // 1. Check if team exists in this tournament
     let teamId: string;
     const { data: existingTeam } = await supabase
       .from("teams")
       .select("id")
+      .eq("tournament_id", tournamentId)
       .ilike("name", cleanName)
       .maybeSingle();
 
     if (existingTeam) {
       teamId = existingTeam.id;
     } else {
-      // Create team
+      // Create team linked to this tournament
       const { data: newTeam, error: createError } = await supabase
         .from("teams")
-        .insert({ name: cleanName, created_by: user.id })
+        .insert({ name: cleanName, tournament_id: tournamentId, created_by: user.id })
         .select("id")
         .single();
       if (createError) {

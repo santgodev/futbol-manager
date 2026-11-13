@@ -7,6 +7,7 @@ import { PublicGroupStandings } from "./PublicGroupStandings";
 import { RankingTab } from "./RankingTab";
 import { KnockoutBracket } from "./KnockoutBracket";
 import { PublicTeamModal } from "./PublicTeamModal";
+import { CompetitionEngine } from "@/utils/CompetitionEngine";
 
 interface StandingRow {
   team_id: string;
@@ -183,10 +184,18 @@ export function TournamentTabsView({ tournament, categories, matches, standings 
   }, [matches, activeCategoryId]);
 
   const activeStandings = useMemo(() => {
+    if (activeTeams.length > 0) {
+      return CompetitionEngine.calculateGroupStandings(
+        activeTeams,
+        activeMatches,
+        tournament?.sport || "FOOTBALL",
+        standings
+      );
+    }
     return activeCategoryId
       ? standings.filter((s) => activeTeams.some((tt) => tt.team_id === s.team_id))
       : standings;
-  }, [standings, activeTeams, activeCategoryId]);
+  }, [standings, activeTeams, activeMatches, activeCategoryId, tournament?.sport]);
 
   const activePhase = useMemo(() => getActivePhase(activeMatches), [activeMatches]);
 

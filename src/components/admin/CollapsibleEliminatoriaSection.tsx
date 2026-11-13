@@ -10,6 +10,7 @@ interface CollapsibleEliminatoriaSectionProps {
   matches: any[];
   id: string;
   categoryId?: string | null;
+  categoryName?: string | null;
   teamsCount: number;
   groupMatchesPending: number;
   groupMatchesPlayed: number;
@@ -22,6 +23,7 @@ export function CollapsibleEliminatoriaSection({
   matches,
   id,
   categoryId,
+  categoryName,
   teamsCount,
   groupMatchesPending,
   groupMatchesPlayed,
@@ -33,17 +35,22 @@ export function CollapsibleEliminatoriaSection({
   const [isOpen, setIsOpen] = useState(isGroupStageComplete || hasKnockoutMatches);
 
   return (
-    <section className="relative rounded-2xl overflow-hidden border border-[#00f0ff]/15" style={{ background: "rgba(0,17,51,0.6)", backdropFilter: "blur(16px)" }}>
+    <section id="seccion-eliminatorias" className="relative rounded-2xl overflow-hidden border border-[#00f0ff]/15 scroll-mt-44" style={{ background: "rgba(0,17,51,0.6)", backdropFilter: "blur(16px)" }}>
       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#00f0ff]/60 to-transparent" />
       
       <div 
-        className="flex items-center gap-3 px-6 py-4 border-b border-[#00f0ff]/10 cursor-pointer hover:bg-[#001122]/40 transition-colors"
+        className="flex flex-wrap items-center gap-3 px-6 py-4 border-b border-[#00f0ff]/10 cursor-pointer hover:bg-[#001122]/40 transition-colors"
         onClick={() => setIsOpen(!isOpen)}
       >
         <div className="p-1.5 rounded-lg border border-[#0055cc]/30" style={{ background: "rgba(0,34,102,0.5)" }}>
           <Trophy size={14} className="text-[#00f0ff]" />
         </div>
-        <h2 className="text-xs font-black uppercase tracking-[0.2em] text-white">Eliminatorias</h2>
+        <h2 className="text-xs font-black uppercase tracking-[0.2em] text-white">5. Eliminatorias</h2>
+        {categoryName && (
+          <span className="text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-[#00f0ff]/15 border border-[#00f0ff]/40 text-[#00f0ff]">
+            Organizando: Categoría {categoryName}
+          </span>
+        )}
         
         {!isGroupStageComplete && !hasKnockoutMatches && (
           <span className="ml-2 text-[9px] font-bold uppercase tracking-widest text-amber-500 bg-amber-500/10 border border-amber-500/20 px-2.5 py-1 rounded-full whitespace-nowrap">

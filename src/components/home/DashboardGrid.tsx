@@ -64,12 +64,59 @@ export const DashboardGrid = ({ tournamentId }: { tournamentId?: string }) => {
             .eq("tournament_id", activeTournament.id)
             .order("goals", { ascending: false })
             .limit(5);
-          if (scrData) scorers = scrData;
+          if (scrData && scrData.length > 0) {
+            scorers = scrData;
+          } else {
+            // Fallback: Si hubo goles aprobados por Anotador antes del fix (en match_results.sets_data o match_events)
+            const { data: approvedResults } = await supabase
+              .from("match_results")
+              .select("sets_data, match:match_id(home_team_id, away_team_id, home_team:teams!matches_home_team_id_fkey(name), away_team:teams!matches_away_team_id_fkey(name))")
+              .eq("tournament_id", activeTournament.id)
+              .eq("status", "APPROVED");
+
+            const fallbackMap = new Map<string, any>();
+            for (const r of approvedResults || []) {
+              if (!r.sets_data) continue;
+              try {
+                const evs = typeof r.sets_data === "string" ? JSON.parse(r.sets_data) : r.sets_data;
+                if (!Array.isArray(evs)) continue;
+                const mInfo: any = Array.isArray(r.match) ? r.match[0] : r.match;
+                for (const ev of evs) {
+                  if (ev.type === "GOAL") {
+                    const pId = ev.player_id || ev.player?.name || "anon";
+                    const pName = ev.player?.name || ev.description || "Jugador";
+                    const tName =
+                      ev.team_id === mInfo?.home_team_id
+                        ? mInfo?.home_team?.name
+                        : ev.team_id === mInfo?.away_team_id
+                        ? mInfo?.away_team?.name
+                        : "";
+                    const cur = fallbackMap.get(pId) || {
+                      player_id: pId,
+                      player_name: pName,
+                      team_id: ev.team_id,
+                      team_name: tName || "Equipo",
+                      goals: 0,
+                      number: ev.player?.number || null,
+                      photo_url: null,
+                    };
+                    cur.goals += 1;
+                    fallbackMap.set(pId, cur);
+                  }
+                }
+              } catch {
+                // ignore malformed JSON
+              }
+            }
+            scorers = Array.from(fallbackMap.values())
+              .sort((a, b) => b.goals - a.goals)
+              .slice(0, 5);
+          }
 
           const { data: matchesData } = await supabase
             .from("matches")
             .select(`
-              id, match_date, match_time, status, stage,
+              id, home_team_id, away_team_id, match_date, match_time, status, stage,
               home_team:teams!matches_home_team_id_fkey(name, logo_url),
               away_team:teams!matches_away_team_id_fkey(name, logo_url)
             `)

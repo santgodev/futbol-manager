@@ -499,8 +499,8 @@ export async function approveMatchResultAction(resultId: string) {
   const supabase = await createClient();
 
   const { data: submission } = await supabase
-    .from("match_result_submissions")
-    .select("match_id, sets_data, matches(tournament_id)")
+    .from("match_results")
+    .select("match_id, tournament_id, sets_data")
     .eq("id", resultId)
     .single();
 
@@ -512,39 +512,136 @@ export async function approveMatchResultAction(resultId: string) {
     throw new Error(error.message);
   }
 
-  // Process drafted events
+  // Process drafted events (goles / tarjetas capturados por el Anotador)
   if (submission && submission.sets_data) {
-     try {
-       const events = typeof submission.sets_data === 'string' 
-         ? JSON.parse(submission.sets_data) 
-         : submission.sets_data;
-       
-       if (Array.isArray(events)) {
-         const tournamentId = (submission.matches as any)?.tournament_id;
-         
-          const { error: delError } = await supabase.from("match_events").delete().eq("match_id", submission.match_id);
-          if (delError) console.error("Error deleting old events", delError);
+    try {
+      const events = typeof submission.sets_data === "string"
+        ? JSON.parse(submission.sets_data)
+        : submission.sets_data;
 
-          if (events.length > 0) {
-            const newEvents = events.map(ev => ({
+      if (Array.isArray(events)) {
+        const tournamentId = submission.tournament_id;
+
+        // 1. Obtener eventos anteriores del partido para restar goles previos si era una re-aprobación
+        const { data: prevEvents } = await supabase
+          .from("match_events")
+          .select("player_id, type")
+          .eq("match_id", submission.match_id);
+
+        if (prevEvents && prevEvents.length > 0) {
+          for (const prev of prevEvents) {
+            if (prev.type === "GOAL" && prev.player_id) {
+              const { data: tp } = await supabase
+                .from("tournament_players")
+                .select("goals")
+                .eq("tournament_id", tournamentId)
+                .eq("player_id", prev.player_id)
+                .maybeSingle();
+              if (tp) {
+                await supabase
+                  .from("tournament_players")
+                  .update({ goals: Math.max(0, (tp.goals || 0) - 1) })
+                  .eq("tournament_id", tournamentId)
+                  .eq("player_id", prev.player_id);
+              }
+            }
+          }
+        }
+
+        const { error: delError } = await supabase
+          .from("match_events")
+          .delete()
+          .eq("match_id", submission.match_id);
+        if (delError) console.error("Error deleting old events", delError);
+
+        if (events.length > 0) {
+          const newEvents: any[] = [];
+
+          for (const ev of events) {
+            let resolvedPlayerId = ev.player_id || null;
+            const playerName = (ev.player?.name || ev.description || "").trim();
+
+            // Si el Anotador ingresó el nombre del goleador pero RLS no le permitió crear el registro en players, el Admin lo crea/vincula aquí al aprobar
+            if (!resolvedPlayerId && playerName && playerName !== "Jugador Desconocido" && ev.team_id) {
+              const { data: existingPlayer } = await supabase
+                .from("players")
+                .select("id")
+                .eq("team_id", ev.team_id)
+                .ilike("name", playerName)
+                .maybeSingle();
+
+              if (existingPlayer) {
+                resolvedPlayerId = existingPlayer.id;
+              } else {
+                const { data: createdPlayer } = await supabase
+                  .from("players")
+                  .insert({
+                    name: playerName,
+                    team_id: ev.team_id,
+                    created_by: profile.id,
+                    is_active: true,
+                  })
+                  .select("id")
+                  .single();
+                if (createdPlayer) {
+                  resolvedPlayerId = createdPlayer.id;
+                }
+              }
+            }
+
+            newEvents.push({
               match_id: submission.match_id,
               tournament_id: tournamentId,
               team_id: ev.team_id,
-              player_id: ev.player_id || null,
+              player_id: resolvedPlayerId,
               type: ev.type,
               minute: ev.minute || null,
-              description: ev.player?.name || 'Jugador Desconocido',
+              description: playerName || "Jugador Desconocido",
               created_at: ev.created_at || new Date().toISOString(),
-              created_by: profile.id
-            }));
+              created_by: profile.id,
+            });
+          }
 
-            const { error: insError } = await supabase.from("match_events").insert(newEvents);
-            if (insError) console.error("Error inserting new events", insError);
+          const { error: insError } = await supabase.from("match_events").insert(newEvents);
+          if (insError) console.error("Error inserting new events", insError);
+
+          // 2. Sumar los goles aprobados en tournament_players para que aparezcan en la tabla de Goleadores
+          const goalsByPlayer = new Map<string, { count: number; teamId: string }>();
+          for (const ev of newEvents) {
+            if (ev.type === "GOAL" && ev.player_id) {
+              const prev = goalsByPlayer.get(ev.player_id) || { count: 0, teamId: ev.team_id };
+              goalsByPlayer.set(ev.player_id, { count: prev.count + 1, teamId: ev.team_id });
+            }
+          }
+
+          for (const [playerId, info] of goalsByPlayer.entries()) {
+            const { data: tp } = await supabase
+              .from("tournament_players")
+              .select("goals")
+              .eq("tournament_id", tournamentId)
+              .eq("player_id", playerId)
+              .maybeSingle();
+
+            if (tp) {
+              await supabase
+                .from("tournament_players")
+                .update({ goals: (tp.goals || 0) + info.count })
+                .eq("tournament_id", tournamentId)
+                .eq("player_id", playerId);
+            } else {
+              await supabase.from("tournament_players").insert({
+                tournament_id: tournamentId,
+                player_id: playerId,
+                team_id: info.teamId,
+                goals: info.count,
+              });
+            }
           }
         }
-     } catch (e) {
-       console.error("Error processing drafted events:", e);
-     }
+      }
+    } catch (e) {
+      console.error("Error processing drafted events:", e);
+    }
   }
 
   revalidatePath("/admin/pending-results");
